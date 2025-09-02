@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:64401",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "D:\\db_design\\db_design.Server\\..\\db_design.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}

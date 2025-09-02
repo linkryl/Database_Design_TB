@@ -1,0 +1,73 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\db_design\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\views\\mytreehole.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|solutionrelative:db_design.client\\src\\views\\mytreehole.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\views\\ucenterpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|solutionrelative:db_design.client\\src\\views\\ucenterpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\router\\index.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|solutionrelative:db_design.client\\src\\router\\index.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MyTreeHole.vue",
+              "DocumentMoniker": "D:\\db_design\\db_design.client\\src\\views\\MyTreeHole.vue",
+              "RelativeDocumentMoniker": "db_design.client\\src\\views\\MyTreeHole.vue",
+              "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\MyTreeHole.vue",
+              "RelativeToolTip": "db_design.client\\src\\views\\MyTreeHole.vue",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAJAAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
+              "WhenOpened": "2025-08-31T04:44:07.311Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UcenterPage.vue",
+              "DocumentMoniker": "D:\\db_design\\db_design.client\\src\\views\\UcenterPage.vue",
+              "RelativeDocumentMoniker": "db_design.client\\src\\views\\UcenterPage.vue",
+              "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\UcenterPage.vue",
+              "RelativeToolTip": "db_design.client\\src\\views\\UcenterPage.vue",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAAAFsAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
+              "WhenOpened": "2025-08-27T04:24:03.953Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "index.js",
+              "DocumentMoniker": "D:\\db_design\\db_design.client\\src\\router\\index.js",
+              "RelativeDocumentMoniker": "db_design.client\\src\\router\\index.js",
+              "ToolTip": "D:\\db_design\\db_design.client\\src\\router\\index.js",
+              "RelativeToolTip": "db_design.client\\src\\router\\index.js",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAqwB0AAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-08-31T14:24:03.165Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

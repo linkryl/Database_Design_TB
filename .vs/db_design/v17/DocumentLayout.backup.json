@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "D:\\db_design\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\views\\myfavoritepostpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|solutionrelative:db_design.client\\src\\views\\myfavoritepostpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\views\\chatpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|solutionrelative:db_design.client\\src\\views\\chatpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DB14909A-0217-4AF9-97A8-720AC6D83D69}|db_design.client\\db_design.client.esproj|d:\\db_design\\db_design.client\\src\\views\\ucenterpage.vue||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -35,14 +35,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "MyFavoritePostPage.vue",
-              "DocumentMoniker": "D:\\db_design\\db_design.client\\src\\views\\MyFavoritePostPage.vue",
-              "RelativeDocumentMoniker": "db_design.client\\src\\views\\MyFavoritePostPage.vue",
-              "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\MyFavoritePostPage.vue",
-              "RelativeToolTip": "db_design.client\\src\\views\\MyFavoritePostPage.vue",
-              "ViewState": "AgIAACkAAAAAAAAAAAAuwDYAAAATAAAAAAAAAA==",
+              "Title": "ChatPage.vue",
+              "DocumentMoniker": "D:\\db_design\\db_design.client\\src\\views\\ChatPage.vue",
+              "RelativeDocumentMoniker": "db_design.client\\src\\views\\ChatPage.vue",
+              "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\ChatPage.vue",
+              "RelativeToolTip": "db_design.client\\src\\views\\ChatPage.vue",
+              "ViewState": "AgIAAEwBAAAAAAAAAAAuwGcBAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
-              "WhenOpened": "2025-09-01T06:31:24.973Z",
+              "WhenOpened": "2025-09-06T07:20:13.941Z",
               "EditorCaption": ""
             },
             {
@@ -53,7 +53,7 @@
               "RelativeDocumentMoniker": "db_design.client\\src\\views\\MyTreeHole.vue",
               "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\MyTreeHole.vue",
               "RelativeToolTip": "db_design.client\\src\\views\\MyTreeHole.vue",
-              "ViewState": "AgIAAGMAAAAAAAAAAAAAAJAAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAGEAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
               "WhenOpened": "2025-08-31T04:44:07.311Z"
             },
@@ -65,7 +65,7 @@
               "RelativeDocumentMoniker": "db_design.client\\src\\views\\UcenterPage.vue",
               "ToolTip": "D:\\db_design\\db_design.client\\src\\views\\UcenterPage.vue",
               "RelativeToolTip": "db_design.client\\src\\views\\UcenterPage.vue",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAAAFsAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAADMAAAB2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003491|",
               "WhenOpened": "2025-08-27T04:24:03.953Z"
             },

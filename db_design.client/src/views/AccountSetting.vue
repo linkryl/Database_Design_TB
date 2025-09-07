@@ -10,7 +10,7 @@
                  v-bind:disabled="!usernameEdit"
                  type="text"
                  v-bind:placeholder="myform.username" />
-          <button class="btn-text" @click="toggleUsername">
+          <button type="button" class="btn-text" @click="toggleUsername">
             {{usernameEdit ? "确 认" : "修 改"}}
           </button>
         </div>
@@ -41,7 +41,7 @@
                  v-bind:disabled="!phoneEdit"
                  type="tel"
                  v-bind:placeholder="myform.phone" />
-          <button class="btn-text" @click="togglePhone">
+          <button type="button" class="btn-text" @click="togglePhone">
             {{phoneEdit ? "确 认" : "修 改"}}
           </button>
         </div>

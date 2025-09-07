@@ -123,6 +123,7 @@
         this.selectMode = !this.selectMode
         this.selectedRows = []
         this.hoverIndex = -1
+        this.isAllSelected = false
       },
       toggleSelectAll() {
         if (this.isAllSelected) {
@@ -150,7 +151,7 @@
         if(typeof date === "string") return date;//测试时直接写死string类型的日期
         const d = new Date(date);
         const pad = (x) => x.toString().padStart(2,"0");
-        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate)} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
       },
       ellipsis(str,max) {
         if (!str) return "";
@@ -208,7 +209,7 @@
       top: 0;
       background: #52acfe;
       color:#ffffff;
-      z-index: 1;
+      z-index: 20;
       width: 100%;
       box-sizing: border-box;
   }
@@ -237,14 +238,16 @@
     width: 30%;
   }
 
-  .favorite-post-table th,
-  .favorite-post-table td {
+    .favorite-post-table th,
+    .favorite-post-table td {
       border-right: 1px solid #e5e5e5;
       border-bottom: 1px solid #e5e5e5;
       padding: 6px 8px;
       text-align: left;
-      box-sizing:border-box;
-  }
+      box-sizing: border-box;
+      display: inline-block;
+      height: 34px;
+    }
 
   .favorite-post-table th:last-child,
   .favorite-post-table td:last-child {

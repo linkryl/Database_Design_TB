@@ -24,7 +24,7 @@ interface PetCategory {
 }
 
 export const apiBaseUrl = '[TODO: apiBaseUrl]'
-export const ossBaseUrl = '[TODO: ossBaseUrl]'
+export const ossBaseUrl = 'src/assets/'
 export const gaodeAccessKey = '[TODO: gaodeAccessKey]'
 export const isProgressVisible = ref(false)
 export const tourRef1 = ref<Instance>()

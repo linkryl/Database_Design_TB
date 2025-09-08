@@ -4,18 +4,18 @@
 -->
 
 <template>
-  <el-container class='footer-navbar'>
+  <el-container class='FooterNavbar'>
     <a href='https://sse.tongji.edu.cn' target='_blank'>
       <img :src='`${ossBaseUrl}LogosAndIcons/TongjiSSELogo.png`'
-           class='footer-sse-logo-left'
+           class='FooterSseLogoLeft'
            alt='TongjiSSELogo'
            height='40px'/>
     </a>
 
-    <a href='https://github.com/MinmusLin/PetJoy' target='_blank'>
+    <a href='https://github.com/linkryl/Database_Design_TB' target='_blank'>
       <el-tooltip :content="t('FooterNavbar.GitHubRepository')" placement='top'>
         <img :src='`${ossBaseUrl}LogosAndIcons/GitHubLogo.png`'
-             class='footer-github-logo-right'
+             class='FooterGithubLogoRight'
              alt='GitHubLogo'
              height='40px'/>
       </el-tooltip>
@@ -23,10 +23,9 @@
 
     <div class='footer-content'>
       <p>{{ t('FooterNavbar.ProjectDescription') }}</p>
-      <p v-html="t('FooterNavbar.CopyrightStatement')"/>
       <p>
-        <el-link :underline='false' class='footer-link' @click="router.push('/about-petjoy')">
-          {{ t('FooterNavbar.AboutPetJoy') }}
+        <el-link :underline='false' class='footer-link' @click="router.push('/about-TreeHole')">
+          {{ t('FooterNavbar.AboutTreeHole') }}
         </el-link>
       </p>
     </div>
@@ -90,14 +89,14 @@ const router = useRouter()
   color: var(--footer-link-hover-color);
 }
 
-.footer-sse-logo-left {
+.FooterSseLogoLeft {
   position: absolute;
   left: 15px;
   bottom: 15px;
   filter: var(--footer-sse-logo-filter);
 }
 
-.footer-github-logo-right {
+.FooterGithubLogoRight {
   position: absolute;
   right: 15px;
   bottom: 15px;

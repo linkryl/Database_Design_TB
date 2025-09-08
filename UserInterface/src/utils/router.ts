@@ -55,15 +55,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/404',
-        name: 'NotFoundPage',
-        // @ts-ignore
-        component: () => import('../views/NotFoundPage.vue'),
-        meta: {
-            title: 'RouterTitle.NotFoundPage'
-        }
-    },
-    {
         path: '/pet-community',
         name: 'PetCommunityPage',
         // @ts-ignore

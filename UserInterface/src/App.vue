@@ -1,10 +1,6 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     App.vue
-  File Function: 父组件
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-07-24
-  License:       Creative Commons Attribution 4.0 International License
+父组件
+TreeHole制作组
 -->
 
 <template>

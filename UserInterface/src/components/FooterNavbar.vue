@@ -24,7 +24,7 @@
     </a>
 
     <div class='footer-content'>
-      <p>{{ t('FooterNavbar.ProjectDescription') }}</p>
+      <p>TreeHole：树洞，为学生提供的一站式交流平台！</p>
     </div>
 
   </el-container>
@@ -32,10 +32,8 @@
 </template>
 
 <script setup lang='ts'>
-import {useI18n} from 'vue-i18n'
 import {ossBaseUrl} from '../globals'
 
-const {t} = useI18n()
 </script>
 
 <style scoped>

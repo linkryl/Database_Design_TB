@@ -1,11 +1,7 @@
 /*
- * Project Name:  UserInterface
- * File Name:     globals.ts
- * File Function: 全局变量文件
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-09-02
- * License:       Creative Commons Attribution 4.0 International License
- */
+全局变量文件
+TreeHole制作组
+*/
 
 import {ref} from 'vue'
 import type {Instance} from 'element-plus'

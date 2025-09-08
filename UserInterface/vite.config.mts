@@ -1,11 +1,7 @@
 /*
- * Project Name:  UserInterface
- * File Name:     vite.config.mts
- * File Function: Vite 构建工具配置文件
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-08-20
- * License:       Creative Commons Attribution 4.0 International License
- */
+Vite 构建工具配置文件
+TreeHole制作组
+*/
 
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'

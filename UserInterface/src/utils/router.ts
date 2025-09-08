@@ -1,11 +1,7 @@
 /*
- * Project Name:  UserInterface
- * File Name:     router.ts
- * File Function: Vue Router 配置文件
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-09-07
- * License:       Creative Commons Attribution 4.0 International License
- */
+Vue Router 配置文件
+TreeHole制作组
+*/
 
 import {createRouter, RouteRecordRaw, Router, createWebHistory} from 'vue-router'
 import {isProgressVisible} from '../globals'

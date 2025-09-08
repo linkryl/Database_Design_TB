@@ -5,9 +5,10 @@
 
 <template>
   <el-menu :default-active='activeIndex' class='header-navbar' mode='horizontal' :ellipsis='false'>
+
     <el-container ref='tourRef1' class='logo-title' @click="router.push('/')">
-      <img :src='`${ossBaseUrl}LogosAndIcons/PetJoyIcon.png`' style='height: 45px; margin-left: 10px' alt='PetJoyIcon'>
-      <h1 style='white-space: nowrap'>宠悦 PetJoy</h1>
+      <img :src='`${ossBaseUrl}LogosAndIcons/TreeHoleLogo.png`' style='height: 45px; margin-left: 10px' alt='TreeHoleLogo'>
+      <h1 style='white-space: nowrap'>树洞 Treehole</h1>
     </el-container>
 
     <el-menu-item ref='tourRef2' index='1' class='navbar-item' @click="router.push('/pet-community')">

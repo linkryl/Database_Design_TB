@@ -8,7 +8,6 @@ import type {Instance} from 'element-plus'
 
 export const apiBaseUrl = '[TODO: apiBaseUrl]'
 export const ossBaseUrl = 'src/assets/'
-export const gaodeAccessKey = '[TODO: gaodeAccessKey]'
 export const isProgressVisible = ref(false)
 export const tourRef1 = ref<Instance>()
 export const tourRef2 = ref<Instance>()

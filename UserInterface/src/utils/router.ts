@@ -78,7 +78,7 @@ router.beforeEach((to, _, next) => {
     if (to.meta && to.meta.title) {
         document.title = to.meta.title as string
     } else {
-        document.title = 'PetJoy'
+        document.title = 'TreeHole'
     }
     isProgressVisible.value = true
     setTimeout(() => {

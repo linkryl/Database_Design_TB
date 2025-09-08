@@ -37,42 +37,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/adoption/:id',
-        name: 'AdoptionPage',
-        // @ts-ignore
-        component: () => import('../views/AdoptionPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetAdoptionPage'
-        }
-    },
-    {
-        path: '/change-telephone',
-        name: 'ChangeTelephonePage',
-        // @ts-ignore
-        component: () => import('../views/ChangeTelephonePage.vue'),
-        meta: {
-            title: 'RouterTitle.ChangeTelephonePage'
-        }
-    },
-    {
-        path: '/delete-account',
-        name: 'DeleteAccountPage',
-        // @ts-ignore
-        component: () => import('../views/DeleteAccountPage.vue'),
-        meta: {
-            title: 'RouterTitle.DeleteAccountPage'
-        }
-    },
-    {
-        path: '/edit-news/:id',
-        name: 'EditNewsPage',
-        // @ts-ignore
-        component: () => import('../views/EditNewsPage.vue'),
-        meta: {
-            title: 'RouterTitle.EditNewsPage'
-        }
-    },
-    {
         path: '/home',
         name: 'HomePage',
         // @ts-ignore
@@ -91,66 +55,12 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/news-comment-report-management',
-        name: 'NewsCommentReportManagementPage',
-        // @ts-ignore
-        component: () => import('../views/NewsCommentReportManagementPage.vue'),
-        meta: {
-            title: 'RouterTitle.NewsCommentReportManagementPage'
-        }
-    },
-    {
-        path: '/news-management',
-        name: 'NewsManagementPage',
-        // @ts-ignore
-        component: () => import('../views/NewsManagementPage.vue'),
-        meta: {
-            title: 'RouterTitle.NewsManagementPage'
-        }
-    },
-    {
-        path: '/news/:id',
-        name: 'NewsPage',
-        // @ts-ignore
-        component: () => import('../views/NewsPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetNewsPage'
-        }
-    },
-    {
         path: '/404',
         name: 'NotFoundPage',
         // @ts-ignore
         component: () => import('../views/NotFoundPage.vue'),
         meta: {
             title: 'RouterTitle.NotFoundPage'
-        }
-    },
-    {
-        path: '/pet-adoption',
-        name: 'PetAdoptionPage',
-        // @ts-ignore
-        component: () => import('../views/PetAdoptionPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetAdoptionPage'
-        }
-    },
-    {
-        path: '/pet-ai',
-        name: 'PetAIPage',
-        // @ts-ignore
-        component: () => import('../views/PetAIPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetAIPage'
-        }
-    },
-    {
-        path: '/pet-care',
-        name: 'PetCarePage',
-        // @ts-ignore
-        component: () => import('../views/PetCarePage.vue'),
-        meta: {
-            title: 'RouterTitle.PetCarePage'
         }
     },
     {
@@ -163,66 +73,12 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/pet-encyclopedia',
-        name: 'PetEncyclopediaPage',
-        // @ts-ignore
-        component: () => import('../views/PetEncyclopediaPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetEncyclopediaPage'
-        }
-    },
-    {
-        path: '/pet-category/:id',
-        name: 'PetCategoryPage',
-        // @ts-ignore
-        component: () => import('../views/PetCategoryPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetEncyclopediaPage'
-        }
-    },
-    {
-        path: '/pet-subcategory/:id',
-        name: 'PetSubcategoryPage',
-        // @ts-ignore
-        component: () => import('../views/PetSubcategoryPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetEncyclopediaPage'
-        }
-    },
-    {
-        path: '/post-comment-report-management',
-        name: 'PostCommentReportManagementPage',
-        // @ts-ignore
-        component: () => import('../views/PostCommentReportManagementPage.vue'),
-        meta: {
-            title: 'RouterTitle.PostCommentReportManagementPage'
-        }
-    },
-    {
         path: '/post/:id',
         name: 'PostPage',
         // @ts-ignore
         component: () => import('../views/PostPage.vue'),
         meta: {
             title: 'RouterTitle.PetCommunityPage'
-        }
-    },
-    {
-        path: '/post-report-management',
-        name: 'PostReportManagementPage',
-        // @ts-ignore
-        component: () => import('../views/PostReportManagementPage.vue'),
-        meta: {
-            title: 'RouterTitle.PostReportManagementPage'
-        }
-    },
-    {
-        path: '/pet-news',
-        name: 'PetNewsPage',
-        // @ts-ignore
-        component: () => import('../views/PetNewsPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetNewsPage'
         }
     },
     {
@@ -235,15 +91,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/publish-news',
-        name: 'PublishNews',
-        // @ts-ignore
-        component: () => import('../views/PublishNewsPage.vue'),
-        meta: {
-            title: 'RouterTitle.PublishNewsPage'
-        }
-    },
-    {
         path: '/register',
         name: 'RegisterPage',
         // @ts-ignore
@@ -252,33 +99,6 @@ const routes: Array<RouteRecordRaw> = [
             title: 'RouterTitle.RegisterPage'
         }
     },
-    {
-        path: '/reset-password',
-        name: 'ResetPasswordPage',
-        // @ts-ignore
-        component: () => import('../views/ResetPasswordPage.vue'),
-        meta: {
-            title: 'RouterTitle.ResetPasswordPage'
-        }
-    },
-    {
-        path: '/settings',
-        name: 'SettingsPage',
-        // @ts-ignore
-        component: () => import('../views/SettingsPage.vue'),
-        meta: {
-            title: 'RouterTitle.SettingsPage'
-        }
-    },
-    {
-        path: '/user-feedback-management',
-        name: 'UserFeedbackManagementPage',
-        // @ts-ignore
-        component: () => import('../views/UserFeedbackManagementPage.vue'),
-        meta: {
-            title: 'RouterTitle.UserFeedbackManagementPage'
-        }
-    }
 ]
 
 const router: Router = createRouter({

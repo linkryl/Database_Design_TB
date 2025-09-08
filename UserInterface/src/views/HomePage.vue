@@ -1,10 +1,6 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     HomePage.vue
-  File Function: 主页页面
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-09-04
-  License:       Creative Commons Attribution 4.0 International License
+主页页面
+2342301 古振
 -->
 
 <template>
@@ -136,54 +132,7 @@
              class='tour-guide-ai-image'/>
       </div>
     </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef1?.$el' :title="t('HomePage.TourRefTitle1')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent1') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef2?.$el' :title="t('HomePage.TourRefTitle2')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent2') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef3?.$el' :title="t('HomePage.TourRefTitle3')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent3') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef4?.$el' :title="t('HomePage.TourRefTitle4')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent4') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef5?.$el' :title="t('HomePage.TourRefTitle5')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent5') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef6?.$el' :title="t('HomePage.TourRefTitle6')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent6') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef7?.$el' :title="t('HomePage.TourRefTitle7')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent7') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef8?.$el' :title="t('HomePage.TourRefTitle8')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent8') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef9?.$el' :title="t('HomePage.TourRefTitle9')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent9') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef10?.$el' :title="t('HomePage.TourRefTitle10')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent10') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef11?.$el' :title="t('HomePage.TourRefTitle11')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent11') }}</div>
-    </el-tour-step>
-    <!--suppress TypeScriptUnresolvedReference-->
-    <el-tour-step :target='tourRef12?.$el' :title="t('HomePage.TourRefTitle12')">
-      <div class='tour-guide-content'>{{ t('HomePage.TourRefContent12') }}</div>
-    </el-tour-step>
+
   </el-tour>
 </template>
 
@@ -194,18 +143,6 @@ import router from '../utils/router'
 import GlobalSearchBox from '../components/GlobalSearchBox.vue'
 import {
   ossBaseUrl,
-  tourRef1,
-  tourRef2,
-  tourRef3,
-  tourRef4,
-  tourRef5,
-  tourRef6,
-  tourRef7,
-  tourRef8,
-  tourRef9,
-  tourRef10,
-  tourRef11,
-  tourRef12,
   showGuidedTour
 } from '../globals'
 import {MoreFilled} from '@element-plus/icons-vue'

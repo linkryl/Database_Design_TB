@@ -10,7 +10,7 @@
 <template>
   <div class='post-container' @click='router.push(`/post/${props.postId}`)'>
     <div class='post-title-container'>
-      <h1 class='post-title'>{{ postData.title }}</h1>
+      <h1 class='post-title'>{{ postData.title }}</h1>  
       <img v-if='postData.isSticky'
            :src='`${ossBaseUrl}LogosAndIcons/Stick.png`'
            alt='StickyIcon'

@@ -130,7 +130,6 @@
       <PostCommentCard v-for='comment in paginatedComments'
                        :comment='comment'
                        :id='postId'
-                       :user='comment.commentUserId'
                        :post-user='postData.userId'/>
     </div>
   </div>
@@ -143,7 +142,6 @@ import {onMounted, ref, watch, computed} from 'vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 import {ossBaseUrl, formatDateTimeToCST} from '../globals'
-import PostCommentCard from '../components/PostCommentCard.vue'
 import {useRouter} from 'vue-router'
 
 const {t} = useI18n()

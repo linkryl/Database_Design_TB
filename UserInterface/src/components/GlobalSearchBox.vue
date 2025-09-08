@@ -1,10 +1,6 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     GlobalSearchBox.vue
-  File Function: 全局搜索框组件
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-08-16
-  License:       Creative Commons Attribution 4.0 International License
+搜素框组件
+2352031 古振
 -->
 
 <template>

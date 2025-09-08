@@ -1,9 +1,9 @@
 ﻿/*
  * Project Name:  DatabaseWebAPI
- * File Name:     MessageController.cs
- * File Function: 短信验证码控制器
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-07-25
+ * File Name:     AuthController.cs
+ * File Function: 登陆鉴权控制器
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-29
  * License:       Creative Commons Attribution 4.0 International License
  */
 

@@ -4,7 +4,9 @@
 -->
 
 <template>
+
   <el-container class='FooterNavbar'>
+
     <a href='https://sse.tongji.edu.cn' target='_blank'>
       <img :src='`${ossBaseUrl}LogosAndIcons/TongjiSSELogo.png`'
            class='FooterSseLogoLeft'
@@ -24,7 +26,9 @@
     <div class='footer-content'>
       <p>{{ t('FooterNavbar.ProjectDescription') }}</p>
     </div>
+
   </el-container>
+
 </template>
 
 <script setup lang='ts'>
@@ -35,7 +39,6 @@ const {t} = useI18n()
 </script>
 
 <style scoped>
-
 .footer-content {
   color: #909399;
   font-size: 12px;
@@ -66,5 +69,9 @@ const {t} = useI18n()
   filter: invert(0%);
 }
 
-
+.footer-content p {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    line-height: 24px;
+}
 </style>

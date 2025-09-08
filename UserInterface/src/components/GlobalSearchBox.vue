@@ -277,5 +277,74 @@ watch(searchContent, async (newPattern) => {
 </script>
 
 <style scoped>
-@import '../styles/SearchBoxCSS.css';
+.custom-search-input {
+    background-color: #FFFFFF;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    width: 900px;
+    height: 64px;
+    font-size: 24px;
+}
+
+.search-dropdown {
+    width: 900px;
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    top: 100%;
+    left: 0;
+}
+
+.menu-item-large {
+    padding-top: 35px;
+    padding-bottom: 35px;
+}
+
+.flex-column-start {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.icon-enter {
+    width: 15px;
+    height: 15px;
+    filter: invert(60%);
+}
+
+.icon-alignment {
+    margin-left: auto;
+    margin-right: -7px;
+    margin-bottom: 42px;
+}
+
+.margin-title-context {
+    margin-top: -28px;
+}
+
+.menu-item-context {
+    display: inline-block;
+    max-width: 812px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    margin-left: 22px;
+}
+
+.menu-item-title {
+    display: inline-block;
+    max-width: 812px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    color: #29ADFF;
+    font-size: 18px;
+    margin-left: 22px;
+}
 </style>

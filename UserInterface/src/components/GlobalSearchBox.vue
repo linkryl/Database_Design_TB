@@ -6,7 +6,7 @@
 <template>
   <!--suppress TypeScriptValidateTypes-->
   <el-input v-model='searchContent'
-            ref='tourRef12'
+            ref='tourRef4'
             class='custom-search-input'
             :placeholder="t('PetCommunityPage.SearchPrompt')"
             :prefix-icon='Search'/>
@@ -41,7 +41,7 @@
 import {ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {Search} from '@element-plus/icons-vue'
-import {tourRef12, searchThresholdScore, ossBaseUrl} from '../globals'
+import {tourRef4, searchThresholdScore, ossBaseUrl} from '../globals'
 import {useRouter} from 'vue-router'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'

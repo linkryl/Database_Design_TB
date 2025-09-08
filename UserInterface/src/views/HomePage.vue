@@ -7,7 +7,7 @@
 <template>
   <div class='background-container'>
     <img :src='`${ossBaseUrl}HomePage/BackgroundImage.jpg`' alt='Background' class='background-image'>
-    <img :src='`${ossBaseUrl}LogosAndIcons/TreeHoleLogo.png`' alt='PetJoyTitle' class='petjoy-title'>
+    <img :src='`${ossBaseUrl}LogosAndIcons/TreeHoleLogo.png`' alt='TreeHoleTitle' class='treehole-title'>
     <div class='search-container'>
       <GlobalSearchBox/>
     </div>
@@ -42,30 +42,6 @@ onMounted(() => {
   transform: translateX(-50%);
 }
 
-.petjoy-title {
-  position: absolute;
-  top: 70px;
-  width: 600px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.background-container {
-  position: relative;
-}
-
-.ai-introduction-card {
-  padding: 20px;
-  margin: 50px;
-  border-radius: 20px;
-}
-
-.content {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-}
-
 .background-container {
   position: relative;
   height: 100vh; /* 确保容器高度 */
@@ -82,13 +58,13 @@ onMounted(() => {
   z-index: 1;
 }
 
-.petjoy-title {
+.treehole-title {
   position: absolute;
   top: 70px;
   width: 300px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2; /* 确保logo在背景图片之上 */
+  z-index: 2;
 }
 
 .search-container {

@@ -28,15 +28,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/about-petjoy',
-        name: 'AboutPetJoyPage',
-        // @ts-ignore
-        component: () => import('../views/AboutPetJoyPage.vue'),
-        meta: {
-            title: 'RouterTitle.AboutPetJoyPage'
-        }
-    },
-    {
         path: '/home',
         name: 'HomePage',
         // @ts-ignore
@@ -59,15 +50,6 @@ const routes: Array<RouteRecordRaw> = [
         name: 'PetCommunityPage',
         // @ts-ignore
         component: () => import('../views/PetCommunityPage.vue'),
-        meta: {
-            title: 'RouterTitle.PetCommunityPage'
-        }
-    },
-    {
-        path: '/post/:id',
-        name: 'PostPage',
-        // @ts-ignore
-        component: () => import('../views/PostPage.vue'),
         meta: {
             title: 'RouterTitle.PetCommunityPage'
         }

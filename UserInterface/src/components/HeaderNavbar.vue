@@ -17,21 +17,6 @@
     <el-menu-item ref='tourRef2' index='1' class='navbar-item' @click="router.push('/pet-community')">
       {{ t('HeaderNavbar.PetCommunity') }}
     </el-menu-item>
-    <el-menu-item ref='tourRef3' index='2' class='navbar-item' @click="router.push('/pet-news')">
-      {{ t('HeaderNavbar.PetNews') }}
-    </el-menu-item>
-    <el-menu-item ref='tourRef4' index='3' class='navbar-item' @click="router.push('/pet-adoption')">
-      {{ t('HeaderNavbar.PetAdoption') }}
-    </el-menu-item>
-    <el-menu-item ref='tourRef5' index='4' class='navbar-item' @click="router.push('/pet-encyclopedia')">
-      {{ t('HeaderNavbar.PetEncyclopedia') }}
-    </el-menu-item>
-    <el-menu-item ref='tourRef6' index='5' class='navbar-item' @click="router.push('/pet-care')">
-      {{ t('HeaderNavbar.PetCare') }}
-    </el-menu-item>
-    <el-menu-item ref='tourRef7' index='6' class='navbar-item' @click="router.push('/pet-ai')">
-      {{ t('HeaderNavbar.PetAI') }}
-    </el-menu-item>
 
     <div class='flex-grow'/>
 
@@ -72,53 +57,6 @@
       </template>
     </el-dropdown>
 
-    <el-popover :width='350' popper-style='box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 15px'>
-      <template #reference>
-        <el-icon ref='tourRef8' color='#4888F6' :size='24' style='margin-right: 10px; margin-bottom: 2px'>
-          <Sunny/>
-        </el-icon>
-      </template>
-      <template #default>
-        <WeatherForecast/>
-      </template>
-    </el-popover>
-
-    <el-dropdown ref='tourRef9' size='large'>
-      <p v-html='languageIconSvg' style='outline: none'/>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item @click="toggleLanguage('zh')" :disabled="locale == 'zh'">简体中文</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('en')" :disabled="locale == 'en'">English</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('es')" :disabled="locale == 'es'">Español</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('ru')" :disabled="locale == 'ru'">Русский</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('pt')" :disabled="locale == 'pt'">Português</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('ja')" :disabled="locale == 'ja'">日本語</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('de')" :disabled="locale == 'de'">Deutsch</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('ko')" :disabled="locale == 'ko'">한국어</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('fr')" :disabled="locale == 'fr'">Français</el-dropdown-item>
-          <el-dropdown-item @click="toggleLanguage('it')" :disabled="locale == 'it'">Italiano</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-
-    <el-switch class='mode-switch'
-               v-model='darkMode'
-               size='large'
-               ref='tourRef10'
-               style='--el-switch-on-color: #2C2C2C; --el-switch-off-color: #F2F2F2; --el-switch-border-color: var(--el-color-info-light-7)'
-               @change='toggleDarkMode'>
-      <template #active-action>
-        <el-icon>
-          <Moon/>
-        </el-icon>
-      </template>
-      <template #inactive-action>
-        <el-icon class='icon-reverse'>
-          <Sunny/>
-        </el-icon>
-      </template>
-    </el-switch>
-
     <el-dropdown ref='tourRef11' size='large'>
       <el-avatar class='avatar' :src='`${ossBaseUrl}${currentUserAvatarUrl}`'>
         <el-icon :size='24'>
@@ -145,21 +83,7 @@
             </div>
           </el-dropdown-item>
 
-          <!--suppress TypeScriptValidateTypes-->
-          <el-dropdown-item :icon='Key' @click="router.push('/reset-password')">
-            <div class='dropdown-item'>
-              <span>{{ t('LoginPage.ForgetPassword') }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
-          </el-dropdown-item>
 
-          <!--suppress TypeScriptValidateTypes-->
-          <el-dropdown-item :icon='SetUp' @click="router.push('/'); showGuidedTour=true">
-            <div class='dropdown-item'>
-              <span>{{ t('HeaderNavbar.GuidedTour') }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
-          </el-dropdown-item>
         </el-dropdown-menu>
 
         <el-dropdown-menu v-else style='width: 250px'>
@@ -224,14 +148,6 @@
           <el-dropdown-item :icon='Setting' @click="router.push('/settings')">
             <div class='dropdown-item'>
               <span>{{ t('HeaderNavbar.Settings') }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
-          </el-dropdown-item>
-
-          <!--suppress TypeScriptValidateTypes-->
-          <el-dropdown-item :icon='SetUp' @click="router.push('/'); showGuidedTour=true">
-            <div class='dropdown-item'>
-              <span>{{ t('HeaderNavbar.GuidedTour') }}</span>
               <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
             </div>
           </el-dropdown-item>

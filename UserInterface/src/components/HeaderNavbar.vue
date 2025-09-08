@@ -1,10 +1,6 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     HeaderNavbar.vue
-  File Function: 顶部导航栏组件
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-09-07
-  License:       Creative Commons Attribution 4.0 International License
+顶部导航栏组件
+2352031 古振
 -->
 
 <template>
@@ -57,17 +53,19 @@
       </template>
     </el-dropdown>
 
-    <el-dropdown ref='tourRef11' size='large'>
+    <el-dropdown ref='tourRef3' size='large'>
       <el-avatar class='avatar' :src='`${ossBaseUrl}${currentUserAvatarUrl}`'>
         <el-icon :size='24'>
           <Avatar/>
         </el-icon>
       </el-avatar>
       <template #dropdown>
+
+        <!--未登录下拉栏 -->
         <el-dropdown-menu style='width: 210px' v-if='currentUserId==0'>
           <h2 style='text-align: center'>{{ t('HomePage.TourRefTitle11') }}</h2>
 
-          <!--suppress TypeScriptValidateTypes-->
+          <!--登陆按钮-->
           <el-dropdown-item :icon='Connection' @click="router.push('/login')">
             <div class='dropdown-item'>
               <span>{{ t('HeaderNavbar.Login') }}</span>
@@ -75,7 +73,7 @@
             </div>
           </el-dropdown-item>
 
-          <!--suppress TypeScriptValidateTypes-->
+          <!--注册按钮-->
           <el-dropdown-item :icon='CirclePlus' @click="router.push('/register')">
             <div class='dropdown-item'>
               <span>{{ t('HeaderNavbar.Register') }}</span>
@@ -86,73 +84,19 @@
 
         </el-dropdown-menu>
 
+        <!--已登录下拉栏-->
         <el-dropdown-menu v-else style='width: 250px'>
-          <el-icon v-if='!checkedIn' size='24' color="#409EFF" class='check-icon' @click='checkIn'
-                   style='cursor: pointer'>
-            <Checked/>
-          </el-icon>
-          <el-tooltip :content="t('HeaderNavbar.CheckReminder')" placement='bottom'>
-            <el-icon v-if='checkedIn' size='24' color='#909399' class='check-icon'>
-              <Checked/>
-            </el-icon>
-          </el-tooltip>
 
-          <div style='display: flex; align-items: center; justify-content: center; border-radius: 50%'
-               @click="router.push('/settings')">
-            <div class='avatar-container'>
-              <el-avatar :src='`${ossBaseUrl}${currentUserAvatarUrl}`' class='dropdown-item-avatar'>
-                <el-icon :size='80'>
-                  <Avatar/>
-                </el-icon>
-              </el-avatar>
-              <el-icon class='edit-icon'>
-                <Edit/>
-              </el-icon>
+          <!--个人中心按钮-->  
+          <el-dropdown-item :icon='User' @click="router.push(`/profile/${currentUserId}`)">  
+            <div class='dropdown-item'>          
+              <span>{{ t('HeaderNavbar.PersonalCenter') }}</span>         
+              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
             </div>
-          </div>
-
-          <h2 style='display: flex; justify-content: center; font-size: 24px'>
-            {{ currentUserName }}
-          </h2>
-
-          <el-progress :percentage='experiencePercentage' :format='formatLevel' style='margin-left: 22px'/>
-
-          <div class='experience-bar'>
-            <p class='experience-text'>
-              {{ t('HeaderNavbar.NextLevel') }} {{ nextLevel }} |
-              {{ t('HeaderNavbar.NeededExperience') }} {{ remainingExperience }}
-            </p>
-          </div>
-
-          <div style='display: flex; width: 220px; padding-bottom: 16px; margin: 0 auto'>
-            <el-col :span='8' style='display: flex; justify-content: center'>
-              <el-statistic :value='userFollowsCount' :title="t('HeaderNavbar.Following')" style='text-align: center'/>
-            </el-col>
-            <el-col :span='8' style='display: flex; justify-content: center'>
-              <el-statistic :value='userFollowedCount' :title="t('HeaderNavbar.Followers')" style='text-align: center'/>
-            </el-col>
-            <el-col :span='8' style='display: flex; justify-content: center'>
-              <el-statistic :value='userLikedCount' :title="t('HeaderNavbar.Likes')" style='text-align: center'/>
-            </el-col>
-          </div>
-
-          <!--suppress TypeScriptValidateTypes-->
-          <el-dropdown-item :icon='User' @click='router.push(`/profile/${currentUserId}`)'>
-            <div class='dropdown-item'>
-              <span>{{ t('HeaderNavbar.Profile') }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
+  
           </el-dropdown-item>
 
-          <!--suppress TypeScriptValidateTypes-->
-          <el-dropdown-item :icon='Setting' @click="router.push('/settings')">
-            <div class='dropdown-item'>
-              <span>{{ t('HeaderNavbar.Settings') }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
-          </el-dropdown-item>
-
-          <!--suppress TypeScriptValidateTypes-->
+          <!--退出-->
           <el-dropdown-item :icon='Link' @click='logout'>
             <div class='dropdown-item'>
               <span>{{ t('HeaderNavbar.Logout') }}</span>
@@ -160,55 +104,39 @@
             </div>
           </el-dropdown-item>
         </el-dropdown-menu>
+
+
       </template>
     </el-dropdown>
   </el-menu>
 </template>
 
 <script setup lang='ts'>
-import {onMounted, ref, watch, onUnmounted, computed} from 'vue'
+import {onMounted, ref, watch, onUnmounted} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 import axiosInstance from '../utils/axios'
-import {ElMessage, ElNotification} from 'element-plus'
+import {ElMessage} from 'element-plus'
 import {
   ossBaseUrl,
   tourRef1,
   tourRef2,
-  tourRef3,
-  tourRef4,
-  tourRef5,
-  tourRef6,
-  tourRef7,
-  tourRef8,
-  tourRef9,
-  tourRef10,
-  tourRef11, showGuidedTour
+  tourRef3
 } from '../globals'
 import {
-  Sunny,
-  Moon,
   User,
-  Setting,
   Connection,
   Link,
   CirclePlus,
   Avatar,
   ArrowRightBold,
-  Edit,
-  SetUp,
-  Key,
   Operation,
-  Checked
 } from '@element-plus/icons-vue'
-import WeatherForecast from './WeatherForecast.vue'
 
-const {locale, t} = useI18n()
+const {t} = useI18n()
 const activeIndex = ref('0')
-const darkMode = ref(localStorage.getItem('darkMode') == 'true')
 const router = useRouter()
 const route = useRoute()
-const languageIconSvg = atob('PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnY9Imh0dHBzOi8vdmVjdGEuaW8vbmFubyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMjAgMTgiPiYjeGE7CTxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+JiN4YTsJLnN0MHtmaWxsOiM0Mjg1ZjQ7fSYjeGE7CS5zdDF7ZmlsbDojNjY5ZGY2O2ZpbGwtcnVsZTpldmVub2RkfSYjeGE7CTwvc3R5bGU+JiN4YTsJPHBhdGggY2xhc3M9InN0MCIgZD0iTTE1LjkxIDcuMmgtMS44MkwxMCAxOGgxLjgybDEtMi43aDQuMzJsMSAyLjdIMjB6bS0yLjM5IDYuM0wxNSA5LjZsMS40OCAzLjl6Ii8+JiN4YTsJPHBhdGggY2xhc3M9InN0MSIgZD0iTTEwLjc5IDExLjc3TDguNDggOS41MWgwYTE1LjYyIDE1LjYyIDAgMCAwIDMuNC01LjkxaDIuNjdWMS44SDguMThWMEg2LjM2djEuOEgwdjEuNzloMTAuMTVhMTQuMDYgMTQuMDYgMCAwIDEtMi44OCA0LjgyIDE0LjU1IDE0LjU1IDAgMCAxLTIuMS0zSDMuMzVhMTYgMTYgMCAwIDAgMi43MSA0LjFMMS40NCAxNGwxLjI5IDEuMyA0LjU0LTQuNSAyLjgzIDIuOHoiLz4mI3hhOzwvc3ZnPg==')
 const storedValue = localStorage.getItem('currentUserId')
 const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
@@ -219,68 +147,13 @@ const userExperiencePoints = ref(0)
 const userFollowsCount = ref(0)
 const userFollowedCount = ref(0)
 const userLikedCount = ref(0)
-const checkedIn = ref(false)
-const nextLevel = computed(() => Math.floor(userExperiencePoints.value / 1000) + 2)
-const experiencePercentage = computed(() => (userExperiencePoints.value % 1000) / 10)
-const remainingExperience = computed(() => (1000 - userExperiencePoints.value % 1000))
 
-const toggleDarkMode = () => {
-  const htmlElement = document.documentElement
-  const isDarkMode = localStorage.getItem('darkMode') == 'true'
-  localStorage.setItem('darkMode', (!isDarkMode).toString())
-  if (isDarkMode) {
-    htmlElement.classList.remove('dark')
-    htmlElement.classList.add('light')
-  } else {
-    htmlElement.classList.remove('light')
-    htmlElement.classList.add('dark')
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const htmlElement = document.documentElement
-  const isDarkMode = localStorage.getItem('darkMode') == 'true'
-  if (isDarkMode) {
-    htmlElement.classList.add('dark')
-  } else {
-    htmlElement.classList.add('light')
-  }
-})
-
-const toggleLanguage = (lang: string) => {
-  // noinspection TypeScriptValidateTypes
-  locale.value = lang
-  localStorage.setItem('defaultLanguage', lang)
-  window.location.reload()
-}
-
-const formatLevel = () => {
-  return `LV ${Math.floor(userExperiencePoints.value / 1000) + 1}`
-}
 
 watch(route, (newRoute) => {
-  switch (newRoute.path) {
-    case '/pet-community':
-      activeIndex.value = '1'
-      break
-    case '/pet-news':
-      activeIndex.value = '2'
-      break
-    case '/pet-adoption':
-      activeIndex.value = '3'
-      break
-    case '/pet-encyclopedia':
-      activeIndex.value = '4'
-      break
-    case '/pet-care':
-      activeIndex.value = '5'
-      break
-    case '/pet-ai':
-      activeIndex.value = '6'
-      break
-    default:
-      activeIndex.value = '0'
-      break
+  if (newRoute.path === '/pet-community') {
+    activeIndex.value = '1'
+  } else {
+    activeIndex.value = '0'
   }
 }, {immediate: true})
 
@@ -307,18 +180,6 @@ onMounted(async () => {
   }
 })
 
-onMounted(async () => {
-  try {
-    const date = new Date()
-    const now = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-    const formattedDate = now.toISOString().slice(0, 10).replace(/-/g, '')
-    const response = await axiosInstance.get(`user-check-in/check-by-date/${currentUserId.value}-${formattedDate}`)
-    checkedIn.value = response.data == 1
-  } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-  }
-})
-
 const handleScroll = () => {
   const header = document.querySelector('.header-navbar')
   if (window.scrollY > 60) {
@@ -336,29 +197,6 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-async function checkIn() {
-  const date = new Date()
-  const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  try {
-    await axiosInstance.post('user-check-in', {
-      userId: currentUserId.value,
-      checkInTime: formattedDate
-    })
-    ElNotification({
-      title: t('HeaderNavbar.CheckSuccessfully'),
-      message: t('HeaderNavbar.CheckSuccessfullyPrompt'),
-      type: 'success'
-    })
-    userExperiencePoints.value = userExperiencePoints.value + 100
-    checkedIn.value = true
-  } catch (error) {
-    ElNotification({
-      title: t('HeaderNavbar.CheckFailed'),
-      message: t('HeaderNavbar.CheckFailedPrompt'),
-      type: 'error'
-    })
-  }
-}
 </script>
 
 <style scoped>
@@ -403,30 +241,6 @@ h1 {
   outline: none;
 }
 
-.mode-switch {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.icon-reverse {
-  filter: invert(100%);
-}
-
-.experience-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 4px;
-}
-
-.experience-text {
-  font-size: 12px;
-  color: var(--el-color-info-light-3);
-  text-align: center;
-  padding: 0 10px;
-  margin-top: 10px;
-}
-
 .dropdown-item {
   display: flex;
   justify-content: space-between;
@@ -435,50 +249,6 @@ h1 {
 
 .dropdown-item-icon {
   margin-right: 0;
-}
-
-.dropdown-item-avatar {
-  width: 120px;
-  height: 120px;
-  margin-top: 10px;
-}
-
-.avatar-container {
-  cursor: pointer;
-  border-radius: 50%;
-  overflow: visible;
-  position: relative;
-}
-
-.dropdown-item-avatar {
-  transition: filter 0.3s ease;
-}
-
-.avatar-container:hover .dropdown-item-avatar {
-  filter: brightness(75%);
-}
-
-.edit-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: lightgray;
-  opacity: 0;
-  font-size: 30px;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.avatar-container:hover .edit-icon {
-  display: block;
-  opacity: 1;
-}
-
-.check-icon {
-  position: absolute;
-  top: 6%;
-  right: 15px;
-  transform: translateY(-50%);
 }
 
 .disable-dropdown {

@@ -1,16 +1,12 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     GlobalSearchBox.vue
-  File Function: 全局搜索框组件
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-08-16
-  License:       Creative Commons Attribution 4.0 International License
+搜素框组件
+2352031 古振
 -->
 
 <template>
   <!--suppress TypeScriptValidateTypes-->
   <el-input v-model='searchContent'
-            ref='tourRef12'
+            ref='tourRef4'
             class='custom-search-input'
             :placeholder="t('PetCommunityPage.SearchPrompt')"
             :prefix-icon='Search'/>
@@ -45,7 +41,7 @@
 import {ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {Search} from '@element-plus/icons-vue'
-import {tourRef12, searchThresholdScore, ossBaseUrl} from '../globals'
+import {tourRef4, searchThresholdScore, ossBaseUrl} from '../globals'
 import {useRouter} from 'vue-router'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'

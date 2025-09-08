@@ -15,7 +15,7 @@
     </a>
 
     <a href='https://github.com/linkryl/Database_Design_TB' target='_blank'>
-      <el-tooltip :content="t('FooterNavbar.GitHubRepository')" placement='top'>
+      <el-tooltip content="GitHub项目仓库" placement='top'>
         <img :src='`${ossBaseUrl}LogosAndIcons/GitHubLogo.png`'
              class='FooterGithubLogoRight'
              alt='GitHubLogo'

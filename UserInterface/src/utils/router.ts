@@ -5,7 +5,6 @@ TreeHole制作组
 
 import {createRouter, RouteRecordRaw, Router, createWebHistory} from 'vue-router'
 import {isProgressVisible} from '../globals'
-import i18n from './i18n'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -29,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
         // @ts-ignore
         component: () => import('../views/HomePage.vue'),
         meta: {
-            title: 'RouterTitle.HomePage'
+            title: '首页'
         }
     },
     {
@@ -38,16 +37,16 @@ const routes: Array<RouteRecordRaw> = [
         // @ts-ignore
         component: () => import('../views/LoginPage.vue'),
         meta: {
-            title: 'RouterTitle.LoginPage'
+            title: '登陆页面'
         }
     },
     {
-        path: '/pet-community',
-        name: 'PetCommunityPage',
+        path: '/CommunityPage',
+        name: 'CommunityPage',
         // @ts-ignore
-        component: () => import('../views/PetCommunityPage.vue'),
+        component: () => import('../views/CommunityPage.vue'),
         meta: {
-            title: 'RouterTitle.PetCommunityPage'
+            title: '树洞社区'
         }
     },
     {
@@ -56,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
         // @ts-ignore
         component: () => import('../views/ProfilePage.vue'),
         meta: {
-            title: 'RouterTitle.ProfilePage'
+            title: '个人主页'
         }
     },
     {
@@ -65,7 +64,7 @@ const routes: Array<RouteRecordRaw> = [
         // @ts-ignore
         component: () => import('../views/RegisterPage.vue'),
         meta: {
-            title: 'RouterTitle.RegisterPage'
+            title: '注册页面'
         }
     },
 ]
@@ -77,7 +76,7 @@ const router: Router = createRouter({
 
 router.beforeEach((to, _, next) => {
     if (to.meta && to.meta.title) {
-        document.title = i18n.global.t(to.meta.title as string)
+        document.title = to.meta.title as string
     } else {
         document.title = 'PetJoy'
     }

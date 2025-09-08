@@ -8,10 +8,10 @@
   <el-input v-model='searchContent'
             ref='tourRef4'
             class='custom-search-input'
-            :placeholder="t('PetCommunityPage.SearchPrompt')"
+            placeholder="搜索您感兴趣的内容"
             :prefix-icon='Search'/>
   <el-menu v-if='showDropdown' class='search-dropdown' v-loading='loading'>
-    <el-menu-item v-if='searchResults.length==0'>{{ t('PetCommunityPage.NoResultsFound') }}</el-menu-item>
+    <el-menu-item v-if='searchResults.length==0'>{{ "未找到结果" }}</el-menu-item>
     <el-menu-item v-for='result in searchResults'
                   :key='result.item.id'
                   @click='navigateToPage(result.item)'
@@ -54,7 +54,6 @@ type MatchDetail = {
 }
 
 const router = useRouter()
-const {locale, t} = useI18n()
 const loading = ref(false)
 const searchContent = ref('')
 const searchResults = ref([])
@@ -185,7 +184,7 @@ const getTitle = (item) => {
   if (item.commentId || item.postId || item.newsId) {
     return item.title
   } else if (item.adoptionId) {
-    return item.name ? item.name : t('PetAdoptionPage.UnnamedPet')
+    return item.name ? item.name : "未命名的宠物"
   } else {
     return item.categoryName || item.subcategoryName || item.searchTitle
   }

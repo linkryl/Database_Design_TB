@@ -149,10 +149,19 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted, reactive} from 'vue'
 import {ossBaseUrl} from '../globals'
-import PostCard from '../components/PostCard.vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
 import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
+import {onBeforeUnmount} from 'vue'
+
+const imageViewerVisible = ref(false)
+let isUnmounted = false
+
+// 卸载之前销毁，修改卸载状态为是
+onBeforeUnmount(() => {
+  imageViewerVisible.value = false
+  isUnmounted = true
+})
 
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -165,7 +174,6 @@ const showPublishPost = ref(false)
 const postCategories = ref([])
 const postImage = ref<UploadInstance>()
 const postRuleFormRef = ref<FormInstance>()
-const imageViewerVisible = ref(false)
 const imageUrls = ref([''])
 
 interface PostRuleForm {
@@ -225,7 +233,10 @@ onMounted(async () => {
   try {
     // 获取所有帖子并按时间最新顺序排序
     const response = await axiosInstance.get('post/latest')
-    postIds.value = response.data
+    // 添加销毁检测防止卡网页
+    if (!isUnmounted) {
+      postIds.value = response.data
+    }
   } catch (error) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }

@@ -1,21 +1,17 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     App.vue
-  File Function: 父组件
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-07-24
-  License:       Creative Commons Attribution 4.0 International License
+父组件
+2352031 古振
 -->
 
 <template>
   <div id='app'>
-    <Progress/>
-    <HeaderNavbar class='header-navbar'/>
-    <div class='router-view-container'>
-      <router-view/>
-    </div>
-    <el-backtop :right='50' :bottom='50'/>
-    <FooterNavbar/>
+  <Progress/>                          <!-- 进度条组件 -->
+  <HeaderNavbar class='header-navbar'/> <!-- 顶部导航栏，添加类名 -->
+  <div class='router-view-container'>   <!-- 主要内容容器 -->
+    <router-view/>                     <!-- Vue Router 的页面渲染区域 -->
+  </div>
+  <el-backtop :right='50' :bottom='50'/> <!-- Element Plus 返回顶部按钮 -->
+  <FooterNavbar/>                      <!-- 底部导航栏 -->
   </div>
 </template>
 
@@ -25,23 +21,32 @@ import Progress from './components/Progress.vue'
 import HeaderNavbar from './components/HeaderNavbar.vue'
 import FooterNavbar from './components/FooterNavbar.vue'
 
-const updateHeaderTransform = () => {
+const updateHeaderTransform = () => {               // 更新头部样式的函数
   const headerNavbar = document.querySelector('.header-navbar') as HTMLElement
-  if (headerNavbar) {
+  if (headerNavbar) {                               // 如果找到导航栏元素
     headerNavbar.style.transform = `translateX(-${window.scrollX}px)`
+    // 根据滚动位置水平偏移导航栏（修复视觉对齐问题）
+    
+    // 添加透明效果判断
+    if (window.scrollY > 60) {                      // 如果垂直滚动超过60px
+      headerNavbar.classList.add('transparent-header') // 添加透明样式
+    } else {                                        // 否则
+      headerNavbar.classList.remove('transparent-header') // 移除透明样式
+    }
   }
 }
 
 onMounted(() => {
   window.addEventListener('scroll', updateHeaderTransform)
   window.addEventListener('resize', updateHeaderTransform)
-  updateHeaderTransform()
+  updateHeaderTransform() // 初始化时也检查一次
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', updateHeaderTransform)
   window.removeEventListener('resize', updateHeaderTransform)
 })
+
 </script>
 
 <style scoped>

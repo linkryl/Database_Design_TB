@@ -1,11 +1,7 @@
 /*
- * Project Name:  UserInterface
- * File Name:     axios.ts
- * File Function: Vue Axios 配置文件
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-08-01
- * License:       Creative Commons Attribution 4.0 International License
- */
+Vue Axios 配置文件
+TreeHole制作组
+*/
 
 import axios from 'axios'
 import {apiBaseUrl} from '../globals'

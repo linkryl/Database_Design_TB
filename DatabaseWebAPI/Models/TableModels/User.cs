@@ -117,36 +117,6 @@ public sealed class User
     public int MessageCount { get; set; }
 
     // 导航属性
-    public ICollection<News> NewsEntity { get; set; } =
-        new HashSet<News>();
-
-    public ICollection<NewsComment> NewsCommentEntity { get; set; } =
-        new HashSet<NewsComment>();
-
-    public ICollection<NewsCommentDislike> NewsCommentDislikeEntity { get; set; } =
-        new HashSet<NewsCommentDislike>();
-
-    public ICollection<NewsCommentLike> NewsCommentLikeEntity { get; set; } =
-        new HashSet<NewsCommentLike>();
-
-    public ICollection<NewsCommentReport> NewsCommentReportEntityReporter { get; set; } =
-        new HashSet<NewsCommentReport>();
-
-    public ICollection<NewsCommentReport> NewsCommentReportEntityReportedUser { get; set; } =
-        new HashSet<NewsCommentReport>();
-
-    public ICollection<NewsDislike> NewsDislikeEntity { get; set; } =
-        new HashSet<NewsDislike>();
-
-    public ICollection<NewsFavorite> NewsFavoriteEntity { get; set; } =
-        new HashSet<NewsFavorite>();
-
-    public ICollection<NewsLike> NewsLikeEntity { get; set; } =
-        new HashSet<NewsLike>();
-
-    public ICollection<PetAdoption> PetAdoptionEntity { get; set; } =
-        new HashSet<PetAdoption>();
-
     public ICollection<Post> PostEntity { get; set; } =
         new HashSet<Post>();
 

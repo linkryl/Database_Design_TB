@@ -3,7 +3,7 @@
  * File Name:     OSSController.cs
  * File Function: 对象存储 OSS 控制器
  * Author:        TreeHole开发组
- * Update Date:   2025-07-29
+ * Update Date:   2025-07-30
  * License:       Creative Commons Attribution 4.0 International License
  */
 
@@ -52,78 +52,6 @@ public class OSSController : ControllerBase
             return Ok(new
             {
                 message = "Avatar uploaded successfully.",
-                fileName = key,
-                requestId = putObjectResult.RequestId
-            });
-        }
-        catch (OssException ex)
-        {
-            return StatusCode(500, $"OSS update error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 上传新闻封面图片
-    [HttpPost("upload-news-cover-image")]
-    [SwaggerOperation(Summary = "上传新闻封面图片（.jpg 文件）", Description = "上传新闻封面图片（.jpg 文件）")]
-    [SwaggerResponse(200, "上传新闻封面图片成功")]
-    [SwaggerResponse(400, "请求无效")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public IActionResult UploadNewsCoverImage(IFormFile file)
-    {
-        if (file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        var key = $"NewsCoverImages/{FileNameUtils.GenerateRandomFileName(64)}.jpg";
-        try
-        {
-            var putObjectResult =
-                Client.PutObject(Config["OSSConfig:BucketName"], $"PetJoy/{key}", file.OpenReadStream());
-            return Ok(new
-            {
-                message = "News cover image uploaded successfully.",
-                fileName = key,
-                requestId = putObjectResult.RequestId
-            });
-        }
-        catch (OssException ex)
-        {
-            return StatusCode(500, $"OSS update error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 上传新闻内容图片
-    [HttpPost("upload-news-content-image")]
-    [SwaggerOperation(Summary = "上传新闻内容图片（.jpg 文件）", Description = "上传新闻内容图片（.jpg 文件）")]
-    [SwaggerResponse(200, "上传新闻内容图片成功")]
-    [SwaggerResponse(400, "请求无效")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public IActionResult UploadNewsContentImage(IFormFile file)
-    {
-        if (file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        var key = $"NewsContentImages/{FileNameUtils.GenerateRandomFileName(64)}.jpg";
-        try
-        {
-            var putObjectResult =
-                Client.PutObject(Config["OSSConfig:BucketName"], $"PetJoy/{key}", file.OpenReadStream());
-            return Ok(new
-            {
-                message = "News content image uploaded successfully.",
                 fileName = key,
                 requestId = putObjectResult.RequestId
             });
@@ -196,78 +124,6 @@ public class OSSController : ControllerBase
             return Ok(new
             {
                 message = "Post image uploaded successfully.",
-                fileName = key,
-                requestId = putObjectResult.RequestId
-            });
-        }
-        catch (OssException ex)
-        {
-            return StatusCode(500, $"OSS update error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 上传宠物领养图片
-    [HttpPost("upload-pet-adoption-image")]
-    [SwaggerOperation(Summary = "上传宠物领养图片（.jpg 文件）", Description = "上传宠物领养图片（.jpg 文件）")]
-    [SwaggerResponse(200, "上传宠物领养图片成功")]
-    [SwaggerResponse(400, "请求无效")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public IActionResult UploadPetAdoptionImage(IFormFile file)
-    {
-        if (file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        var key = $"PetAdoptionImages/{FileNameUtils.GenerateRandomFileName(64)}.jpg";
-        try
-        {
-            var putObjectResult =
-                Client.PutObject(Config["OSSConfig:BucketName"], $"PetJoy/{key}", file.OpenReadStream());
-            return Ok(new
-            {
-                message = "Pet adoption image uploaded successfully.",
-                fileName = key,
-                requestId = putObjectResult.RequestId
-            });
-        }
-        catch (OssException ex)
-        {
-            return StatusCode(500, $"OSS update error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 上传宠物领养附件
-    [HttpPost("upload-pet-adoption-appendix")]
-    [SwaggerOperation(Summary = "上传宠物领养附件（.pdf 文件）", Description = "上传宠物领养附件（.pdf 文件）")]
-    [SwaggerResponse(200, "上传宠物领养附件成功")]
-    [SwaggerResponse(400, "请求无效")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public IActionResult UploadPetAdoptionAppendix(IFormFile file)
-    {
-        if (file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        var key = $"PetAdoptionAppendices/{FileNameUtils.GenerateRandomFileName(64)}.pdf";
-        try
-        {
-            var putObjectResult =
-                Client.PutObject(Config["OSSConfig:BucketName"], $"PetJoy/{key}", file.OpenReadStream());
-            return Ok(new
-            {
-                message = "Pet adoption appendix uploaded successfully.",
                 fileName = key,
                 requestId = putObjectResult.RequestId
             });

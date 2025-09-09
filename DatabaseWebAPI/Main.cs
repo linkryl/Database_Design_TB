@@ -80,9 +80,9 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "宠悦 | PetJoy - 数据库网络应用程序接口 | Database Web API",
         Description = """
-                      欢迎来到[宠悦](http://[TODO: Host])，为宠物爱好者提供的一站式信息与资源交流天地。在这里，您可以浏览我们的数据库网络应用程序接口文档。
+                      欢迎来到[宠悦](http://localhost:5101)，为宠物爱好者提供的一站式信息与资源交流天地。在这里，您可以浏览我们的数据库网络应用程序接口文档。
 
-                      Welcome to [PetJoy](http://[TODO: Host]), a one-stop hub for information and resource exchange tailored to pet enthusiasts. Here, you can explore our database web API documentation.
+                      Welcome to [PetJoy](http://localhost:5101), a one-stop hub for information and resource exchange tailored to pet enthusiasts. Here, you can explore our database web API documentation.
 
                       ![PetJoyLogo](https://[TODO: BucketName].[TODO: Endpoint]/PetJoy/LogosAndIcons/PetJoyLogo.png)
 
@@ -90,7 +90,7 @@ builder.Services.AddSwaggerGen(c =>
 
                       Copyright © 2024 PetJoy Development Team - Licensed under CC-BY-4.0 License
 
-                      关于宠悦 - [About PetJoy](http://[TODO: Host]/about-petjoy) |
+                      关于宠悦 - [About PetJoy](http://localhost:5101/about-petjoy) |
                       联系我们 - [Contact Us](mailto:minmuslin@outlook.com) |
                       GitHub 仓库 - [GitHub Repository](https://github.com/MinmusLin/PetJoy)
                       """

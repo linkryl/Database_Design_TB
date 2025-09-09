@@ -78,22 +78,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("api", new OpenApiInfo
     {
-        Title = "宠悦 | PetJoy - 数据库网络应用程序接口 | Database Web API",
-        Description = """
-                      欢迎来到[宠悦](http://localhost:5101)，为宠物爱好者提供的一站式信息与资源交流天地。在这里，您可以浏览我们的数据库网络应用程序接口文档。
-
-                      Welcome to [PetJoy](http://localhost:5101), a one-stop hub for information and resource exchange tailored to pet enthusiasts. Here, you can explore our database web API documentation.
-
-                      ![PetJoyLogo](https://[TODO: BucketName].[TODO: Endpoint]/PetJoy/LogosAndIcons/PetJoyLogo.png)
-
-                      版权所有 © 2024 宠悦 | PetJoy 项目开发组 - 采用 CC-BY-4.0 许可证授权
-
-                      Copyright © 2024 PetJoy Development Team - Licensed under CC-BY-4.0 License
-
-                      关于宠悦 - [About PetJoy](http://localhost:5101/about-petjoy) |
-                      联系我们 - [Contact Us](mailto:minmuslin@outlook.com) |
-                      GitHub 仓库 - [GitHub Repository](https://github.com/MinmusLin/PetJoy)
-                      """
+        Title = "TreeHole开发组 - 数据库网络应用程序接口 | Database Web API",
     });
     c.EnableAnnotations();
 });
@@ -110,7 +95,7 @@ app.UseSwaggerUI(c => // 配置 Swagger UI
 {
     c.SwaggerEndpoint("/swagger/api/swagger.json", "api");
     c.RoutePrefix = string.Empty;
-    c.DocumentTitle = "宠悦 PetJoy - API";
+    c.DocumentTitle = "TreeHole - API";
     // ReSharper disable once StringLiteralTypo
     c.HeadContent = """
                     <script type='text/javascript'>

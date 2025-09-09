@@ -1,114 +1,44 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     PetCommunityPage.vue
-  File Function: 宠物社区页面
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-09-06
-  License:       Creative Commons Attribution 4.0 International License
+ 
+社区页面
+2351134 吕奎辰
+
 -->
 
 <template>
+  <!-- 社区公告 -->
+  <div class='harmony-notice-banner'>
+    <div class='harmony-notice-content'>
+      <div class='harmony-notice-icon'>🤝</div>
+      <div class='harmony-notice-text'>
+        <div class='harmony-notice-title'>{{ t('CommunityPage.NoticeCardHeadOne') }}</div>
+        <div class='harmony-notice-subtitle'>{{ t('CommunityPage.NoticeFirstCardTextOne') }}</div>
+        <div class='harmony-notice-description'>{{ t('CommunityPage.NoticeFirstCardTextTwo') }}</div>
+        <div class='harmony-notice-rules'>
+          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextThree') }}</span>
+          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextFour') }}</span>
+          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextFive') }}</span>
+          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextSix') }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发帖按钮 -->
+  <el-button class='floating-publish-button' round @click='publishPost'>
+    {{ locale == 'zh' ? '我要发帖' : t('CommunityPage.PublishPost') }}
+  </el-button>
+
   <div class='background-container'>
-    <h1>{{ t('HeaderNavbar.PetCommunity') }}</h1>
+    <h1>TreeHole树洞</h1>
     <div class='search-container'>
       <CommunitySearchBox/>
     </div>
-    <el-button class='publish-post-button' round @click='publishPost'>
-      {{ locale == 'zh' ? '我要发帖' : t('PetCommunityPage.PublishPost') }}
-    </el-button>
   </div>
 
   <div class='page-container'>
-    <div class='notice-container'>
-      <el-header class='centered-header'>
-        <div class='header-container'>
-          <span class='header-icon'>•</span>
-          <span class='large-purple-text'>{{ t('PetCommunityPage.NoticeHead') }}</span>
-          <span class='header-icon'>•</span>
-        </div>
-        <span class='small-text'>NOTICE</span>
-      </el-header>
-
-      <div class='horizontal-container'>
-        <div class='card-container'>
-          <img :src='`${ossBaseUrl}PetCommunityPage/PetHealth.jpg`' class='circular-image' alt='Image 1'>
-          <div class='card-head'>{{ t('PetCommunityPage.NoticeCardHeadOne') }}</div>
-          <div>
-            <span class='card-icon'>⏰</span>
-            <span class='card-icon-text'>{{ t('PetCommunityPage.NoticeFirstCardTextOne') }}</span>
-            <span class='card-icon'>⏰</span>
-          </div>
-          <div class='card-text'>{{ t('PetCommunityPage.NoticeFirstCardTextTwo') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeFirstCardTextThree') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeFirstCardTextFour') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeFirstCardTextFive') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeFirstCardTextSix') }}</div>
-        </div>
-        <div class='card-container'>
-          <img :src='`${ossBaseUrl}PetCommunityPage/PamperedPetsPunchCard.jpg`' class='circular-image'
-               alt='HarmonyCommunity'>
-          <div class='card-head'>{{ t('PetCommunityPage.NoticeCardHeadTwo') }}</div>
-          <div>
-            <span class='card-icon'>🐾</span>
-            <span class='card-icon-text'>{{ t('PetCommunityPage.NoticeSecondCardTextOne') }}</span>
-            <span class='card-icon'>🐾</span>
-          </div>
-          <div class='card-text'>{{ t('PetCommunityPage.NoticeSecondCardTextTwo') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeSecondCardTextThree') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeSecondCardTextFour') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeSecondCardTextFive') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeSecondCardTextSix') }}</div>
-        </div>
-        <div class='card-container'>
-          <img :src='`${ossBaseUrl}PetCommunityPage/HarmonyCommunity.jpg`' class='circular-image' alt='Image 1'>
-          <div class='card-head'>{{ t('PetCommunityPage.NoticeCardHeadThree') }}</div>
-          <div>
-            <span class='card-icon'>🏥</span>
-            <span class='card-icon-text'>{{ t('PetCommunityPage.NoticeThirdCardTextOne') }} </span>
-            <span class='card-icon'>🏥</span>
-          </div>
-          <div class='card-text'>{{ t('PetCommunityPage.NoticeThirdCardTextTwo') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeThirdCardTextThree') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeThirdCardTextFour') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeThirdCardTextFive') }}</div>
-          <div class='card-small-text'>{{ t('PetCommunityPage.NoticeThirdCardTextSix') }}</div>
-        </div>
-      </div>
-    </div>
-
-    <h2 style='font-size: 36px; margin-top: 20px; margin-bottom: 20px'>
-      {{ t('PetCommunityPage.PopularCategories') }}
-    </h2>
-    <div style='margin-bottom: 30px; position: relative'>
-      <p style='font-size: 22px; margin: 0'>{{ t('PetCommunityPage.ClickBelow') }}</p>
-      <div v-if='categoryIds.length==1' style='position: absolute; right: 0; top: 0'>
-        <el-tag size='large' type='danger'
-                style='font-size: 16px; padding-bottom: 2px; padding-left: 13px; height: 36px'>
-          {{ petCategories[categoryIds[0] - 1].title }}
-          <el-icon style='transform: translateY(2px)' @click='categoryIds=[1, 2, 3, 4, 5, 6, 7, 8, 9]' :size='16'>
-            <CloseBold/>
-          </el-icon>
-        </el-tag>
-      </div>
-    </div>
-
-    <div class='category-container'>
-      <Swiper slidesPerView='5'
-              :autoplay='{ delay: 2000, disableOnInteraction: false }'
-              :edgeSwipeDetection='true'
-              loop>
-        <SwiperSlide v-for='(category, index) in petCategories' :key='index' class='swiper-slide'>
-          <div class='image-container'>
-            <img :src='category.src' :alt='category.alt' class='image' style='height: 150px'/>
-            <div class='hover-layer' @click='categoryIds=[category.id]'>
-              <div class='title'>{{ category.title }}</div>
-            </div>
-          </div>
-        </SwiperSlide>
-      </Swiper>
-    </div>
-
-    <div>
+    <!-- 帖子列表区域 -->
+    <div class='posts-section'>
       <PostCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId'/>
       <div class='pagination-container'>
         <el-pagination @current-change='handleCurrentChange'
@@ -124,7 +54,7 @@
   <el-dialog v-model='showPublishPost'
              width='1000px'
              style='height: auto'
-             :title="t('PetCommunityPage.PublishPost')"
+             :title="t('CommunityPage.PublishPost')"
              :close-on-click-modal='false'
              :close-on-press-escape='false'
              align-center>
@@ -138,14 +68,14 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <Postcard/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('PetCommunityPage.PostTitleLabel') }}</span>
+            <span style='font-size: 16px'>{{ t('CommunityPage.PostTitleLabel') }}</span>
           </div>
 
           <el-input v-model='postRuleForm.title'
                     maxlength='64'
                     size='large'
                     show-word-limit
-                    :placeholder="t('PetCommunityPage.PostTitlePlaceholder')"/>
+                    :placeholder="t('CommunityPage.PostTitlePlaceholder')"/>
         </div>
       </el-form-item>
 
@@ -156,7 +86,7 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <Collection/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('PetCommunityPage.PostContentLabel') }}</span>
+            <span style='font-size: 16px'>{{ t('CommunityPage.PostContentLabel') }}</span>
           </div>
 
           <el-input v-model='postRuleForm.content'
@@ -165,7 +95,7 @@
                     :autosize='{ minRows: 3 }'
                     type='textarea'
                     size='large'
-                    :placeholder="t('PetCommunityPage.PostContentPlaceholder')"/>
+                    :placeholder="t('CommunityPage.PostContentPlaceholder')"/>
         </div>
       </el-form-item>
 
@@ -176,7 +106,7 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <CollectionTag/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('PetCommunityPage.PostCategoryLabel') }}</span>
+            <span style='font-size: 16px'>{{ t('CommunityPage.PostCategoryLabel') }}</span>
           </div>
 
           <el-radio-group size='large' v-model='postRuleForm.categoryId'>
@@ -193,19 +123,19 @@
                  accept='.jpeg, .jpg'
                  :show-file-list='false'>
         <el-button size='large' plain>
-          <span>{{ t('PetCommunityPage.UploadPostImagePrompt') }}</span>
+          <span>{{ t('CommunityPage.UploadPostImagePrompt') }}</span>
         </el-button>
       </el-upload>
 
       <el-button v-if="imageUrls[0]!=''" size='large' plain style='margin-left: 12px' @click='imageViewerVisible=true'>
-        <span>{{ t('PetCommunityPage.ViewPostImagePrompt') }}</span>
+        <span>{{ t('CommunityPage.ViewPostImagePrompt') }}</span>
       </el-button>
     </div>
 
     <el-button-group style='display: flex; justify-content: center; margin-top: 8px'>
-      <el-button size='large' @click='cancelPublishPost'>{{ t('PetCommunityPage.Cancel') }}</el-button>
+      <el-button size='large' @click='cancelPublishPost'>{{ t('CommunityPage.Cancel') }}</el-button>
       <el-button size='large' @click='submitPost(postRuleFormRef)' type='primary'>
-        {{ t('PetCommunityPage.PublishPost') }}
+        {{ t('CommunityPage.PublishPost') }}
       </el-button>
     </el-button-group>
   </el-dialog>
@@ -219,24 +149,17 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted, watch, reactive} from 'vue'
 import {useI18n} from 'vue-i18n'
-import {Swiper, SwiperSlide} from 'swiper/vue'
 import {ossBaseUrl} from '../globals'
-import SwiperCore from 'swiper'
-import {Autoplay} from 'swiper/modules'
 import PostCard from '../components/PostCard.vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
-import {CloseBold, Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
-import 'swiper/css'
-
-SwiperCore.use([Autoplay])
+import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
 
 const {t, locale} = useI18n()
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalPosts = computed(() => postIds.value.length)
 const postIds = ref([])
-const categoryIds = ref([1, 2, 3, 4, 5, 6, 7, 8, 9])
 const storedValue = localStorage.getItem('currentUserId')
 const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
@@ -265,21 +188,21 @@ const postRules: FormRules = {
   title: [
     {
       required: true,
-      message: t('PetCommunityPage.RequiredPostTitle'),
+      message: t('CommunityPage.RequiredPostTitle'),
       trigger: 'blur'
     },
   ],
   content: [
     {
       required: true,
-      message: t('PetCommunityPage.RequiredPostContent'),
+      message: t('CommunityPage.RequiredPostContent'),
       trigger: 'blur'
     },
   ],
   categoryId: [
     {
       required: true,
-      message: t('PetCommunityPage.RequiredCategoryId'),
+      message: t('CommunityPage.RequiredCategoryId'),
       trigger: 'blur'
     }
   ]
@@ -295,62 +218,6 @@ const handleCurrentChange = (page) => {
   currentPage.value = page
 }
 
-const petCategories = ref([
-  {
-    id: 1,
-    src: `${ossBaseUrl}PostCategories/PostCategory1.jpg`,
-    alt: 'HelpForIllness',
-    title: t('PetCommunityPage.HelpForIllness')
-  },
-  {
-    id: 2,
-    src: `${ossBaseUrl}PostCategories/PostCategory2.jpg`,
-    alt: 'LossOfPet',
-    title: t('PetCommunityPage.LossOfPet')
-  },
-  {
-    id: 3,
-    src: `${ossBaseUrl}PostCategories/PostCategory3.jpg`,
-    alt: 'PetDating',
-    title: t('PetCommunityPage.PetDating')
-  },
-  {
-    id: 4,
-    src: `${ossBaseUrl}PostCategories/PostCategory4.jpg`,
-    alt: 'FunSharing',
-    title: t('PetCommunityPage.FunSharing')
-  },
-  {
-    id: 5,
-    src: `${ossBaseUrl}PostCategories/PostCategory5.jpg`,
-    alt: 'Recommendations',
-    title: t('PetCommunityPage.Recommendations')
-  },
-  {
-    id: 6,
-    src: `${ossBaseUrl}PostCategories/PostCategory6.jpg`,
-    alt: 'FeedingExperience',
-    title: t('PetCommunityPage.FeedingExperience')
-  },
-  {
-    id: 7,
-    src: `${ossBaseUrl}PostCategories/PostCategory7.jpg`,
-    alt: 'TroubleShooting',
-    title: t('PetCommunityPage.TroubleShooting')
-  },
-  {
-    id: 8,
-    src: `${ossBaseUrl}PostCategories/PostCategory8.jpg`,
-    alt: 'TrainingSkills',
-    title: t('PetCommunityPage.TrainingSkills')
-  },
-  {
-    id: 9,
-    src: `${ossBaseUrl}PostCategories/PostCategory9.jpg`,
-    alt: 'Others',
-    title: t('PetCommunityPage.Others')
-  }
-])
 
 function addOssPrefix(): string[] {
   return imageUrls.value.map(url => `${ossBaseUrl}${url}`)
@@ -358,23 +225,14 @@ function addOssPrefix(): string[] {
 
 onMounted(async () => {
   try {
-    const response = await axiosInstance.post('post/filter-by-category', categoryIds.value)
+    // 获取所有帖子并按时间最新顺序排序
+    const response = await axiosInstance.get('post/latest')
     postIds.value = response.data
   } catch (error) {
     ElMessage.error(t('ErrorMessage.GetErrorMessage'))
   }
 })
 
-watch(categoryIds, async (newCategoryIds, oldCategoryIds) => {
-  if (newCategoryIds != oldCategoryIds) {
-    try {
-      const response = await axiosInstance.post('post/filter-by-category', newCategoryIds)
-      postIds.value = response.data
-    } catch (error) {
-      ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-    }
-  }
-}, {deep: true})
 
 function publishPost() {
   if (currentUserId.value && currentUserId.value != 0) {
@@ -400,11 +258,11 @@ function beforeUploadImage(file) {
   const isJPG = file.type == 'image/jpeg'
   const isLt5M = file.size / 1024 / 1024 < 5
   if (!isJPG) {
-    ElMessage.error(t('PetCommunityPage.UploadedPostImageFormat'))
+    ElMessage.error(t('CommunityPage.UploadedPostImageFormat'))
     return false
   }
   if (!isLt5M) {
-    ElMessage.error(t('PetCommunityPage.UploadedPostImageSize'))
+    ElMessage.error(t('CommunityPage.UploadedPostImageSize'))
     return false
   }
   return true
@@ -419,22 +277,22 @@ const handleBeforeUploadImage = async (file: File) => {
   try {
     const response = await axiosInstance.post('upload-post-image', formData)
     imageUrls.value[0] = response.data.fileName
-    ElMessage.success(t('PetCommunityPage.UploadPostImageSucceed'))
+    ElMessage.success(t('CommunityPage.UploadPostImageSucceed'))
   } catch (error) {
-    ElMessage.error(t('PetCommunityPage.UploadPostImageFailed'))
+    ElMessage.error(t('CommunityPage.UploadPostImageFailed'))
   }
 }
 
 const cancelPublishPost = () => {
   ElMessageBox.confirm(
-      t('PetCommunityPage.CancelPublishPostPrompt'),
-      t('PetCommunityPage.CancelPublishPost'),
+      t('CommunityPage.CancelPublishPostPrompt'),
+      t('CommunityPage.CancelPublishPost'),
       {
         showClose: false,
         closeOnClickModal: false,
         closeOnPressEscape: false,
-        confirmButtonText: t('PetCommunityPage.Continue'),
-        cancelButtonText: t('PetCommunityPage.Cancel')
+        confirmButtonText: t('CommunityPage.Continue'),
+        cancelButtonText: t('CommunityPage.Cancel')
       }
   ).catch(() => {
     showPublishPost.value = false
@@ -459,16 +317,16 @@ const submitPost = async (formEl: FormInstance | undefined) => {
       const result = await postPost()
       if (result) {
         ElNotification({
-          title: t('PetCommunityPage.PublishPostSuccessfully'),
-          message: t('PetCommunityPage.PublishPostSuccessfullyPrompt'),
+          title: t('CommunityPage.PublishPostSuccessfully'),
+          message: t('CommunityPage.PublishPostSuccessfullyPrompt'),
           type: 'success'
         })
         showPublishPost.value = false
         resetFeedback(postRuleFormRef.value)
       } else {
         ElNotification({
-          title: t('PetCommunityPage.PublishPostFailed'),
-          message: t('PetCommunityPage.PublishPostFailedPrompt'),
+          title: t('CommunityPage.PublishPostFailed'),
+          message: t('CommunityPage.PublishPostFailedPrompt'),
           type: 'error'
         })
       }
@@ -493,16 +351,33 @@ async function postPost() {
       commentCount: 0,
       imageUrl: imageUrls.value[0] == '' ? null : imageUrls.value[0]
     })
+    
+    if (response.status == 201) {
+      // 发布成功后刷新帖子列表
+      await refreshPosts()
+    }
+    
     return response.status == 201
   } catch (error) {
     return false
+  }
+}
+
+// 刷新帖子列表的函数
+async function refreshPosts() {
+  try {
+    const response = await axiosInstance.get('post/latest')
+    postIds.value = response.data
+    currentPage.value = 1 // 重置到第一页
+  } catch (error) {
+    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
   }
 }
 </script>
 
 <style scoped>
 :global(:root) {
-  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/PetCommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
   --community-title-color: #393B9C;
   --community-title-shadow-color: #787ACF;
   --community-img-title-color: #FFFFFF;
@@ -521,7 +396,7 @@ async function postPost() {
 
 /* noinspection CssUnusedSymbol */
 :global(.dark) {
-  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/PetCommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
   --community-title-color: #E4DBFF;
   --community-title-shadow-color: #473B7E;
   --community-img-title-color: #E0E0E0;
@@ -544,84 +419,56 @@ async function postPost() {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  margin-top: -20px;
 }
 
 h1 {
-  width: 1200px;
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  font-size: 64px;
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+  margin: -100px auto 0;
+  padding: 5px 20px 10px;
+  font-size: 48px;
   font-weight: bold;
   color: var(--community-title-color);
   text-align: center;
-  transform: translateX(-50%);
   text-shadow: 0 2px 4px var(--community-title-shadow-color);
+  z-index: 10;
 }
 
 .search-container {
-  position: absolute;
-  top: 250px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  margin: 0 auto 30px;
+  max-width: 600px;
+  padding: 0 20px;
 }
 
 .background-container {
-  height: 530px;
+  min-height: 300px;
   width: 100%;
   background-image: var(--community-background-image);
   background-size: cover;
   background-position: center;
-  transform: translateY(-10px);
-}
-
-.swiper-slide {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  padding: 20px 0;
 }
 
-.image-container {
-  position: relative;
-  overflow: hidden;
-  height: 150px;
-}
 
-.image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 4px;
-  filter: var(--community-img-filter);
-}
-
-.image-container .hover-layer {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  opacity: 1;
-  border-radius: 4px;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 18px;
-  font-weight: normal;
-  transition: background-color 0.3s, font-weight 0.3s;
-}
-
-.image-container:hover .hover-layer {
-  background-color: rgba(0, 0, 0, 0.5);
-  font-weight: bold;
+/* 帖子列表区域样式 */
+.posts-section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+  margin-top: -10px;
 }
 
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 .title {
@@ -633,36 +480,105 @@ h1 {
   justify-content: space-between;
 }
 
-.category-container {
-  background-color: var(--community-categoty-bg-color);
-  padding: 20px 12px;
-  margin-bottom: 30px;
-  border-radius: 20px;
-}
 
-.publish-post-button {
-  position: absolute;
-  top: 75%;
-  left: 50%;
-  width: 250px;
-  height: 50px;
-  font-size: 20px;
+/* 我要发帖按钮 */
+.floating-publish-button {
+  position: fixed;
+  top: 15px;
+  right: 100px;
+  width: 120px;
+  height: 40px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--community-publish-post-button-text);
   background-color: var(--community-publish-post-button);
   border: none;
-  border-radius: 10px;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
-.publish-post-button:hover {
+.floating-publish-button:hover {
   background-color: var(--community-publish-post-button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
-.publish-post-button:active {
+.floating-publish-button:active {
   background-color: var(--community-publish-post-button-active);
+  transform: translateY(0);
+}
+
+/* 横版和谐社区公告 */
+.harmony-notice-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px 0;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.harmony-notice-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.harmony-notice-icon {
+  font-size: 40px;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.harmony-notice-text {
+  flex: 1;
+}
+
+.harmony-notice-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.harmony-notice-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+
+.harmony-notice-description {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.harmony-notice-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.rule-item {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.rule-item:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .form-label-wrapper {

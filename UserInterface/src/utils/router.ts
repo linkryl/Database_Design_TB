@@ -67,6 +67,16 @@ const routes: Array<RouteRecordRaw> = [
             title: '注册页面'
         }
     },
+    {
+        path: '/post/new',
+        name: 'PostEdit',
+        // @ts-ignore
+        component: () => import('../views/PostEdit.vue'),
+        meta: {
+            title: '发表树洞',
+            requiresAuth: true
+        }
+    },
 ]
 
 const router: Router = createRouter({

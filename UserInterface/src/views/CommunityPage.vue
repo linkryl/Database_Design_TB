@@ -11,14 +11,14 @@
     <div class='harmony-notice-content'>
       <div class='harmony-notice-icon'>🤝</div>
       <div class='harmony-notice-text'>
-        <div class='harmony-notice-title'>{{ t('CommunityPage.NoticeCardHeadOne') }}</div>
-        <div class='harmony-notice-subtitle'>{{ t('CommunityPage.NoticeFirstCardTextOne') }}</div>
-        <div class='harmony-notice-description'>{{ t('CommunityPage.NoticeFirstCardTextTwo') }}</div>
+        <div class='harmony-notice-title'>和谐社区</div>
+        <div class='harmony-notice-subtitle'>共同打造和谐宠物社区</div>
+        <div class='harmony-notice-description'>为了维护社区的秩序和氛围，请在发帖时遵守以下准则</div>
         <div class='harmony-notice-rules'>
-          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextThree') }}</span>
-          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextFour') }}</span>
-          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextFive') }}</span>
-          <span class='rule-item'>{{ t('CommunityPage.NoticeFirstCardTextSix') }}</span>
+          <span class='rule-item'>尊重他人</span>
+          <span class='rule-item'>内容合规</span>
+          <span class='rule-item'>版权意识</span>
+          <span class='rule-item'>信息真实</span>
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@
 
   <!-- 发帖按钮 -->
   <el-button class='floating-publish-button' round @click='publishPost'>
-    {{ locale == 'zh' ? '我要发帖' : t('CommunityPage.PublishPost') }}
+    我要发帖
   </el-button>
 
   <div class='background-container'>
@@ -54,7 +54,7 @@
   <el-dialog v-model='showPublishPost'
              width='1000px'
              style='height: auto'
-             :title="t('CommunityPage.PublishPost')"
+             title="发布帖子"
              :close-on-click-modal='false'
              :close-on-press-escape='false'
              align-center>
@@ -68,14 +68,14 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <Postcard/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('CommunityPage.PostTitleLabel') }}</span>
+            <span style='font-size: 16px'>帖子标题</span>
           </div>
 
           <el-input v-model='postRuleForm.title'
                     maxlength='64'
                     size='large'
                     show-word-limit
-                    :placeholder="t('CommunityPage.PostTitlePlaceholder')"/>
+                    placeholder="请输入帖子标题"/>
         </div>
       </el-form-item>
 
@@ -86,7 +86,7 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <Collection/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('CommunityPage.PostContentLabel') }}</span>
+            <span style='font-size: 16px'>帖子内容</span>
           </div>
 
           <el-input v-model='postRuleForm.content'
@@ -95,7 +95,7 @@
                     :autosize='{ minRows: 3 }'
                     type='textarea'
                     size='large'
-                    :placeholder="t('CommunityPage.PostContentPlaceholder')"/>
+                    placeholder="请输入帖子内容"/>
         </div>
       </el-form-item>
 
@@ -106,7 +106,7 @@
             <el-icon :size='18' style='margin-right: 5px'>
               <CollectionTag/>
             </el-icon>
-            <span style='font-size: 16px'>{{ t('CommunityPage.PostCategoryLabel') }}</span>
+            <span style='font-size: 16px'>帖子分类</span>
           </div>
 
           <el-radio-group size='large' v-model='postRuleForm.categoryId'>
@@ -123,19 +123,19 @@
                  accept='.jpeg, .jpg'
                  :show-file-list='false'>
         <el-button size='large' plain>
-          <span>{{ t('CommunityPage.UploadPostImagePrompt') }}</span>
+          <span>上传帖子图片</span>
         </el-button>
       </el-upload>
 
       <el-button v-if="imageUrls[0]!=''" size='large' plain style='margin-left: 12px' @click='imageViewerVisible=true'>
-        <span>{{ t('CommunityPage.ViewPostImagePrompt') }}</span>
+        <span>查看帖子图片</span>
       </el-button>
     </div>
 
     <el-button-group style='display: flex; justify-content: center; margin-top: 8px'>
-      <el-button size='large' @click='cancelPublishPost'>{{ t('CommunityPage.Cancel') }}</el-button>
+      <el-button size='large' @click='cancelPublishPost'>取消发帖</el-button>
       <el-button size='large' @click='submitPost(postRuleFormRef)' type='primary'>
-        {{ t('CommunityPage.PublishPost') }}
+        发布帖子
       </el-button>
     </el-button-group>
   </el-dialog>
@@ -188,21 +188,21 @@ const postRules: FormRules = {
   title: [
     {
       required: true,
-      message: t('CommunityPage.RequiredPostTitle'),
+      message: '帖子标题不能为空',
       trigger: 'blur'
     },
   ],
   content: [
     {
       required: true,
-      message: t('CommunityPage.RequiredPostContent'),
+      message: '帖子内容不能为空',
       trigger: 'blur'
     },
   ],
   categoryId: [
     {
       required: true,
-      message: t('CommunityPage.RequiredCategoryId'),
+      message: '帖子分类不能为空',
       trigger: 'blur'
     }
   ]
@@ -229,7 +229,7 @@ onMounted(async () => {
     const response = await axiosInstance.get('post/latest')
     postIds.value = response.data
   } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
+    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 })
 
@@ -238,7 +238,7 @@ function publishPost() {
   if (currentUserId.value && currentUserId.value != 0) {
     showPublishPost.value = true
   } else {
-    ElMessage.warning(t('SettingsPage.PleaseLoginFirst'))
+    ElMessage.warning('请先进行登录！')
   }
 }
 
@@ -250,7 +250,7 @@ onMounted(async () => {
       name: tag.category
     }))
   } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
+    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 })
 
@@ -258,11 +258,11 @@ function beforeUploadImage(file) {
   const isJPG = file.type == 'image/jpeg'
   const isLt5M = file.size / 1024 / 1024 < 5
   if (!isJPG) {
-    ElMessage.error(t('CommunityPage.UploadedPostImageFormat'))
+    ElMessage.error('上传帖子图片只能是 JPG 格式')
     return false
   }
   if (!isLt5M) {
-    ElMessage.error(t('CommunityPage.UploadedPostImageSize'))
+    ElMessage.error('上传帖子图片大小不能超过 5MB')
     return false
   }
   return true
@@ -277,22 +277,22 @@ const handleBeforeUploadImage = async (file: File) => {
   try {
     const response = await axiosInstance.post('upload-post-image', formData)
     imageUrls.value[0] = response.data.fileName
-    ElMessage.success(t('CommunityPage.UploadPostImageSucceed'))
+    ElMessage.success('上传帖子图片成功')
   } catch (error) {
-    ElMessage.error(t('CommunityPage.UploadPostImageFailed'))
+    ElMessage.error('上传帖子图片失败')
   }
 }
 
 const cancelPublishPost = () => {
   ElMessageBox.confirm(
-      t('CommunityPage.CancelPublishPostPrompt'),
-      t('CommunityPage.CancelPublishPost'),
+      '确认要取消发布帖子吗？您的输入内容将不会被保存。',
+      '取消发布帖子',
       {
         showClose: false,
         closeOnClickModal: false,
         closeOnPressEscape: false,
-        confirmButtonText: t('CommunityPage.Continue'),
-        cancelButtonText: t('CommunityPage.Cancel')
+        confirmButtonText: '继续发帖',
+        cancelButtonText: '取消发帖'
       }
   ).catch(() => {
     showPublishPost.value = false
@@ -317,16 +317,16 @@ const submitPost = async (formEl: FormInstance | undefined) => {
       const result = await postPost()
       if (result) {
         ElNotification({
-          title: t('CommunityPage.PublishPostSuccessfully'),
-          message: t('CommunityPage.PublishPostSuccessfullyPrompt'),
+          title: '帖子发布成功',
+          message: '帖子发布成功，您可以在我发布的帖子中查看或继续浏览其他内容。',
           type: 'success'
         })
         showPublishPost.value = false
         resetFeedback(postRuleFormRef.value)
       } else {
         ElNotification({
-          title: t('CommunityPage.PublishPostFailed'),
-          message: t('CommunityPage.PublishPostFailedPrompt'),
+          title: '帖子发布失败',
+          message: '帖子发布失败，请检查网络连接情况或稍后重试。',
           type: 'error'
         })
       }
@@ -370,7 +370,7 @@ async function refreshPosts() {
     postIds.value = response.data
     currentPage.value = 1 // 重置到第一页
   } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
+    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 }
 </script>

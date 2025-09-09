@@ -180,10 +180,19 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted, reactive} from 'vue'
 import {ossBaseUrl} from '../globals'
-import PostCard from '../components/PostCard.vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
 import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
+import {onBeforeUnmount} from 'vue'
+
+const imageViewerVisible = ref(false)
+let isUnmounted = false
+
+// 卸载之前销毁，修改卸载状态为是
+onBeforeUnmount(() => {
+  imageViewerVisible.value = false
+  isUnmounted = true
+})
 
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -201,7 +210,6 @@ const showPublishPost = ref(false)
 const postCategories = ref([])
 const postImage = ref<UploadInstance>()
 const postRuleFormRef = ref<FormInstance>()
-const imageViewerVisible = ref(false)
 const imageUrls = ref([''])
 
 interface PostRuleForm {
@@ -262,6 +270,8 @@ onMounted(async () => {
     // 使用后端即将实现的 /post/latest 接口获取最新帖子列表
     console.log('正在请求API:', '/api/post/latest')
     const response = await axiosInstance.get('post/latest')
+    
+    
     console.log('API响应状态:', response.status)
     console.log('后端返回的帖子数据:', response.data)
     console.log('数据类型:', typeof response.data)
@@ -271,7 +281,14 @@ onMounted(async () => {
     // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
     postIds.value = response.data || []
     console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
-  } catch (error) {
+    
+    // 添加销毁检测防止卡网页
+    if (!isUnmounted) {
+      postIds.value = response.data
+    }
+    
+  } 
+  catch (error) {
     console.error('获取帖子列表失败:', error)
     console.error('错误详情:', error.response?.data)
     console.error('错误状态码:', error.response?.status)

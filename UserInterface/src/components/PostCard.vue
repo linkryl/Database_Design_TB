@@ -107,12 +107,15 @@ onMounted(async () => {
     postData.value = postResponse.data
     postData.value.creationDate = formatDateTimeToCST(postData.value.creationDate).dateTime
     postData.value.updateDate = formatDateTimeToCST(postData.value.updateDate).dateTime
+    
     const userResponse = await axiosInstance.get(`user/${postData.value.userId}`)
     user.value = userResponse.data
+    
     const categoryResponse = await axiosInstance.get(`post-category/${postData.value.categoryId}`)
     postCategory.value = categoryResponse.data.category
   } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
+    console.error(`获取帖子 ${props.postId} 数据失败:`, error)
+    ElMessage.error(`获取帖子数据失败: ${error.message || '未知错误'}`)
   }
 })
 </script>

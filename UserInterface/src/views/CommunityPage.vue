@@ -147,15 +147,13 @@
 </template>
 
 <script setup lang='ts'>
-import {ref, computed, onMounted, watch, reactive} from 'vue'
-import {useI18n} from 'vue-i18n'
+import {ref, computed, onMounted, reactive} from 'vue'
 import {ossBaseUrl} from '../globals'
 import PostCard from '../components/PostCard.vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
 import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
 
-const {t, locale} = useI18n()
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalPosts = computed(() => postIds.value.length)

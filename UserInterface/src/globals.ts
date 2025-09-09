@@ -6,6 +6,7 @@ TreeHole制作组
 import {ref} from 'vue'
 import type {Instance} from 'element-plus'
 
+
 export const apiBaseUrl = '[TODO: apiBaseUrl]'
 export const ossBaseUrl = '/src/assets/'
 export const isProgressVisible = ref(false)

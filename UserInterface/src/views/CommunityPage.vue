@@ -12,7 +12,7 @@
       <div class='harmony-notice-icon'>🤝</div>
       <div class='harmony-notice-text'>
         <div class='harmony-notice-title'>和谐社区</div>
-        <div class='harmony-notice-subtitle'>共同打造和谐宠物社区</div>
+        <div class='harmony-notice-subtitle'>共同打造和谐社区</div>
         <div class='harmony-notice-description'>为了维护社区的秩序和氛围，请在发帖时遵守以下准则</div>
         <div class='harmony-notice-rules'>
           <span class='rule-item'>尊重他人</span>
@@ -39,15 +39,46 @@
   <div class='page-container'>
     <!-- 帖子列表区域 -->
     <div class='posts-section'>
-      <PostCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId'/>
-      <div class='pagination-container'>
-        <el-pagination @current-change='handleCurrentChange'
-                       :current-page='currentPage'
-                       :page-size='pageSize'
-                       layout='prev, pager, next'
-                       :total='totalPosts'>
-        </el-pagination>
+      
+      <!-- 无帖子时的空状态提示 -->
+      <div v-if='postIds.length === 0' class='empty-posts-container'>
+        <div class='empty-posts-content'>
+          <div class='empty-posts-icon'>📝</div>
+          <div class='empty-posts-title'>当前还没有帖子</div>
+          <div class='empty-posts-subtitle'>快来发帖试试吧</div>
+          <el-button type='primary' size='large' @click='publishPost' class='empty-posts-button'>
+            立即发帖
+          </el-button>
+        </div>
       </div>
+      
+      <!-- 有帖子时显示帖子列表 -->
+      <template v-else>
+        <!-- 临时调试：显示帖子数据状态 -->
+        <div style="background: #fff3cd; padding: 10px; margin: 10px 0; border-radius: 5px; font-size: 12px; border: 1px solid #ffeaa7;">
+          数据状态: 总帖子数 {{ postIds.length }}，当前页显示 {{ paginatedPostIds.length }} 个帖子
+        </div>
+        
+        <PostCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId'/>
+        
+        <!-- 最后一页的结束提示 -->
+        <div v-if='isLastPage && postIds.length > 0' class='end-posts-container'>
+          <div class='end-posts-content'>
+            <div class='end-posts-icon'>🏁</div>
+            <div class='end-posts-text'>再往后就没有啦</div>
+          </div>
+        </div>
+        
+        <!-- 分页控件 -->
+        <div class='pagination-container'>
+          <el-pagination @current-change='handleCurrentChange'
+                         :current-page='currentPage'
+                         :page-size='pageSize'
+                         layout='prev, pager, next'
+                         :total='totalPosts'>
+          </el-pagination>
+        </div>
+      </template>
     </div>
   </div>
 
@@ -149,15 +180,29 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted, reactive} from 'vue'
 import {ossBaseUrl} from '../globals'
-import PostCard from '../components/PostCard.vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
 import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
+import {onBeforeUnmount} from 'vue'
+
+const imageViewerVisible = ref(false)
+let isUnmounted = false
+
+// 卸载之前销毁，修改卸载状态为是
+onBeforeUnmount(() => {
+  imageViewerVisible.value = false
+  isUnmounted = true
+})
 
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalPosts = computed(() => postIds.value.length)
 const postIds = ref([])
+
+// 判断是否为最后一页
+const isLastPage = computed(() => {
+  return currentPage.value >= Math.ceil(totalPosts.value / pageSize.value)
+})
 const storedValue = localStorage.getItem('currentUserId')
 const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
@@ -165,7 +210,6 @@ const showPublishPost = ref(false)
 const postCategories = ref([])
 const postImage = ref<UploadInstance>()
 const postRuleFormRef = ref<FormInstance>()
-const imageViewerVisible = ref(false)
 const imageUrls = ref([''])
 
 interface PostRuleForm {
@@ -223,24 +267,42 @@ function addOssPrefix(): string[] {
 
 onMounted(async () => {
   try {
-    // 获取所有帖子并按时间最新顺序排序
+    // 使用后端即将实现的 /post/latest 接口获取最新帖子列表
+    console.log('正在请求API:', '/api/post/latest')
     const response = await axiosInstance.get('post/latest')
-    postIds.value = response.data
-  } catch (error) {
-    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
+    
+    
+    console.log('API响应状态:', response.status)
+    console.log('后端返回的帖子数据:', response.data)
+    console.log('数据类型:', typeof response.data)
+    console.log('数据长度:', response.data?.length)
+    console.log('前5个帖子ID:', response.data?.slice(0, 5))
+    
+    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
+    postIds.value = response.data || []
+    console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
+    
+    // 添加销毁检测防止卡网页
+    if (!isUnmounted) {
+      postIds.value = response.data
+    }
+    
+  } 
+  catch (error) {
+    console.error('获取帖子列表失败:', error)
+    console.error('错误详情:', error.response?.data)
+    console.error('错误状态码:', error.response?.status)
+    console.error('完整错误响应:', error.response)
+    
+    if (error.response?.status === 500) {
+      ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
+    } else if (error.response?.status === 404) {
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest 接口')
+    } else {
+      ElMessage.error(`GET 请求失败: ${error.message}`)
+    }
   }
-})
-
-
-function publishPost() {
-  if (currentUserId.value && currentUserId.value != 0) {
-    showPublishPost.value = true
-  } else {
-    ElMessage.warning('请先进行登录！')
-  }
-}
-
-onMounted(async () => {
+  
   try {
     const response = await axiosInstance.get('post-category')
     postCategories.value = response.data.map(tag => ({
@@ -251,6 +313,14 @@ onMounted(async () => {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 })
+
+function publishPost() {
+  if (currentUserId.value && currentUserId.value != 0) {
+    showPublishPost.value = true
+  } else {
+    ElMessage.warning('请先进行登录！')
+  }
+}
 
 function beforeUploadImage(file) {
   const isJPG = file.type == 'image/jpeg'
@@ -365,7 +435,8 @@ async function postPost() {
 async function refreshPosts() {
   try {
     const response = await axiosInstance.get('post/latest')
-    postIds.value = response.data
+    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
+    postIds.value = response.data || []
     currentPage.value = 1 // 重置到第一页
   } catch (error) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
@@ -460,6 +531,72 @@ h1 {
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;
+}
+
+/* 空状态提示样式 */
+.empty-posts-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 40px 20px;
+}
+
+.empty-posts-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-posts-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.empty-posts-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.empty-posts-subtitle {
+  font-size: 16px;
+  color: #999;
+  margin-bottom: 30px;
+}
+
+.empty-posts-button {
+  padding: 12px 32px;
+  font-size: 16px;
+}
+
+/* 结束提示样式 */
+.end-posts-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+  padding: 20px;
+}
+
+.end-posts-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 25px;
+  background-color: #f5f5f5;
+  border-radius: 25px;
+  border: 1px solid #e0e0e0;
+}
+
+.end-posts-icon {
+  font-size: 20px;
+}
+
+.end-posts-text {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
 }
 
 .pagination-container {

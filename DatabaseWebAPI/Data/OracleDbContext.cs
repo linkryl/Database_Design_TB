@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     OracleDbContext.cs
  * File Function: OracleDbContext 类
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-07-10
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-29
  * License:       Creative Commons Attribution 4.0 International License
  */
 

@@ -37,12 +37,6 @@ public sealed class User
     public string Password { get; set; } = string.Empty;
 
     [Required]
-    [Column("TELEPHONE")]
-    [StringLength(16)]
-    [SwaggerSchema("手机号码")]
-    public string Telephone { get; set; } = string.Empty;
-
-    [Required]
     [Column("REGISTRATION_DATE")]
     [SwaggerSchema("注册日期")]
     public DateTime RegistrationDate { get; set; }

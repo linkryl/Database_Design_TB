@@ -248,9 +248,11 @@ watch(searchContent, async (newPattern) => {
       initFusePostComment(data5.data)
       initFusePost(data6.data)
       initFuseAdoption(data7.data)
-    } catch (error) {
-      ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-    } finally {
+    } 
+    catch (error) {
+      ElMessage.error("网络请求失败")
+    } 
+    finally {
       loading.value = false
       const resultsPost = fusePost.search(newPattern)
       const resultsPostComment = fusePostComment.search(newPattern)

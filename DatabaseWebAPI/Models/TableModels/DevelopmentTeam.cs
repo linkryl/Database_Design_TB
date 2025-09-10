@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     DevelopmentTeam.cs
  * File Function: DevelopmentTeam 模型类
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-07-10
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-31
  * License:       Creative Commons Attribution 4.0 International License
  */
 

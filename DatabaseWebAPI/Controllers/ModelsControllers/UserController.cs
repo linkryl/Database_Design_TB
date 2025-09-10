@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     UserController.cs
  * File Function: User 控制器
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-08-16
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-29
  * License:       Creative Commons Attribution 4.0 International License
  */
 
@@ -84,30 +84,6 @@ public class UserController(OracleDbContext context) : ControllerBase
             }
 
             return Ok(user.UserName);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 根据主键（ID）获取用户表的手机号码数据
-    [HttpGet("telephone/{id:int}")]
-    [SwaggerOperation(Summary = "根据主键（ID）获取用户表的手机号码数据", Description = "根据主键（ID）获取用户表的手机号码数据")]
-    [SwaggerResponse(200, "获取数据成功")]
-    [SwaggerResponse(404, "未找到对应数据")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    public async Task<ActionResult<User>> GetUserTelephoneByPk(int id)
-    {
-        try
-        {
-            var user = await context.UserSet.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound($"No corresponding data found for ID: {id}");
-            }
-
-            return Ok(user.Telephone);
         }
         catch (Exception ex)
         {
@@ -387,39 +363,6 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
-    // 根据主键（ID）更新用户表的手机号码数据
-    [HttpPut("telephone/{id:int}")]
-    [SwaggerOperation(Summary = "根据主键（ID）更新用户表的手机号码数据", Description = "根据主键（ID）更新用户表的手机号码数据")]
-    [SwaggerResponse(200, "更新数据成功")]
-    [SwaggerResponse(404, "未找到对应数据")]
-    [SwaggerResponse(400, "请求无效")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public async Task<IActionResult> UpdateTelephone(int id, [FromBody] TelephoneRequest telephoneRequest)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var user = await context.UserSet.FindAsync(id);
-        if (user == null)
-        {
-            return NotFound($"No corresponding data found for ID: {id}");
-        }
-
-        user.Telephone = telephoneRequest.Telephone;
-        try
-        {
-            await context.SaveChangesAsync();
-            return Ok($"Data with ID: {id} has been updated successfully.");
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
     // 判断用户名是否存在于用户表中
     [HttpGet("check-username-unique/{username}")]
     [SwaggerOperation(Summary = "判断用户名是否存在于用户表中", Description = "判断用户名是否存在于用户表中")]
@@ -439,24 +382,6 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
-    // 判断手机号码是否存在于用户表中
-    [HttpGet("check-telephone-unique/{telephone}")]
-    [SwaggerOperation(Summary = "判断手机号码是否存在于用户表中", Description = "判断手机号码是否存在于用户表中")]
-    [SwaggerResponse(200, "请求成功")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public async Task<ActionResult<int>> CheckTelephoneUnique(string telephone)
-    {
-        try
-        {
-            var count = await context.UserSet.CountAsync(u => u.Telephone == telephone);
-            return Ok(count > 0 ? 1 : 0);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
 
     // 验证用户密码是否正确
     [HttpPost("verify-password")]
@@ -491,28 +416,5 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
-    // 根据电话号码获取用户 ID
-    [HttpGet("get-user-id-by-telephone/{telephone}")]
-    [SwaggerOperation(Summary = "根据电话号码获取用户 ID", Description = "根据电话号码获取用户 ID")]
-    [SwaggerResponse(200, "请求成功")]
-    [SwaggerResponse(404, "未找到对应的电话号码")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    // ReSharper disable once InconsistentNaming
-    public async Task<ActionResult<int>> GetUserIdByTelephone(string telephone)
-    {
-        try
-        {
-            var user = await context.UserSet.FirstOrDefaultAsync(u => u.Telephone == telephone);
-            if (user == null)
-            {
-                return NotFound($"No corresponding data found for telephone: {telephone}");
-            }
-
-            return Ok(user.UserId);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
+    
 }

@@ -1,6 +1,6 @@
 /*
 Vue Router 配置文件
-TreeHole制作组
+2352031 古振
 */
 
 import {createRouter, RouteRecordRaw, Router, createWebHistory} from 'vue-router'
@@ -10,17 +10,6 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         redirect: '/home'
-    },
-    {
-        path: '/:pathMatch(.*)*',
-        redirect: '/404'
-    },
-    {
-        path: '/api',
-        redirect: () => {
-            window.location.href = '[TODO: APIRedirectUrl]'
-            return '/'
-        }
     },
     {
         path: '/home',
@@ -68,7 +57,7 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/post/new',
+        path: '/PostNew',
         name: 'PostEdit',
         // @ts-ignore
         component: () => import('../views/PostEdit.vue'),

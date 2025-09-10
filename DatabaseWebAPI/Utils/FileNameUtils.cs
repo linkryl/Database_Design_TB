@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     FileNameUtils.cs
  * File Function: 文件名工具函数
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-08-03
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-31
  * License:       Creative Commons Attribution 4.0 International License
  */
 

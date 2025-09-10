@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     UserController.cs
  * File Function: User 控制器
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2025-09-10
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-29
  * License:       Creative Commons Attribution 4.0 International License
  */
 
@@ -382,6 +382,7 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
+
     // 验证用户密码是否正确
     [HttpPost("verify-password")]
     [SwaggerOperation(Summary = "验证用户密码是否正确", Description = "验证用户密码是否正确")]
@@ -415,6 +416,7 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
+
     // 根据用户名获取用户 ID
     [HttpGet("get-user-id-by-username/{username}")]
     [SwaggerOperation(Summary = "根据用户名获取用户 ID", Description = "根据用户名获取用户 ID")]
@@ -438,4 +440,5 @@ public class UserController(OracleDbContext context) : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 }

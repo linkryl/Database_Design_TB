@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     PostController.cs
  * File Function: Post 控制器
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-09-03
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-29
  * License:       Creative Commons Attribution 4.0 International License
  */
 
@@ -172,8 +172,30 @@ public class PostController(OracleDbContext context) : ControllerBase
         {
             var postIds = await context.PostSet
                 .Where(post => categoryIds.Contains(post.CategoryId))
-                .OrderByDescending(post => post.IsSticky) 
+                .OrderByDescending(post => post.IsSticky)
                 .ThenByDescending(post => post.CreationDate)
+                .Select(post => post.PostId)
+                .ToListAsync();
+            return Ok(postIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+    
+    [HttpGet("latest-ids")]
+    [SwaggerOperation(Summary = "按创建时间倒序获取最新帖子的ID列表", Description = "只返回按创建时间排序的最新帖子主键ID")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(400, "请求无效")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<IEnumerable<int>>> GetLatestPostIds([FromQuery] int count = 10)
+    {
+        try
+        {
+            var postIds = await context.PostSet
+                .OrderByDescending(post => post.CreationDate)
+                .Take(count)
                 .Select(post => post.PostId)
                 .ToListAsync();
             return Ok(postIds);

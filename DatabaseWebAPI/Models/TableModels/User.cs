@@ -2,8 +2,8 @@
  * Project Name:  DatabaseWebAPI
  * File Name:     User.cs
  * File Function: User 模型类
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-07-15
+ * Author:        TreeHole开发组
+ * Update Date:   2025-07-31
  * License:       Creative Commons Attribution 4.0 International License
  */
 
@@ -35,12 +35,6 @@ public sealed class User
     [StringLength(64)]
     [SwaggerSchema("密码")]
     public string Password { get; set; } = string.Empty;
-
-    [Required]
-    [Column("TELEPHONE")]
-    [StringLength(16)]
-    [SwaggerSchema("手机号码")]
-    public string Telephone { get; set; } = string.Empty;
 
     [Required]
     [Column("REGISTRATION_DATE")]
@@ -123,36 +117,6 @@ public sealed class User
     public int MessageCount { get; set; }
 
     // 导航属性
-    public ICollection<News> NewsEntity { get; set; } =
-        new HashSet<News>();
-
-    public ICollection<NewsComment> NewsCommentEntity { get; set; } =
-        new HashSet<NewsComment>();
-
-    public ICollection<NewsCommentDislike> NewsCommentDislikeEntity { get; set; } =
-        new HashSet<NewsCommentDislike>();
-
-    public ICollection<NewsCommentLike> NewsCommentLikeEntity { get; set; } =
-        new HashSet<NewsCommentLike>();
-
-    public ICollection<NewsCommentReport> NewsCommentReportEntityReporter { get; set; } =
-        new HashSet<NewsCommentReport>();
-
-    public ICollection<NewsCommentReport> NewsCommentReportEntityReportedUser { get; set; } =
-        new HashSet<NewsCommentReport>();
-
-    public ICollection<NewsDislike> NewsDislikeEntity { get; set; } =
-        new HashSet<NewsDislike>();
-
-    public ICollection<NewsFavorite> NewsFavoriteEntity { get; set; } =
-        new HashSet<NewsFavorite>();
-
-    public ICollection<NewsLike> NewsLikeEntity { get; set; } =
-        new HashSet<NewsLike>();
-
-    public ICollection<PetAdoption> PetAdoptionEntity { get; set; } =
-        new HashSet<PetAdoption>();
-
     public ICollection<Post> PostEntity { get; set; } =
         new HashSet<Post>();
 
@@ -185,9 +149,6 @@ public sealed class User
 
     public ICollection<PostReport> PostReportEntityReportedUser { get; set; } =
         new HashSet<PostReport>();
-
-    public ICollection<UserCheckIn> UserCheckInEntity { get; set; } =
-        new HashSet<UserCheckIn>();
 
     public ICollection<UserFollow> UserFollowEntityUser { get; set; } =
         new HashSet<UserFollow>();

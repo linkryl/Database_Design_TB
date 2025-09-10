@@ -45,13 +45,14 @@ import {ossBaseUrl} from '../globals'
 }
 
 .FooterNavbar {
-  position: relative;
+  position: relative; 
   width: 100%;
   height: 70px;
   background-color: #F0F2F5;
   border-top: 1px solid #DCDFE6;
   justify-content: center;
 }
+
 
 .FooterSseLogoLeft {
   position: absolute;

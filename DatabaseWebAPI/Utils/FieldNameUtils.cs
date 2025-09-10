@@ -11,80 +11,17 @@ namespace DatabaseWebAPI.Utils;
 
 public static class FieldNameUtils
 {
-    // 获取宠物分类名称字段名
-    public static string GetCategoryNameFieldName(string language)
-    {
-        return language switch
-        {
-            "zh" => "CategoryNameZh",
-            "de" => "CategoryNameDe",
-            "en" => "CategoryNameEn",
-            "es" => "CategoryNameEs",
-            "fr" => "CategoryNameFr",
-            "it" => "CategoryNameIt",
-            "ja" => "CategoryNameJa",
-            "ko" => "CategoryNameKo",
-            "pt" => "CategoryNamePt",
-            "ru" => "CategoryNameRu",
-            _ => "CategoryNameZh"
-        };
-    }
-
-    // 获取宠物子类名称字段名
-    public static string GetSubcategoryNameFieldName(string language)
-    {
-        return language switch
-        {
-            "zh" => "SubcategoryNameZh",
-            "de" => "SubcategoryNameDe",
-            "en" => "SubcategoryNameEn",
-            "es" => "SubcategoryNameEs",
-            "fr" => "SubcategoryNameFr",
-            "it" => "SubcategoryNameIt",
-            "ja" => "SubcategoryNameJa",
-            "ko" => "SubcategoryNameKo",
-            "pt" => "SubcategoryNamePt",
-            "ru" => "SubcategoryNameRu",
-            _ => "SubcategoryNameZh"
-        };
-    }
 
     // 获取描述字段名
     public static string GetDescriptionFieldName(string language)
     {
-        return language switch
-        {
-            "zh" => "DescriptionZh",
-            "de" => "DescriptionDe",
-            "en" => "DescriptionEn",
-            "es" => "DescriptionEs",
-            "fr" => "DescriptionFr",
-            "it" => "DescriptionIt",
-            "ja" => "DescriptionJa",
-            "ko" => "DescriptionKo",
-            "pt" => "DescriptionPt",
-            "ru" => "DescriptionRu",
-            _ => "DescriptionZh"
-        };
+        return "DescriptionZh";
     }
 
     // 获取起源地字段名
     public static string GetOriginFieldName(string language)
     {
-        return language switch
-        {
-            "zh" => "OriginZh",
-            "de" => "OriginDe",
-            "en" => "OriginEn",
-            "es" => "OriginEs",
-            "fr" => "OriginFr",
-            "it" => "OriginIt",
-            "ja" => "OriginJa",
-            "ko" => "OriginKo",
-            "pt" => "OriginPt",
-            "ru" => "OriginRu",
-            _ => "OriginZh"
-        };
+        return "OriginZh";
     }
 
     // 获取体型字段名

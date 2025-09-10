@@ -1,6 +1,6 @@
 <!--
-  File Function: 登录页面
-  Author:        TreeHole 开发组
+组件内容: 登录页面
+开发作者: TreeHole 开发组
 -->
 
 <template>
@@ -41,7 +41,6 @@
               :prefix-icon='Lock'
               size='large' 
               autocomplete='off' 
-              maxlength='16'
               show-password 
               clearable
             />
@@ -200,12 +199,25 @@ const handleSubmitLogin = async (elFormRef: FormInstance | undefined) => {
             ElMessage.error('密码不正确!')
           } else {
             try {
-              localStorage.setItem('currentUserId', userId.toString())
-              router.push('/')
-              window.location.href = '/'
+              axiosInstance.put(`user/last-login-time/${userId}`, {
+                lastLoginTime: new Date().toISOString()
+              }).then(() => {
+                localStorage.setItem('currentUserId', userId.toString())
+                router.push('/')
+                window.location.href = '/'
+              }).catch(() => {
+                ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
+              })
             } catch (error) {
               ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
             }
+            // try {
+            //   localStorage.setItem('currentUserId', userId.toString())
+            //   router.push('/')
+            //   window.location.href = '/'
+            // } catch (error) {
+            //   ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
+            // }
           }
         } catch (error) {
           ElMessage.error('登录失败，请检查网络连接情况或稍后重试')

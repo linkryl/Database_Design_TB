@@ -1,730 +1,743 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     ProfilePage.vue
-  File Function: 个人主页页面
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-09-07
-  License:       Creative Commons Attribution 4.0 International License
+  个人资料展示页面
+  2353814 马小龙 | TreeHole 项目开发组
 -->
 
 <template>
-  <div class='page-container'>
-    <div class='background-container'/>
-
-    <el-avatar class='avatar' :src='`${ossBaseUrl}${userData.avatarUrl}`'>
-      <el-icon :size='100'>
-        <Avatar/>
-      </el-icon>
-    </el-avatar>
-
-    <div class='info-module'>
-      <div class='info-left'>
-        <p class='name'>{{ userData.userName }}</p>
-        <div v-if='isCurrentUser || userData.isLevelPublic'>
-          <el-progress :percentage='experiencePercentage'
-                       :format='formatLevel'
-                       style='width: 300px; margin-left: 0; margin-top: -20px'/>
-          <div class='experience-bar'>
-            <p class='experience-text'>
-              {{ t('HeaderNavbar.NextLevel') }} {{ nextLevel }} |
-              {{ t('HeaderNavbar.NeededExperience') }} {{ remainingExperience }}
-            </p>
+  <div class='personal-zone-container'>
+    <!-- 顶部背景区域 -->
+    <div class='profile-header-bg'>
+      <div class='header-pattern'></div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class='profile-main-wrapper'>
+      <!-- 用户头像和基本信息栏 -->
+      <div class='user-info-bar'>
+        <el-avatar class='profile-avatar' :src='`${ossBaseUrl}${userInfo.avatarUrl}`'>
+          <el-icon :size='60'>
+            <UserFilled/>
+          </el-icon>
+        </el-avatar>
+        
+        <div class='user-basic-info'>
+          <div class='name-row'>
+            <h1 class='display-name'>{{ userInfo.userName }}</h1>
+            <span class='uid-tag'>UID: {{ userInfo.uid }}</span>
           </div>
+          <!-- 等级与收藏数 -->
+          <p class='join-info'>LV: {{ userInfo.experience / 1000 }} | 收藏数: {{ userInfo.favoriteCount }}</p>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class='action-area'>
+          <el-button v-if='isSelf' 
+                     type='primary' 
+                     class='edit-btn'
+                     @click='openEditPanel'>
+            <el-icon><EditPen/></el-icon>
+            编辑资料
+          </el-button>
         </div>
       </div>
 
-      <div class='info-right'>
-        <div class='stats'>
-          <div v-if='isCurrentUser || userData.isFollowingCountPublic'>
-            <div class='stat'>
-              <p class='number'>{{ userData.followsCount }}</p>
-              <p class='label'>{{ t('ProfilePage.FollowsCount') }}</p>
-              <el-dropdown class='information-icon'>
-                <el-icon v-show='followingUsers.length > 0 && isCurrentUser'>
-                  <InfoFilled/>
-                </el-icon>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item v-for='user in followingUsers'
-                                      :key='user'
-                                      @click='router.push(`/profile/${user.userId}`)'>
-                      <el-row>
-                        <el-col :span='8'>
-                          <el-avatar :src='`${ossBaseUrl}${user.avatarUrl}`' alt='avatar' class='user-avatar'>
-                            <el-icon :size='28' style='transform: translateX(2px) translateY(-1px)'>
-                              <Avatar/>
-                            </el-icon>
-                          </el-avatar>
-                        </el-col>
-                        <el-col :span='40'>
-                          <div class='user-info'>
-                            <p class='user-name'>{{ user.userName }}</p>
-                            <p class='user-profile'>{{ user.profile }}</p>
-                          </div>
-                        </el-col>
-                      </el-row>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </div>
+      <!-- 内容展示区 -->
+      <div class='content-display-area'>
+        <!-- 个人信息展示卡片 -->
+        <div class='info-display-card'>
+          <div class='card-header'>
+            <el-icon class='header-icon'><User/></el-icon>
+            <span class='header-title'>个人信息</span>
           </div>
-          <div v-if='isCurrentUser || userData.isFollowersCountPublic'>
-            <div class='stat'>
-              <p class='number'>{{ userData.followedCount }}</p>
-              <p class='label'>{{ t('ProfilePage.FollowedCount') }}</p>
-              <el-dropdown class='information-icon'>
-                <el-icon v-show='followersUsers.length > 0 && isCurrentUser'>
-                  <InfoFilled/>
-                </el-icon>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item v-for='user in followersUsers'
-                                      :key='user'
-                                      @click='router.push(`/profile/${user.followerId}`)'>
-                      <el-row>
-                        <el-col :span='8'>
-                          <el-avatar :src='`${ossBaseUrl}${user.avatarUrl}`' alt='avatar' class='user-avatar'>
-                            <el-icon :size='28' style='transform: translateX(2px) translateY(-1px)'>
-                              <Avatar/>
-                            </el-icon>
-                          </el-avatar>
-                        </el-col>
-                        <el-col :span='40'>
-                          <div class='user-info'>
-                            <p class='user-name'>{{ user.userName }}</p>
-                            <p class='user-profile'>{{ user.profile }}</p>
-                          </div>
-                        </el-col>
-                      </el-row>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+          
+          <div class='info-content'>
+
+            <!-- 基本信息网格 -->
+            <div class='basic-info-grid'>
+              <div class='info-grid-item'>
+                <span class='grid-label'>性别</span>
+                <span class='grid-value'>{{ formatGender(userInfo.gender) }}</span>
+              </div>
+              <div class='info-grid-item'>
+                <span class='grid-label'>生日</span>
+                <span class='grid-value'>{{ formatBirthdate(userInfo.birthdate) }}</span>
+              </div>
+              <div class='info-grid-item'>
+                <span class='grid-label'>电话</span>
+                <span class='grid-value'>{{ userInfo.telephone || '未公开' }}</span>
+              </div>
+              <div class='info-grid-item'>
+                <span class='grid-label'>角色</span>
+                <span class='grid-value'>{{ formatRole(userInfo.role) }}</span>
+              </div>
+              <div class='info-grid-item'>
+                <span class='grid-label'>状态</span>
+                <span class='grid-value'>{{ formatStatus(userInfo.status) }}</span>
+              </div>
             </div>
-          </div>
-          <div v-if='isCurrentUser || userData.isLikedCountPublic'>
-            <div class='stat'>
-              <p class='number'>{{ userData.likedCount }}</p>
-              <p class='label'>{{ t('ProfilePage.LikedCount') }}</p>
+
+            <!-- 个人简介 -->
+            <div class='intro-section'>
+              <div class='section-label'>个人简介</div>
+              <div class='intro-text'>
+                {{ userInfo.profile || '这个人很神秘，什么都没有留下...' }}
+              </div>
             </div>
-          </div>
-          <div v-if='isCurrentUser || userData.isFavoredCountPublic'>
-            <div class='stat'>
-              <p class='number'>{{ userData.favoritedCount }}</p>
-              <p class='label'>{{ t('ProfilePage.FavoritedCount') }}</p>
-            </div>
+
           </div>
         </div>
-        <div v-if='isCurrentUser'>
-          <button class='edit-button' @click="router.push('/settings')">
-            {{ t('ProfilePage.ModifyPersonalInformation') }}
-          </button>
-        </div>
-        <div v-else-if='userData.allowFollowing'>
-          <button class='edit-button' @click='handleFollow'>
-            {{ isFollowing ? t('ProfilePage.Followed') : t('ProfilePage.Follow') }}
-          </button>
+
+        <!-- 我的收藏卡片 -->
+        <div v-if='isSelf' class='collection-showcase-card' @click='goToCollections'>
+          <div class='showcase-bg'></div>
+          <div class='showcase-content'>
+            <el-icon class='showcase-icon'><Collection/></el-icon>
+            <div class='showcase-info'>
+              <h3 class='showcase-title'>我的收藏夹</h3>
+              <p class='showcase-desc'>查看和管理所有收藏内容</p>
+            </div>
+            <el-icon class='go-icon'><ArrowRightBold/></el-icon>
+          </div>
+          <div class='collection-preview'>
+            <span class='preview-count'>{{ userInfo.favoriteCount }} 个收藏</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class='modules-container'>
-      <div class='profile-module'>
-        <h3>{{ t('ProfilePage.PersonalData') }}</h3>
-        <div v-if='isCurrentUser || userData.isGenderPublic'>
-          <div>
-            <span>{{ t('ProfilePage.Gender') }}{{ userData.gender }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isBirthdatePublic'>
-          <div>
-            <span>{{ t('ProfilePage.Birthdate') }}{{ userData.birthdate }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isTelephonePublic'>
-          <div>
-            <span>{{ t('ProfilePage.Telephone') }}{{ userData.telephone }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isRegistrationDatePublic'>
-          <div>
-            <span>{{ t('ProfilePage.RegistrationDate') }}{{ userData.registrationDate }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isLikesCountPublic'>
-          <div>
-            <span>{{ t('ProfilePage.LikesCount') }}{{ userData.likesCount }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isFavoritesCountPublic'>
-          <div>
-            <span>{{ t('ProfilePage.FavoritesCount') }}{{ userData.favoritesCount }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isMessageCountPublic'>
-          <div>
-            <span>{{ t('ProfilePage.MessageCount') }}{{ userData.messageCount }}</span>
-          </div>
-          <div class='divider'/>
-        </div>
-        <div v-if='isCurrentUser || userData.isProfilePublic'>
-          <div>
-            <span>{{ t('ProfilePage.Profile') }}{{ userData.profile }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class='interaction-module'>
-        <div style='display: flex; gap: 20px'>
-          <h3 style='cursor: pointer' @click='activeIndex=0' v-if='isCurrentUser'>
-            {{ t('ProfilePage.MyFavoriteNews') }}
-          </h3>
-          <h3 style='cursor: pointer' @click='activeIndex=1' v-if='isCurrentUser'>
-            {{ t('ProfilePage.MyFavoritePost') }}
-          </h3>
-          <h3 style='cursor: pointer' @click='activeIndex=2'>
-            {{ isCurrentUser ? t('ProfilePage.MyMessages') : t('ProfilePage.LeaveMessageToMe') }}
-          </h3>
-        </div>
-        <div style='display: flex; flex-direction: column; gap: 10px'>
-          <FavoriteNewsCard v-if='activeIndex==0'
-                            v-for='newsId in favoriteNewsIds'
-                            :key='newsId'
-                            :news-id='newsId'/>
-          <p v-if='activeIndex==0&&favoriteNewsIds.length==0' class='no-content-prompt'>
-            {{ t('ProfilePage.NoFavoriteNews') }}
-          </p>
-        </div>
-        <div>
-          <FavoritePostCard v-if='activeIndex==1'
-                            v-for='postId in favoritePostIds'
-                            :key='postId'
-                            :post-id='postId'/>
-          <p v-if='activeIndex==1&&favoritePostIds.length==0' class='no-content-prompt'>
-            {{ t('ProfilePage.NoFavoritePost') }}
-          </p>
-        </div>
-        <div v-if='activeIndex==2'>
-          <div v-if='isCurrentUser'>
-            <MessageCard v-if='activeIndex==2'
-                         v-for='message in messages'
-                         :key='message'
-                         :message-id='message.messageId'
-                         :commenter-id='message.commenterId'
-                         :message='message.message'
-                         :comment-time='message.commentTime'/>
-            <p v-if='activeIndex==2&&messages.length==0' class='no-content-prompt'>
-              {{ t('ProfilePage.NoMessages') }}
-            </p>
-          </div>
-          <div v-else>
-            <div style='display: flex; flex-direction: column; align-items: center; margin-top: 53px'>
-              <div class='message-prompt'>{{ t('ProfilePage.MessagePrompt') }}</div>
-              <el-input v-model='message'
-                        style='width: 600px'
-                        :placeholder="t('ProfilePage.MessageInputPrompt')"
-                        show-word-limit
-                        size='large'
-                        maxlength='128'/>
-              <button class='confirm-bottom' @click='messageConfirm'>
-                {{ t('ProfilePage.Confirm') }}
-              </button>
+    <!-- 编辑资料对话框 -->
+    <el-dialog 
+      v-model='showEditDialog' 
+      title='编辑个人资料'
+      width='650px'
+      :close-on-click-modal='false'
+      class='edit-dialog'>
+      
+      <el-form :model='editData' label-width='100px' class='edit-form'>
+        <!-- 头像 -->
+        <el-form-item label='头像'>
+          <div class='avatar-upload-area'>
+            <el-upload
+              class='avatar-uploader'
+              action='#'
+              :show-file-list='false'
+              :before-upload='validateAvatar'
+              :http-request='handleAvatarUpload'>
+              <el-avatar :size='100' :src='previewAvatarUrl || `${ossBaseUrl}${editData.avatarUrl}`'>
+                <el-icon :size='40'><Plus/></el-icon>
+              </el-avatar>
+            </el-upload>
+            <div class='avatar-tips'>
+              点击上传新头像<br>
+              支持 JPG/PNG，最大 2MB
             </div>
           </div>
+        </el-form-item>
+
+        <!-- 昵称 -->
+        <el-form-item label='昵称' required>
+          <el-input 
+            v-model='editData.userName' 
+            maxlength='16'
+            show-word-limit
+            placeholder='请输入昵称'/>
+        </el-form-item>
+
+        <!-- 性别 -->
+        <el-form-item label='性别'>
+          <el-radio-group v-model='editData.gender'>
+            <el-radio :label='0'>男性</el-radio>
+            <el-radio :label='1'>女性</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <!-- 生日 -->
+        <el-form-item label='生日'>
+          <el-date-picker
+            v-model='editData.birthdate'
+            type='date'
+            placeholder='选择出生日期'
+            format='YYYY-MM-DD'
+            value-format='YYYY-MM-DD'
+            :disabled-date='disableFutureDate'
+            style='width: 100%'/>
+        </el-form-item>
+
+        <!-- 电话 -->
+        <el-form-item label='电话'>
+          <el-input 
+            v-model='editData.telephone'
+            maxlength='20'
+            placeholder='请输入电话号码'/>
+        </el-form-item>
+
+        <!-- 个人简介 -->
+        <el-form-item label='个人简介'>
+          <el-input
+            v-model='editData.profile'
+            type='textarea'
+            :rows='5'
+            maxlength='300'
+            show-word-limit
+            placeholder='介绍一下自己，让大家更了解你~'/>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class='dialog-footer'>
+          <el-button @click='cancelEdit'>取消</el-button>
+          <el-button type='primary' @click='updateProfile'>保存修改</el-button>
         </div>
-      </div>
-    </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang='ts'>
-import {useI18n} from 'vue-i18n'
 import {computed, onMounted, ref, watch} from 'vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import {useRoute, useRouter} from 'vue-router'
 import {formatDateTimeToCST, ossBaseUrl} from '../globals'
-import {Avatar, InfoFilled} from '@element-plus/icons-vue'
-import FavoriteNewsCard from '../components/FavoriteNewsCard.vue'
-import FavoritePostCard from '../components/FavoritePostCard.vue'
-import MessageCard from '../components/MessageCard.vue'
+import {UserFilled, User, Collection, ArrowRightBold, EditPen, Plus} from '@element-plus/icons-vue'
 
-type Message = {
-  messageId: number
-  userId: number
-  commenterId: number
-  message: String
-  commentTime: String
+// TypeScript 类型定义
+interface UploadFile {
+  name: string
+  percentage?: number
+  status: string
+  size: number
+  response?: any
+  uid: number
+  url?: string
+  raw: File
 }
 
-type FollowingUser = {
-  userId: number
-  userName: string
-  profile: string
-  avatarUrl: string
+interface UploadRequestOptions {
+  action: string
+  method: string
+  data: any
+  filename: string
+  file: File
+  headers: Record<string, string>
+  withCredentials: boolean
+  onProgress: (evt: ProgressEvent) => void
+  onSuccess: (response: any) => void
+  onError: (error: Error) => void
 }
 
-type FollowersUser = {
-  followerId: number
-  userName: string
-  profile: string
-  avatarUrl: string
-}
-
-const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
-const profileUserId = ref(parseInt(<string>route.params.id))
-const storedValue = localStorage.getItem('currentUserId')
-const storedUserId = storedValue ? parseInt(storedValue) : 0
-const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
-const isCurrentUser = ref(false)
-const isFollowing = ref(false)
-const nextLevel = computed(() => Math.floor(userData.value.experiencePoints / 1000) + 2)
-const experiencePercentage = computed(() => (userData.value.experiencePoints % 1000) / 10)
-const remainingExperience = computed(() => (1000 - userData.value.experiencePoints % 1000))
-const favoritePostIds = ref([])
-const favoriteNewsIds = ref([])
-const activeIndex = ref(2)
-const message = ref('')
-const messages = ref<Message[]>([])
-const followingUsers = ref<FollowingUser[]>([])
-const followersUsers = ref<FollowersUser[]>([])
 
-const userData = ref({
+// 用户相关数据
+const viewedUserId = ref(parseInt(route.params.id as string))
+const localUserId = localStorage.getItem('currentUserId')
+const currentUserId = ref(localUserId ? parseInt(localUserId) : 0)
+const isSelf = computed(() => viewedUserId.value === currentUserId.value && currentUserId.value !== 0)
+
+// 用户页面数据
+const userInfo = ref({
+  uid: viewedUserId.value,
   userName: '',
   telephone: '',
-  registrationDate: '',
   role: 0,
   status: 0,
   avatarUrl: '',
   profile: '',
-  gender: '',
+  gender: 0,
   birthdate: '',
-  experiencePoints: 0,
-  followsCount: 0,
-  followedCount: 0,
-  favoritesCount: 0,
-  favoritedCount: 0,
-  likesCount: 0,
-  likedCount: 0,
-  messageCount: 0,
-  isTelephonePublic: false,
-  isRegistrationDatePublic: false,
-  isProfilePublic: false,
-  isGenderPublic: false,
-  isBirthdatePublic: false,
-  isLevelPublic: false,
-  isFollowingCountPublic: false,
-  isFollowersCountPublic: false,
-  isFavoritesCountPublic: false,
-  isFavoredCountPublic: false,
-  isLikesCountPublic: false,
-  isLikedCountPublic: false,
-  isMessageCountPublic: false,
-  allowFollowing: false,
-  receiveAdminNotifications: false,
-  receiveUserNotifications: false
+  experience: 0,
+  favoriteCount: 0
 })
 
-const formatLevel = () => {
-  return `LV ${Math.floor(userData.value.experiencePoints / 1000) + 1}`
+const showEditDialog = ref(false)
+const editData = ref({
+  userName: '',
+  avatarUrl: '',
+  profile: '',
+  gender: 0,
+  birthdate: '',
+  telephone: ''
+})
+
+// 添加头像预览URL
+const previewAvatarUrl = ref('')
+const uploadedFile = ref<File | null>(null)
+
+const formatGender = (gender: number) => {
+  return gender === 0 ? '男' : '女'
 }
 
-const fetchUserData = async () => {
+const formatBirthdate = (birthdate: string) => {
+  if (!birthdate) return '未设置'
   try {
-    const userResponse = await axiosInstance.get(`user/${profileUserId.value}`)
-    if (userResponse.status == 404) {
+    return formatDateTimeToCST(birthdate).date
+  } catch {
+    return birthdate
+  }
+}
+
+const formatRole = (role: number) => {
+  return role === 0 ? '普通用户' : '管理员'
+}
+
+const formatStatus = (status: number) => {
+  return status === 0 ? '正常' : '已禁用'
+}
+
+// 获取用户信息
+const fetchUserProfile = async () => {
+  try {
+    // 从后端获取信息
+    const res = await axiosInstance.get(`user/${viewedUserId.value}`)
+    if (res.status === 404) {
       await router.push('/404')
-    } else {
-      const userSettingResponse = await axiosInstance.get(`user-setting/${profileUserId.value}`)
-      userData.value = {
-        userName: userResponse.data.userName,
-        telephone: userResponse.data.telephone,
-        registrationDate: formatDateTimeToCST(userResponse.data.registrationDate).date,
-        role: userResponse.data.role,
-        status: userResponse.data.status,
-        avatarUrl: userResponse.data.avatarUrl,
-        profile: userResponse.data.profile,
-        gender: userResponse.data.gender == 0 ? t('RegisterPage.Male') : t('RegisterPage.Female'),
-        birthdate: formatDateTimeToCST(userResponse.data.birthdate).date,
-        experiencePoints: userResponse.data.experiencePoints,
-        followsCount: userResponse.data.followsCount,
-        followedCount: userResponse.data.followedCount,
-        favoritesCount: userResponse.data.favoritesCount,
-        favoritedCount: userResponse.data.favoritedCount,
-        likesCount: userResponse.data.likesCount,
-        likedCount: userResponse.data.likedCount,
-        messageCount: userResponse.data.messageCount,
-        isTelephonePublic: userSettingResponse.data.isTelephonePublic == 1,
-        isRegistrationDatePublic: userSettingResponse.data.isRegistrationDatePublic == 1,
-        isProfilePublic: userSettingResponse.data.isProfilePublic == 1,
-        isGenderPublic: userSettingResponse.data.isGenderPublic == 1,
-        isBirthdatePublic: userSettingResponse.data.isBirthdatePublic == 1,
-        isLevelPublic: userSettingResponse.data.isLevelPublic == 1,
-        isFollowingCountPublic: userSettingResponse.data.isFollowingCountPublic == 1,
-        isFollowersCountPublic: userSettingResponse.data.isFollowersCountPublic == 1,
-        isFavoritesCountPublic: userSettingResponse.data.isFavoritesCountPublic == 1,
-        isFavoredCountPublic: userSettingResponse.data.isFavoredCountPublic == 1,
-        isLikesCountPublic: userSettingResponse.data.isLikesCountPublic == 1,
-        isLikedCountPublic: userSettingResponse.data.isLikedCountPublic == 1,
-        isMessageCountPublic: userSettingResponse.data.isMessageCountPublic == 1,
-        allowFollowing: userSettingResponse.data.allowFollowing == 1,
-        receiveAdminNotifications: userSettingResponse.data.receiveAdminNotifications == 1,
-        receiveUserNotifications: userSettingResponse.data.receiveUserNotifications == 1
-      }
-      isCurrentUser.value = (profileUserId.value == currentUserId.value)
+      return
+    }
+    
+    const data = res.data
+    userInfo.value = {
+      uid: data.userId || viewedUserId.value,
+      userName: data.userName || '',
+      telephone: data.telephone || '',
+      role: data.role || 0,
+      status: data.status || 0,
+      avatarUrl: data.avatarUrl || 'default-avatar.png',
+      profile: data.profile || '',
+      gender: data.gender !== undefined ? data.gender : 0,
+      birthdate: data.birthdate || '',
+      experience: data.experiencePoints || 0,
+      favoriteCount: data.favoritesCount || 0
     }
   } catch (error) {
-    if (error.response.status == 404) {
-      await router.push('/404')
-    } else {
-      ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-    }
+    ElMessage.error('GET:获取用户信息失败')
+    console.error('GET:获取用户信息失败:', error)
   }
 }
 
-onMounted(() => {
-  fetchUserData()
-})
-
-onMounted(async () => {
-  try {
-    const response = await axiosInstance.get(`user-message/user/${profileUserId.value}`)
-    messages.value = response.data
-  } catch {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
+// 打开编辑对话框
+const openEditPanel = () => {
+  editData.value = {
+    userName: userInfo.value.userName,
+    avatarUrl: userInfo.value.avatarUrl,
+    profile: userInfo.value.profile,
+    gender: userInfo.value.gender,
+    birthdate: userInfo.value.birthdate,
+    telephone: userInfo.value.telephone
   }
-})
-
-watch(() => route.params.id, (newId) => {
-  profileUserId.value = parseInt(<string>newId)
-  fetchUserData()
-})
-
-watch(profileUserId, () => {
-  window.location.reload()
-})
-
-onMounted(async () => {
-  try {
-    await axiosInstance.get(`user-follow/${profileUserId.value}-${currentUserId.value}`)
-    isFollowing.value = true
-  } catch {
-    isFollowing.value = false
-  }
-})
-
-onMounted(async () => {
-  try {
-    const followingResponse = await axiosInstance.get(`user-follow/following/${currentUserId.value}`)
-    followingUsers.value = followingResponse.data
-    const followersResponse = await axiosInstance.get(`user-follow/followers/${currentUserId.value}`)
-    followersUsers.value = followersResponse.data
-  } catch {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-  }
-})
-
-async function handleFollow() {
-  if (isFollowing.value) {
-    try {
-      await axiosInstance.delete(`user-follow/${profileUserId.value}-${currentUserId.value}`)
-      isFollowing.value = false
-      userData.value.followedCount = userData.value.followedCount - 1
-      ElMessage.success(t('ProfilePage.CanceledFollow'))
-    } catch {
-      ElMessage.error(t('ErrorMessage.DeleteErrorMessage'))
-    }
-  } else {
-    try {
-      await axiosInstance.post('user-follow', {
-        userId: profileUserId.value,
-        followerId: currentUserId.value,
-        favoriteTime: new Date().toISOString()
-      })
-      isFollowing.value = true
-      userData.value.followedCount = userData.value.followedCount + 1
-      ElMessage.success(t('ProfilePage.Followed'))
-    } catch {
-      ElMessage.error(t('ErrorMessage.PostErrorMessage'))
-    }
-  }
+  // 重置预览URL和上传文件
+  previewAvatarUrl.value = ''
+  uploadedFile.value = null
+  showEditDialog.value = true
 }
 
-onMounted(async () => {
-  try {
-    const response = await axiosInstance.get(`post-favorite/user/${profileUserId.value}`)
-    favoritePostIds.value = response.data
-  } catch {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-  }
-})
+// 取消编辑
+const cancelEdit = () => {
+  // 清理预览URL和上传文件
+  previewAvatarUrl.value = ''
+  uploadedFile.value = null
+  showEditDialog.value = false
+}
 
-onMounted(async () => {
-  try {
-    const response = await axiosInstance.get(`news-favorite/user/${profileUserId.value}`)
-    favoriteNewsIds.value = response.data
-  } catch {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-  }
-})
-
-async function messageConfirm() {
-  if (!message.value.trim()) {
-    ElMessage.warning(t('ProfilePage.MessageCannotBeEmpty'))
+// 保存修改
+const updateProfile = async () => {
+  if (!editData.value.userName.trim()) {
+    ElMessage.warning('昵称不能为空')
     return
   }
+  
   try {
-    await axiosInstance.post('user-message', {
-      userId: profileUserId.value,
-      commenterId: currentUserId.value,
-      message: message.value,
-      commentTime: new Date().toISOString()
-    })
-    ElMessage.success(t('ProfilePage.MessageSent'))
-    userData.value.messageCount = userData.value.messageCount + 1
-    message.value = ''
-  } catch {
-    ElMessage.error(t('ErrorMessage.PostErrorMessage'))
+    // 如果有新头像，先上传头像
+    if (uploadedFile.value) {
+      const formData = new FormData()
+      formData.append('avatar', uploadedFile.value)
+      
+      try {
+        const uploadRes = await axiosInstance.post('/upload/avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        
+        if (uploadRes.data && uploadRes.data.fileName) {
+          editData.value.avatarUrl = uploadRes.data.fileName
+        }
+      } catch (uploadError) {
+        ElMessage.error('POST:头像保存失败')
+        console.error('POST:头像保存失败:', uploadError)
+        return
+      }
+    }
+    
+    // 向后端传递信息接口
+    const updatePayload = {
+      userName: editData.value.userName,
+      profile: editData.value.profile,
+      gender: editData.value.gender,
+      birthdate: editData.value.birthdate,
+      avatarUrl: editData.value.avatarUrl,
+      telephone: editData.value.telephone
+    }
+    
+    await axiosInstance.put(`user/${viewedUserId.value}`, updatePayload)
+    
+    // 更新显示数据
+    userInfo.value.userName = editData.value.userName
+    userInfo.value.profile = editData.value.profile
+    userInfo.value.gender = editData.value.gender
+    userInfo.value.birthdate = editData.value.birthdate
+    userInfo.value.avatarUrl = editData.value.avatarUrl
+    userInfo.value.telephone = editData.value.telephone
+    
+    // 清理并关闭对话框
+    previewAvatarUrl.value = ''
+    uploadedFile.value = null
+    showEditDialog.value = false
+    ElMessage.success('资料更新成功')
+  } catch (error) {
+    ElMessage.error('PUT:保存失败，请稍后重试')
   }
 }
+
+// 头像验证
+const validateAvatar = (file: File): boolean => {
+  const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isLt2M = file.size / 1024 / 1024 < 2
+  
+  if (!isImage) {
+    ElMessage.error('只支持 JPG/PNG 格式的图片')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB')
+    return false
+  }
+  return true
+}
+
+// 处理头像上传
+const handleAvatarUpload = (options: UploadRequestOptions) => {
+  try {
+    // 创建本地预览URL
+    previewAvatarUrl.value = URL.createObjectURL(options.file)
+    // 保存文件供后续上传
+    uploadedFile.value = options.file
+    // 调用成功回调以关闭上传loading状态
+    options.onSuccess({ success: true })
+    ElMessage.success('头像已选择，点击保存修改后生效')
+  } catch (error) {
+    ElMessage.error('头像上传失败')
+  }
+}
+
+// 跳转到收藏页
+const goToCollections = () => {
+  router.push('/collections')
+}
+
+// 禁用未来日期
+const disableFutureDate = (date: Date) => {
+  return date.getTime() > Date.now()
+}
+
+// 监听路由变化
+watch(() => route.params.id, (newId) => {
+  viewedUserId.value = parseInt(newId as string)
+  userInfo.value.uid = viewedUserId.value
+  fetchUserProfile()
+})
+
+// 组件卸载时清理URL
+onMounted(() => {
+  fetchUserProfile()
+  
+  // 清理函数
+  return () => {
+    if (previewAvatarUrl.value) {
+      URL.revokeObjectURL(previewAvatarUrl.value)
+    }
+  }
+})
 </script>
 
 <style scoped>
-:global(:root) {
-  --profile-page-container-color: #F5F5F5;
-  --profile-module-color: #FFFFFF;
-  --profile-content-color1: #002357;
-  --profile-content-color2: #0360A3;
-  --profile-divider-color: #0000000C;
-  --profile-button-color: #FFFFFF;
-  --profile-button-content-color: #0360A3;
-  --profile-button-border-color: #0360A3;
-  --profile-button-hover-color: #EBF3FF;
-  --profile-info-border-color: #F5F5F5;
-  --profile-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/ProfilePageBackgroundImage.jpg');
-}
-
-/* noinspection CssUnusedSymbol */
-:global(.dark) {
-  --profile-page-container-color: #061122;
-  --profile-module-color: #0E1D33;
-  --profile-content-color1: #5ABAFF;
-  --profile-content-color2: #5ABAFF;
-  --profile-divider-color: #FFFFFF33;
-  --profile-button-color: #0762A7;
-  --profile-button-content-color: #FFFFFF;
-  --profile-button-border-color: #033C63;
-  --profile-button-hover-color: #1172BE;
-  --profile-info-border-color: #0E1D33;
-  --profile-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/ProfilePageBackgroundImage.jpg');
-}
-
-.page-container {
-  width: 1200px;
-  align-self: center;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background-color: var(--profile-page-container-color);
+/* 容器 */
+.personal-zone-container {
   min-height: calc(100vh - 135px);
+  background: #f0f2f5;
 }
 
-.background-container {
-  height: 250px;
-  width: 100%;
-  background-image: var(--profile-background-image);
-  background-size: cover;
-  background-position: center;
+/* 顶部背景 */
+.profile-header-bg {
+  height: 260px;
+  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.avatar {
+.header-pattern {
   position: absolute;
-  height: 165px;
-  width: 165px;
-  left: 120px;
-  top: 180px;
-  transform: translateX(-50%);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px);
 }
 
-.info-module {
-  width: 1198px;
-  display: flex;
-  background-color: var(--profile-module-color);
-  border-left: 1px solid var(--profile-info-border-color);
-  border-right: 1px solid var(--profile-info-border-color);
+/* 主内容包装器 */
+.profile-main-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  margin-top: -100px;
 }
 
-.info-left {
-  flex: 1;
-  margin-left: 240px;
-}
-
-.name {
-  font-size: 26px;
-  font-weight: bold;
-  color: var(--profile-content-color1);
-}
-
-.experience-text {
-  font-size: 14px;
-  color: var(--el-color-info-light-3);
-}
-
-.info-right {
+/* 用户信息栏 */
+.user-info-bar {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
   display: flex;
   align-items: center;
-  margin-right: 20px;
-  margin-top: 50px;
+  gap: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
 }
 
-.stats {
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.user-basic-info {
+  flex: 1;
+}
+
+.name-row {
   display: flex;
+  align-items: baseline;
+  gap: 15px;
   margin-bottom: 10px;
 }
 
-.stat {
-  text-align: center;
-  min-width: 50px;
-  margin-right: 40px;
-  position: relative;
+.display-name {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
 }
 
-.number {
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--profile-content-color2);
-  margin-bottom: -10px;
-}
-
-.label {
-  font-size: 12px;
-  color: var(--profile-content-color2);
-}
-
-.edit-button {
-  background-color: var(--profile-button-color);
-  border: 2px solid var(--profile-button-border-color);
-  color: var(--profile-button-content-color);
-  width: 220px;
-  height: 50px;
-  cursor: pointer;
+.uid-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
   border-radius: 20px;
-  transition: background-color 0.3s ease;
+  font-size: 14px;
 }
 
-.edit-button:hover {
-  background-color: var(--profile-button-hover-color);
+.join-info {
+  color: #757575;
+  font-size: 14px;
+  margin: 0;
 }
 
-.modules-container {
+.action-area {
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  background: #2563eb;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+}
+
+/* 内容展示区 */
+.content-display-area {
+  display: grid;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* 信息展示卡片 */
+.info-display-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.card-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid #e8e8e8;
   display: flex;
-  justify-content: space-between;
-  padding-top: 25px;
-  padding-bottom: 25px;
+  align-items: center;
+  gap: 10px;
 }
 
-.profile-module {
-  width: 320px;
-  background-color: var(--profile-module-color);
-  padding: 15px;
-  border-radius: 14px;
-  margin-left: 20px;
+.header-icon {
+  font-size: 20px;
+  color: #2563eb;
 }
 
-.divider {
-  height: 1px;
-  background-color: var(--profile-divider-color);
-  margin: 10px 0;
+.header-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
 }
 
-.interaction-module {
-  width: 750px;
-  background-color: var(--profile-module-color);
-  padding: 15px;
-  border-radius: 14px;
-  margin-right: 20px;
+.info-content {
+  padding: 25px;
 }
 
-h3 {
-  margin-top: 0;
-  color: var(--profile-content-color2);
-}
-
-.confirm-bottom {
-  align-self: center;
-  background-color: var(--profile-button-color);
-  border: 2px solid var(--profile-button-border-color);
-  color: var(--profile-button-content-color);
-  width: 220px;
-  height: 40px;
-  cursor: pointer;
-  border-radius: 20px;
-  transition: background-color 0.3s ease;
+.intro-section {
   margin-top: 30px;
 }
 
-.confirm-bottom:hover {
-  background-color: var(--profile-button-hover-color);
+.section-label {
+  font-size: 14px;
+  color: #757575;
+  margin-bottom: 10px;
 }
 
-.message-prompt {
-  margin-bottom: 30px;
-  text-align: center;
-  color: var(--profile-content-color2);
+.intro-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #424242;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
-.no-content-prompt {
-  text-align: center;
+.basic-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.info-grid-item {
   display: flex;
-  flex-direction: column;
-  color: var(--profile-content-color2);
-  margin-top: 124px;
+  align-items: center;
+  gap: 12px;
 }
 
-.information-icon {
-  position: absolute;
-  top: -14px;
-  right: -10px;
-  color: #E6A23C;
-  outline: none;
+.grid-label {
+  color: #9e9e9e;
+  font-size: 14px;
+  min-width: 60px;
 }
 
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 20px;
+.grid-value {
+  color: #424242;
+  font-size: 15px;
+  font-weight: 500;
 }
 
-.user-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.user-name {
-  font-weight: bold;
-  margin: 0;
-}
-
-.user-profile {
-  font-size: 12px;
-  color: #888;
-  margin: 0;
-  width: 120px;
-  max-width: 180px;
-  white-space: nowrap;
+/* 收藏夹卡片 */
+.collection-showcase-card {
+  background: white;
+  border-radius: 16px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  position: relative;
+}
+
+.collection-showcase-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.15);
+}
+
+.showcase-bg {
+  position: absolute;
+  top: 0;
+  right: -50px;
+  width: 200px;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(37,99,235,0.05));
+  transform: skewX(-20deg);
+}
+
+.showcase-content {
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.showcase-icon {
+  font-size: 48px;
+  color: #fbbf24;
+}
+
+.showcase-info {
+  flex: 1;
+}
+
+.showcase-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.showcase-desc {
+  color: #757575;
+  font-size: 14px;
+  margin: 0;
+}
+
+.go-icon {
+  font-size: 24px;
+  color: #2563eb;
+}
+
+.collection-preview {
+  padding: 15px 30px;
+  background: #f8f9fa;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #616161;
+}
+
+/* 编辑对话框 */
+.edit-form {
+  padding: 10px 0;
+}
+
+.avatar-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.avatar-uploader .el-avatar {
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.avatar-uploader .el-avatar:hover {
+  opacity: 0.8;
+}
+
+.avatar-tips {
+  font-size: 13px;
+  color: #757575;
+  line-height: 1.6;
+}
+
+.dialog-footer {
+  padding-top: 10px;
 }
 </style>

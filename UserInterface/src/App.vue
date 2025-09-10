@@ -26,7 +26,6 @@ import FooterNavbar from './components/FooterNavbar.vue'
 
 .router-view-container {
   padding-top: 60px;   /* header 高度 */
-  padding-bottom: 70px;/* footer 高度 */
   min-height: calc(100vh - 135px);
   display: flex;
   flex-direction: column;

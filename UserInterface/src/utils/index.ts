@@ -1,12 +1,12 @@
 /*
 TreeHole API接口封装
-TreeHole制作组
+2351270 王天一
 */
 
 import axios from 'axios'
 
 // TreeHole API 基础配置
-const thApiBaseUrl = import.meta.env.VITE_API_BASE || '/api'
+const thApiBaseUrl = '/api'
 
 const thApiClient = axios.create({
   baseURL: thApiBaseUrl,
@@ -75,11 +75,5 @@ export const createPost = async (data: THCreatePostRequest): Promise<THCreatePos
   const response = await thApiClient.post('/posts', data)
   return response.data
 }
-
-// TODO: 后续添加其他TreeHole相关接口
-// export const getThPosts = async () => { ... }
-// export const getThPostById = async (id: number) => { ... }  
-// export const updateThPost = async (id: number, data: any) => { ... }
-// export const deleteThPost = async (id: number) => { ... }
 
 export default thApiClient

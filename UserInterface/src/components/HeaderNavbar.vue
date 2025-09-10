@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang='ts'>
-import {onMounted, ref, watch} from 'vue'
+import {onMounted, onUnmounted,ref, watch} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
@@ -136,19 +136,62 @@ onMounted(async () => {
   }
 })
 
+// 透明处理
+const handleScroll = () => {
+
+  const el = document.querySelector('.header-navbar') as HTMLElement
+
+  if (!el) return
+
+  // 滚动超过60像素就透明
+  if (window.scrollY > 60) {
+    el.classList.add('transparent-header')
+  } 
+  else {
+    el.classList.remove('transparent-header')
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+
 </script>
 
 <style scoped>
 
 .header-navbar {
-  margin-top: 5px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  margin-top: 0;
   align-items: center;
   height: 60px;
   min-width: 1200px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   overflow: auto;
+
+  background-color: rgba(255, 255, 255, 1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);
 }
+
+
+.header-navbar.transparent-header {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
 
 .logo-title {
   max-width: 210px;
@@ -195,4 +238,5 @@ h1 {
   pointer-events: none;
   opacity: 0.5;
 }
+
 </style>

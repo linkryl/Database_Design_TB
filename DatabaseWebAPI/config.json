@@ -1,10 +1,10 @@
 ﻿{
   "DatabaseConfig": {
-    "UserId": "[TODO: UserId]",
-    "Password": "[TODO: Password]",
-    "Host": "[TODO: Host]",
-    "Port": "[TODO: Port]",
-    "ServiceName": "[TODO: ServiceName]"
+    "UserId": "dbteam",
+    "Password": "dbteam",
+    "Host": "47.117.87.145",
+    "Port": "1521",
+    "ServiceName": "teamdb"
   },
   "OSSConfig": {
     "AccessKeyId": "[TODO: AccessKeyId]",

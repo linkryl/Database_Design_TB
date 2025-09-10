@@ -150,9 +150,6 @@ public sealed class User
     public ICollection<PostReport> PostReportEntityReportedUser { get; set; } =
         new HashSet<PostReport>();
 
-    public ICollection<UserCheckIn> UserCheckInEntity { get; set; } =
-        new HashSet<UserCheckIn>();
-
     public ICollection<UserFollow> UserFollowEntityUser { get; set; } =
         new HashSet<UserFollow>();
 

@@ -1,6 +1,6 @@
 <!--
 TreeHole 发帖页面
-TreeHole制作组
+2351270 王天一
 -->
 
 <template>
@@ -68,7 +68,7 @@ TreeHole制作组
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { createPost } from '@/api/index'
+import { createPost } from '@/utils/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
 

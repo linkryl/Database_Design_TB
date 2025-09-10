@@ -1,10 +1,6 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     LoginPage.vue
   File Function: 登录页面
   Author:        TreeHole 开发组
-  Update Date:   2025-09-10
-  License:       Creative Commons Attribution 4.0 International License
 -->
 
 <template>
@@ -93,8 +89,12 @@ const currentUserId = ref(isNaN(localStorageUserId) ? 0 : localStorageUserId)
 const windowWidth = ref(window.innerWidth)
 
 onMounted(() => {
-  if (currentUserId.value != 0) {
-    router.push(`/profile/${currentUserId.value}`)
+  try{
+    if (currentUserId.value != 0) {
+      router.push(`/profile/${currentUserId.value}`)
+    }
+  }catch(error){
+    console.log('个人资料加载失败')
   }
 })
 

@@ -1,210 +1,142 @@
 <!--
-  Project Name:  UserInterface
-  File Name:     LoginPage.vue
   File Function: 登录页面
-  Author:        宠悦 | PetJoy 项目开发组
-  Update Date:   2024-07-30
-  License:       Creative Commons Attribution 4.0 International License
+  Author:        TreeHole 开发组
 -->
 
 <template>
-  <div class='container'>
-    <div class='left'>
-      <h1>{{ t('LoginPage.LoginAccount') }}</h1>
+  <div class='login-page-container'>
+    <div class='el-card-wrapper'>
+      <el-card class='el-card-style' shadow='always'>
+        <h1>登录 TreeHole</h1>
 
-      <el-card style='width: 550px; margin-top: 16px; margin-bottom: 30px' shadow='always'>
-        <el-tabs v-model='activeName'>
-          <el-tab-pane :label="t('LoginPage.PasswordLogin')" name='PasswordLogin'>
-            <el-form ref='loginRuleFormRef1'
-                     style='max-width: 100%'
-                     :model='loginRuleForm1'
-                     :rules='loginRules1'>
-              <el-form-item prop='telephone'>
-                <!--suppress TypeScriptValidateTypes-->
-                <el-input size='large'
-                          style='padding-top: 16px'
-                          :placeholder="t('RegisterPage.InputTelephonePrompt')"
-                          :prefix-icon='Phone'
-                          v-model='loginRuleForm1.telephone'
-                          clearable>
-                  <template #prepend>{{ t('LoginPage.TelephonePrepend') }}</template>
-                </el-input>
-              </el-form-item>
-              <el-form-item prop='password'>
-                <!--suppress TypeScriptValidateTypes-->
-                <el-input v-model='loginRuleForm1.password'
-                          type='password'
-                          size='large'
-                          :prefix-icon='Lock'
-                          :placeholder="t('RegisterPage.InputPasswordPrompt')"
-                          autocomplete='off'
-                          show-password/>
-              </el-form-item>
-              <el-button type='primary'
-                         size='large'
-                         @click='submitLogin1(loginRuleFormRef1)'
-                         style='width: 100%'>{{ t('LoginPage.Login') }}
-              </el-button>
-            </el-form>
-          </el-tab-pane>
+        <el-form 
+          ref='loginFormRef' 
+          style='max-width: 100%' 
+          :model='loginForm' 
+          :rules='loginRules'
+        > 
+          <el-form-item prop="username">
+            <label for='input-username'>用户名</label>
 
-          <el-tab-pane :label="t('LoginPage.VerificationCodeLogin')" name='VerificationCodeLogin'>
-            <el-form ref='loginRuleFormRef2'
-                     style='max-width: 100%'
-                     :model='loginRuleForm2'
-                     :rules='loginRules2'>
-              <el-form-item prop='telephone'>
-                <!--suppress TypeScriptValidateTypes-->
-                <el-input size='large'
-                          style='padding-top: 16px'
-                          :placeholder="t('RegisterPage.InputTelephonePrompt')"
-                          v-model='loginRuleForm2.telephone'
-                          :prefix-icon='Phone'
-                          clearable>
-                  <template #prepend>{{ t('LoginPage.TelephonePrepend') }}</template>
-                </el-input>
-              </el-form-item>
-              <el-form-item prop='loginVerificationCode'>
-                <!--suppress TypeScriptValidateTypes-->
-                <el-input size='large'
-                          :prefix-icon='CircleCheck'
-                          :placeholder="t('RegisterPage.InputRegistrationVerificationCodePrompt')"
-                          v-model='loginRuleForm2.loginVerificationCode'
-                          clearable>
-                  <template #append>
-                    <el-button size='large'
-                               type='info'
-                               style='width: 200px'
-                               @click='sendLoginVerificationCode'
-                               :disabled='countdown>0'
-                               plain>{{ buttonLabel }}
-                    </el-button>
-                  </template>
-                </el-input>
-              </el-form-item>
-              <el-button type='primary'
-                         size='large'
-                         @click='submitLogin2(loginRuleFormRef2)'
-                         style='width: 100%'>{{ t('LoginPage.Login') }}
-              </el-button>
-            </el-form>
-          </el-tab-pane>
-        </el-tabs>
+            <el-input
+              id='input-username'
+              v-model='loginForm.username'
+              placeholder='请输入用户名'
+              size='large'
+              type='text'
+              :prefix-icon='User'
+              autocomplete='on'
+              clearable
+            />
+          </el-form-item>
+          
+          <el-form-item prop='password'>
+            <label for='input-password'>密码</label>
+
+            <el-input 
+              id='input-password'
+              v-model='loginForm.password' 
+              type='password' 
+              placeholder="请输入密码" 
+              :prefix-icon='Lock'
+              size='large' 
+              autocomplete='off' 
+              maxlength='16'
+              show-password 
+              clearable
+            />
+          </el-form-item>
+
+          <el-button 
+            class='btn-login' 
+            type='primary' 
+            size='large'
+            plain
+            round 
+            @click='handleSubmitLogin(loginFormRef)'
+          >
+            登 录
+          </el-button>
+        </el-form>
+
+        <div class='el-link-wrapper'>
+          <el-link 
+            type='primary' 
+            :underline='true'
+            @click="router.push('/register')"
+          >
+            没有账号? 点击这里注册
+          </el-link>
+        </div>
       </el-card>
-
-      <div style='display: flex'>
-        <el-link type='primary' :underline='false' @click="router.push('/register')">
-          {{ t('LoginPage.NoAccountPrompt') }}
-        </el-link>
-        <el-divider direction='vertical' style='margin-top: 1px'/>
-        <el-link type='primary' :underline='false' @click="router.push('/reset-password')">
-          {{ t('LoginPage.ForgetPassword') }}
-        </el-link>
-      </div>
-    </div>
-
-    <div v-if='windowWidth>=1200' class='right'>
-      <div class='carousel-container'>
-        <el-carousel trigger='click' :interval='3000' motion-blur height='calc(50vw * 9 / 16)'>
-          <el-carousel-item v-for='(img, index) in carouselImages' :key='index'>
-            <img :src='img' alt='CarouselImages' class='carousel-image'>
-          </el-carousel-item>
-        </el-carousel>
-      </div>
     </div>
   </div>
-
-  <Vcode :show='isShowVCode'
-         @success='isShowVCode=false'
-         @fail='isShowVCode=true'
-         @close='isShowVCode=true'
-         :successText="t('RegisterPage.VerificationSuccessful')"
-         :failText="t('RegisterPage.VerificationFailed')"
-         :sliderText="t('RegisterPage.DragTheSliderToVerify')"/>
 </template>
 
 <script setup lang='ts'>
-import {useRouter} from 'vue-router'
-import {useI18n} from 'vue-i18n'
-import {carouselImages} from '../globals'
-import {onMounted, onUnmounted, reactive, ref, watch} from 'vue'
-import {ElMessage, ElNotification, FormInstance, FormRules} from 'element-plus'
+import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { ElFormItem, ElMessage, FormInstance, FormRules } from 'element-plus'
 import axiosInstance from '../utils/axios'
-import Vcode from 'vue3-puzzle-vcode'
-import {Phone, Lock, CircleCheck} from '@element-plus/icons-vue'
+import { User, Lock } from '@element-plus/icons-vue'
 
-const {t} = useI18n()
 const router = useRouter()
-const activeName = ref('PasswordLogin')
-const countdown = ref(0)
-const currentCode = ref('')
-const currentPhone = ref('')
-const buttonLabel = ref(t('RegisterPage.GetRegistrationVerificationCode'))
-const isTelephoneUnique = ref(-1)
-const loginRuleFormRef1 = ref<FormInstance>()
-const loginRuleFormRef2 = ref<FormInstance>()
-const isShowVCode = ref(false)
-const storedValue = localStorage.getItem('currentUserId')
-const storedUserId = storedValue ? parseInt(storedValue) : 0
-const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
+const isUsernameUnique = ref(-1)
+const loginFormRef = ref<FormInstance>()
+const localStorageValue = localStorage.getItem('currentUserId')
+const localStorageUserId = localStorageValue ? parseInt(localStorageValue) : 0
+const currentUserId = ref(isNaN(localStorageUserId) ? 0 : localStorageUserId)
 const windowWidth = ref(window.innerWidth)
 
 onMounted(() => {
-  if (currentUserId.value != 0) {
-    router.push(`/profile/${currentUserId.value}`)
+  try{
+    if (currentUserId.value != 0) {
+      router.push(`/profile/${currentUserId.value}`)
+    }
+  }catch(error){
+    console.log('个人资料加载失败')
   }
 })
 
-watch(countdown, (newCount) => {
-  if (newCount > 0) {
-    buttonLabel.value = `${newCount} s`
-  } else {
-    buttonLabel.value = t('RegisterPage.GetRegistrationVerificationCode')
-  }
-})
-
-interface LoginRuleForm1 {
-  telephone: string
+interface LoginForm {
+  username: string
   password: string
 }
 
-interface LoginRuleForm2 {
-  telephone: string
-  loginVerificationCode: string
-}
-
-const loginRuleForm1 = reactive<LoginRuleForm1>({
-  telephone: '',
+const loginForm = reactive<LoginForm>({
+  username: '',
   password: ''
 })
 
-const loginRuleForm2 = reactive<LoginRuleForm2>({
-  telephone: '',
-  loginVerificationCode: ''
-})
-
-const loginRules1: FormRules = {
-  telephone: [
+const loginRules: FormRules = {
+  // telephone: [// TODO: 到时候删掉
+  //   {
+  //     required: true,
+  //     message: t('RegisterPage.EmptyTelephone'),
+  //     trigger: 'change',
+  //   },
+  //   {
+  //     validator: (rule, value, callback) => {
+  //       const phoneRegex = /^\d{11}$/
+  //       if (value && !phoneRegex.test(value)) {
+  //         callback(new Error(t('RegisterPage.InvalidTelephone')))// TODO: 修改成检查用户名是否合法
+  //       } else {
+  //         callback()
+  //       }
+  //     },
+  //     trigger: 'blur'
+  //   }
+  // ],
+  username:[
     {
       required: true,
-      message: t('RegisterPage.EmptyTelephone'),
-      trigger: 'change',
+      message: '用户名为必填项, 不能为空',
+      trigger: 'change'
     },
     {
       validator: (rule, value, callback) => {
-        const phoneRegex = /^\d{11}$/
-        if (value && !phoneRegex.test(value)) {
-          callback(new Error(t('RegisterPage.InvalidTelephone')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    },
-    {
-      validator: (rule, value, callback) => {
-        if (value && isTelephoneUnique.value == 0) {
-          callback(new Error(t('LoginPage.NotRegistered')))
+        if (value && isUsernameUnique.value == 0) {
+          callback(new Error('该用户名未注册'))
         } else {
           callback()
         }
@@ -215,240 +147,97 @@ const loginRules1: FormRules = {
   password: [
     {
       required: true,
-      message: t('RegisterPage.PasswordRequired'),
+      message: '密码为必填项, 不能为空',
       trigger: 'change'
     }
   ]
 }
 
-const loginRules2: FormRules = {
-  telephone: [
-    {
-      required: true,
-      message: t('RegisterPage.EmptyTelephone'),
-      trigger: 'change',
-    },
-    {
-      validator: (rule, value, callback) => {
-        const phoneRegex = /^\d{11}$/
-        if (value && !phoneRegex.test(value)) {
-          callback(new Error(t('RegisterPage.InvalidTelephone')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    },
-    {
-      validator: (rule, value, callback) => {
-        if (value && isTelephoneUnique.value == 0) {
-          callback(new Error(t('LoginPage.NotRegistered')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'change'
-    }
-  ],
-  loginVerificationCode: [
-    {
-      required: true,
-      message: t('RegisterPage.EmptyRegistrationVerificationCode'),
-      trigger: 'change',
-    },
-    {
-      validator: (rule, value, callback) => {
-        const phoneRegex = /^\d{6}$/
-        if (value && !phoneRegex.test(value)) {
-          callback(new Error(t('RegisterPage.InvalidRegistrationVerificationCode')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    },
-    {
-      validator: (rule, value, callback) => {
-        if (value && (value != currentCode.value || loginRuleForm2.telephone != currentPhone.value)) {
-          callback(new Error(t('RegisterPage.WrongRegistrationVerificationCode')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    }
-  ]
-}
-
-watch(() => loginRuleForm1.telephone, (newVal) => {
-  if (newVal) {
-    checkTelephoneUnique(newVal)
+watch(() => loginForm.username, (newValue) => {
+  if (newValue) {
+    checkUsernameUnique(newValue)
   }
 })
 
 onMounted(() => {
-  if (loginRuleForm1.telephone) {
-    checkTelephoneUnique(loginRuleForm1.telephone)
+  if (loginForm.username) {
+    checkUsernameUnique(loginForm.username)
   }
 })
 
-watch(() => loginRuleForm2.telephone, (newVal) => {
-  if (newVal) {
-    checkTelephoneUnique(newVal)
-  }
-})
-
-onMounted(() => {
-  if (loginRuleForm2.telephone) {
-    checkTelephoneUnique(loginRuleForm2.telephone)
-  }
-})
-
-const checkTelephoneUnique = async (telephone) => {
-  try {
-    const response = await axiosInstance.get(`user/check-telephone-unique/${telephone}`)
-    isTelephoneUnique.value = response.data
+const checkUsernameUnique = async (username: string) => {
+  try {                                 
+    const response = await axiosInstance.get(`user/check-username-unique/${username}`)
+    isUsernameUnique.value = response.data
   } catch (error) {
-    ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-    isTelephoneUnique.value = -1
+    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试')
+    isUsernameUnique.value = -1
   }
 }
 
-async function sendLoginVerificationCode() {
-  if (countdown.value > 0) {
-    return
-  }
-  const phoneRegex = /^\d{11}$/
-  const telephone = loginRuleForm2.telephone
-  let loginVerificationCode = ''
-  for (let i = 0; i < 6; i++) {
-    loginVerificationCode += Math.floor(Math.random() * 10).toString()
-  }
-  currentCode.value = loginVerificationCode
-  currentPhone.value = loginRuleForm2.telephone
-  if (telephone != '' && phoneRegex.test(telephone) && isTelephoneUnique.value == 0) {
-    ElMessage.warning(t('LoginPage.NotRegistered'))
-  }
-  if (telephone != '' && phoneRegex.test(telephone) && isTelephoneUnique.value == 1) {
-    console.log('Telephone: ' + (currentPhone.value == '' ? 'null' : currentPhone.value) + ' - Code: ' + currentCode.value)
-    countdown.value = 60
-    const intervalId = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) {
-        clearInterval(intervalId)
-      }
-    }, 1000)
-    const body = {telephoneNumber: telephone, verificationCode: loginVerificationCode}
-    try {
-      await axiosInstance.post('login-verification', body)
-    } catch (error) {
-      ElNotification({
-        title: t('RegisterPage.VerificationCodeSendingFailed'),
-        message: t('RegisterPage.VerificationCodeSendingFailedPrompt'),
-        type: 'error',
-      })
-    }
-  }
-}
-
-const submitLogin1 = async (formEl: FormInstance | undefined) => {
-  if (loginRuleForm1.password && loginRuleForm1.telephone) {
-    isShowVCode.value = true
-  }
-  while (isShowVCode.value) {
-    await new Promise(resolve => setTimeout(resolve, 100))
-  }
-  if (!formEl) {
+const handleSubmitLogin = async (elFormRef: FormInstance | undefined) => {
+  if (!elFormRef || !loginForm.password || !loginForm.username) {
+    ElMessage.error('用户名和密码都不能为空')
     return
   }
   try {
-    const valid = await formEl.validate();
-    if (valid) {
+    const isValid = await elFormRef.validate();
+    if (isValid) {
       let userId = 0
       let isPasswordCorrect = -1
-      try {
-        const response = await axiosInstance.get(`user/get-user-id-by-telephone/${loginRuleForm1.telephone}`)
+      try {                                   
+        const response = await axiosInstance.get(`user/get-user-id-by-username/${loginForm.username}`)
         userId = response.data
         try {
           const response = await axiosInstance.post('user/verify-password', {
             userId: userId,
-            plainPassword: loginRuleForm1.password
+            plainPassword: loginForm.password
           })
           isPasswordCorrect = response.data
           if (isPasswordCorrect == -1) {
-            ElMessage.error(t('LoginPage.NetworkError'))
+            ElMessage.error('网络发生错误!')
           } else if (isPasswordCorrect == 0) {
-            ElMessage.error(t('LoginPage.IncorrectPassword'))
+            ElMessage.error('密码不正确!')
           } else {
             try {
-              axiosInstance.put(`user/last-login-time/${userId}`, {
-                lastLoginTime: new Date().toISOString()
-              }).then(() => {
-                localStorage.setItem('currentUserId', userId.toString())
-                router.push('/')
-                window.location.href = '/'
-              }).catch(() => {
-                ElMessage.error(t('LoginPage.LoginErrorPrompt'))
-              })
+              localStorage.setItem('currentUserId', userId.toString())
+              router.push('/')
+              window.location.href = '/'
             } catch (error) {
-              ElMessage.error(t('LoginPage.LoginErrorPrompt'))
+              ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
             }
           }
         } catch (error) {
-          ElMessage.error(t('LoginPage.LoginErrorPrompt'))
+          ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
         }
       } catch (error) {
-        ElMessage.error(t('LoginPage.LoginErrorPrompt'))
+        ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
       }
     }
   } catch (error) {
   }
 }
 
-const submitLogin2 = async (formEl: FormInstance | undefined) => {
-  if (loginRuleForm2.loginVerificationCode && loginRuleForm2.telephone) {
-    isShowVCode.value = true
-  }
-  while (isShowVCode.value) {
-    await new Promise(resolve => setTimeout(resolve, 100))
-  }
-  if (!formEl) {
-    return
-  }
-  try {
-    const valid = await formEl.validate();
-    if (valid) {
-      let userId = 0
-      try {
-        const response = await axiosInstance.get(`user/get-user-id-by-telephone/${loginRuleForm2.telephone}`)
-        userId = response.data
-        localStorage.setItem('currentUserId', userId.toString())
-        await router.push('/')
-        window.location.href = '/'
-      } catch (error) {
-        ElMessage.error(t('LoginPage.LoginErrorPrompt'))
-      }
-    }
-  } catch (error) {
-  }
-}
-
-function updateWidth() {
+function updateWindowWidth() {
   windowWidth.value = window.innerWidth
 }
 
-onMounted(() => window.addEventListener('resize', updateWidth))
+onMounted(() => window.addEventListener('resize', updateWindowWidth))
 
-onUnmounted(() => window.removeEventListener('resize', updateWidth))
+onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 </script>
 
 <style scoped>
-.container {
+.login-page-container {
   display: flex;
-  height: calc(100vh - 135px);
+  height: 100vh;
 }
 
-.left, .right {
+.el-card-wrapper {
+  background-image: url('../assets/LoginPage/BackgroundImage.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -456,15 +245,35 @@ onUnmounted(() => window.removeEventListener('resize', updateWidth))
   align-items: center;
 }
 
-.right {
-  background-color: var(--el-color-info-light-9);
+.el-card-style {
+  width: 550px;
+  margin-top: 16px;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.6);
+  margin-left: auto;
+  margin-right: 15vw;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
 }
 
-.carousel-container {
+h1 {
+  text-align: center;
+  color: #0084ff;
+}
+
+label {
+  font-weight: 600;
+  font-size: 15px;
+  color: #0084ff;
+}
+
+.el-link-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-login {
+  margin-top: 30px;
+  margin-bottom: 30px;
   width: 100%;
-}
-
-.carousel-image {
-  max-width: 100%;
 }
 </style>

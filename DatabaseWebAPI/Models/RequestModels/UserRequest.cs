@@ -44,8 +44,3 @@ public class PlainPasswordRequest
     [SwaggerSchema("明文密码")] public string PlainPassword { get; set; } = string.Empty;
 }
 
-[SwaggerSchema(Description = "手机号码请求类")]
-public class TelephoneRequest
-{
-    [SwaggerSchema("手机号码")] public string Telephone { get; set; } = string.Empty;
-}

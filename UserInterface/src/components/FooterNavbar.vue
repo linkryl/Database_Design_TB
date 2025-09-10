@@ -4,7 +4,9 @@
 -->
 
 <template>
+
   <el-container class='FooterNavbar'>
+
     <a href='https://sse.tongji.edu.cn' target='_blank'>
       <img :src='`${ossBaseUrl}LogosAndIcons/TongjiSSELogo.png`'
            class='FooterSseLogoLeft'
@@ -13,7 +15,7 @@
     </a>
 
     <a href='https://github.com/linkryl/Database_Design_TB' target='_blank'>
-      <el-tooltip :content="t('FooterNavbar.GitHubRepository')" placement='top'>
+      <el-tooltip content="GitHub项目仓库" placement='top'>
         <img :src='`${ossBaseUrl}LogosAndIcons/GitHubLogo.png`'
              class='FooterGithubLogoRight'
              alt='GitHubLogo'
@@ -22,20 +24,19 @@
     </a>
 
     <div class='footer-content'>
-      <p>{{ t('FooterNavbar.ProjectDescription') }}</p>
+      <p>TreeHole：树洞，为学生提供的一站式交流平台！</p>
     </div>
+
   </el-container>
+
 </template>
 
 <script setup lang='ts'>
-import {useI18n} from 'vue-i18n'
 import {ossBaseUrl} from '../globals'
 
-const {t} = useI18n()
 </script>
 
 <style scoped>
-
 .footer-content {
   color: #909399;
   font-size: 12px;
@@ -66,5 +67,9 @@ const {t} = useI18n()
   filter: invert(0%);
 }
 
-
+.footer-content p {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    line-height: 24px;
+}
 </style>

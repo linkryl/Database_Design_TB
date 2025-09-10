@@ -1,5 +1,8 @@
-/DatabaseWebAPI/obj
-/DatabaseWebAPI/.vs
-/DatabaseWebAPI/bin
+.vs/
+UserInterface/node_modules/
+UserInterface/dist/
+DatabaseWebAPI/bin/
+DatabaseWebAPI/obj/
+*.msi
+.env
 /UserInterface/.vscode
-/UserInterface/node_modules

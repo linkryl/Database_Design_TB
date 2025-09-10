@@ -8,10 +8,10 @@
   <el-input v-model='searchContent'
             ref='tourRef4'
             class='custom-search-input'
-            :placeholder="t('PetCommunityPage.SearchPrompt')"
+            placeholder="搜索您感兴趣的内容"
             :prefix-icon='Search'/>
   <el-menu v-if='showDropdown' class='search-dropdown' v-loading='loading'>
-    <el-menu-item v-if='searchResults.length==0'>{{ t('PetCommunityPage.NoResultsFound') }}</el-menu-item>
+    <el-menu-item v-if='searchResults.length==0'>{{ "未找到结果" }}</el-menu-item>
     <el-menu-item v-for='result in searchResults'
                   :key='result.item.id'
                   @click='navigateToPage(result.item)'
@@ -54,7 +54,6 @@ type MatchDetail = {
 }
 
 const router = useRouter()
-const {locale, t} = useI18n()
 const loading = ref(false)
 const searchContent = ref('')
 const searchResults = ref([])
@@ -185,7 +184,7 @@ const getTitle = (item) => {
   if (item.commentId || item.postId || item.newsId) {
     return item.title
   } else if (item.adoptionId) {
-    return item.name ? item.name : t('PetAdoptionPage.UnnamedPet')
+    return item.name ? item.name : "未命名的宠物"
   } else {
     return item.categoryName || item.subcategoryName || item.searchTitle
   }
@@ -249,9 +248,11 @@ watch(searchContent, async (newPattern) => {
       initFusePostComment(data5.data)
       initFusePost(data6.data)
       initFuseAdoption(data7.data)
-    } catch (error) {
-      ElMessage.error(t('ErrorMessage.GetErrorMessage'))
-    } finally {
+    } 
+    catch (error) {
+      ElMessage.error("网络请求失败")
+    } 
+    finally {
       loading.value = false
       const resultsPost = fusePost.search(newPattern)
       const resultsPostComment = fusePostComment.search(newPattern)
@@ -277,5 +278,74 @@ watch(searchContent, async (newPattern) => {
 </script>
 
 <style scoped>
-@import '../styles/SearchBoxCSS.css';
+.custom-search-input {
+    background-color: #FFFFFF;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    width: 900px;
+    height: 64px;
+    font-size: 24px;
+}
+
+.search-dropdown {
+    width: 900px;
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    top: 100%;
+    left: 0;
+}
+
+.menu-item-large {
+    padding-top: 35px;
+    padding-bottom: 35px;
+}
+
+.flex-column-start {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.icon-enter {
+    width: 15px;
+    height: 15px;
+    filter: invert(60%);
+}
+
+.icon-alignment {
+    margin-left: auto;
+    margin-right: -7px;
+    margin-bottom: 42px;
+}
+
+.margin-title-context {
+    margin-top: -28px;
+}
+
+.menu-item-context {
+    display: inline-block;
+    max-width: 812px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    margin-left: 22px;
+}
+
+.menu-item-title {
+    display: inline-block;
+    max-width: 812px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    color: #29ADFF;
+    font-size: 18px;
+    margin-left: 22px;
+}
 </style>

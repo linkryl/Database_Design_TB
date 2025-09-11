@@ -204,13 +204,13 @@ async function submitRegistrationData() {
 
     console.log('发送注册数据:', requestData);
 
-    const response = await axiosInstance.post('https://api.com/api/register', requestData, {
+    const response = await axiosInstance.post('jbdbc:oracle:thin:@//47.117.87.145:1521/teamdb/api/User/', requestData, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       return true;
     } else {
       throw new Error(`服务器返回错误状态: ${response.status}`);
@@ -225,10 +225,8 @@ async function submitRegistrationData() {
         // 服务器响应了错误状态码
         if (error.response.data && (error.response.data as any).message) {
           errorMessage = (error.response.data as any).message;
-        } else if (error.response.status === 404) {
-          errorMessage = '请求参数错误';
-        } else if (error.response.status === 409) {
-          errorMessage = '用户已存在';
+        } else if (error.response.status === 400) {
+          errorMessage = '请求无效';
         } else if (error.response.status >= 500) {
           errorMessage = '服务器内部错误，请稍后重试';
         }

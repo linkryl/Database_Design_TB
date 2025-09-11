@@ -29,7 +29,7 @@
           <p class='join-info'>{{ formatRole(userInfo.role) }}</p>
         </div>
 
-        <!-- 修改操作按钮 -->
+        <!-- 操作按钮区 -->
         <div class='action-area'>
           <el-button v-if='isSelf' 
                      type='primary' 
@@ -267,8 +267,8 @@ const fetchUserProfile = async () => {
       birthdate: data.birthdate || ''
     }
   } catch (error) {
-    ElMessage.error('GET 获取用户信息失败')
-    console.error('GET 获取用户信息失败:', error)
+    ElMessage.error('GET:获取用户信息失败')
+    console.error('GET:获取用户信息失败:', error)
   }
 }
 
@@ -313,8 +313,8 @@ const updateProfile = async () => {
           editData.value.avatarUrl = uploadRes.data.fileName
         }
       } catch (uploadError) {
-        ElMessage.error('POST 头像上传失败')
-        console.error('POST 头像上传失败:', uploadError)
+        ElMessage.error('头像上传失败')
+        console.error('头像上传失败:', uploadError)
         return
       }
     }
@@ -342,7 +342,7 @@ const updateProfile = async () => {
     showEditDialog.value = false
     ElMessage.success('资料更新成功')
   } catch (error) {
-    ElMessage.error('PUT 保存失败，请稍后重试')
+    ElMessage.error('保存失败，请稍后重试')
   }
 }
 
@@ -362,7 +362,7 @@ const validateAvatar = (file: File): boolean => {
   return true
 }
 
-// 处理头像选择
+// 处理头像上传
 const handleAvatarUpload = (options: UploadRequestOptions) => {
   try {
     // 创建本地预览URL
@@ -373,7 +373,7 @@ const handleAvatarUpload = (options: UploadRequestOptions) => {
     options.onSuccess({ success: true })
     ElMessage.success('头像已选择，点击保存修改后生效')
   } catch (error) {
-    ElMessage.error('头像选择失败')
+    ElMessage.error('头像上传失败')
   }
 }
 
@@ -394,6 +394,7 @@ onMounted(() => {
   fetchUserProfile()
 })
 
+// 组件卸载时清理URL
 onBeforeUnmount(() => {
   if (previewAvatarUrl.value) {
     URL.revokeObjectURL(previewAvatarUrl.value)

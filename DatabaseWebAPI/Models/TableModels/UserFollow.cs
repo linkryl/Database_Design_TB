@@ -36,6 +36,8 @@ public sealed class UserFollow
     public DateTime FollowTime { get; set; }
 
     // 关系定义
+    [NotMapped]
     public User? User { get; set; }
+    [NotMapped]
     public User? Follower { get; set; }
 }

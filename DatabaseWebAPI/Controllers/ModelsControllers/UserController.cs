@@ -7,13 +7,15 @@
  * License:       Creative Commons Attribution 4.0 International License
  */
 
+using System;
+using System.Threading.Tasks;
+using DatabaseWebAPI.Data;
+using DatabaseWebAPI.Models.RequestModels;
+using DatabaseWebAPI.Models.TableModels;
+using DatabaseWebAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DatabaseWebAPI.Data;
-using DatabaseWebAPI.Models.TableModels;
 using Swashbuckle.AspNetCore.Annotations;
-using DatabaseWebAPI.Models.RequestModels;
-using DatabaseWebAPI.Utils;
 
 namespace DatabaseWebAPI.Controllers.ModelsControllers;
 
@@ -347,9 +349,7 @@ public class UserController(OracleDbContext context) : ControllerBase
 
         var user = await context.UserSet.FindAsync(id);
         if (user == null)
-        {
             return NotFound($"No corresponding data found for ID: {id}");
-        }
 
         user.Password = PasswordUtils.PlainPasswordToHashedPassword(plainPasswordRequest.PlainPassword);
         try
@@ -416,5 +416,29 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
-    
+
+    // 根据用户名获取用户 ID
+    [HttpGet("get-user-id-by-username/{username}")]
+    [SwaggerOperation(Summary = "根据用户名获取用户 ID", Description = "根据用户名获取用户 ID")]
+    [SwaggerResponse(200, "请求成功")]
+    [SwaggerResponse(404, "未找到对应的用户名")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<int>> GetUserIdByUsername(string username)
+    {
+        try
+        {
+            var user = await context.UserSet.FirstOrDefaultAsync(u => u.UserName == username);
+            if (user == null)
+            {
+                return NotFound($"No corresponding data found for username: {username}");
+            }
+
+            return Ok(user.UserId);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
 }

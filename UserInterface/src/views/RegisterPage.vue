@@ -204,11 +204,7 @@ async function submitRegistrationData() {
 
     console.log('发送注册数据:', requestData);
 
-<<<<<<< Updated upstream
-    const response = await axiosInstance.post('jbdbc:oracle:thin:@//47.117.87.145:1521/teamdb/api/User/', requestData, {
-=======
     const response = await axiosInstance.post('api/User', requestData, {
->>>>>>> Stashed changes
       headers: {
         'Content-Type': 'application/json'
       }

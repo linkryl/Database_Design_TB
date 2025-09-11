@@ -29,11 +29,10 @@
             <!-- 第一步：账号信息 -->
             <div v-if="currentStep === 0" class="step-content">
               <el-form ref="stepOneFormRef" :model="stepOneFormData" :rules="formValidationRules" class="form-body">
-                <el-form-item prop="account">
-                  <!-- 账号输入 -->
-                  <el-input v-model="stepOneFormData.account" type="text" size="large" :prefix-icon="User"
-                    placeholder="请输入7位账号" autocomplete="off" @input="validateAccountLength" show-word-limit
-                    maxlength="7" />
+                <el-form-item prop="username">
+                  <!-- 用户名输入 -->
+                  <el-input v-model="stepOneFormData.username" type="text" size="large" :prefix-icon="User"
+                    placeholder="请输入用户名" autocomplete="off" />
                 </el-form-item>
 
                 <!-- 密码输入 -->
@@ -68,10 +67,6 @@
             <!-- 第二步：个人信息 -->
             <div v-else class="step-content">
               <el-form ref="stepTwoFormRef" :model="stepTwoFormData" :rules="formValidationRules" class="form-body">
-                <el-form-item prop="username">
-                  <el-input v-model="stepTwoFormData.username" size="large" :prefix-icon="Edit"
-                    :disabled="currentStep === 2" placeholder="请输入用户昵称（注册后不可修改）" autocomplete="off" clearable />
-                </el-form-item>
 
                 <div class="form-row">
                   <el-form-item prop="gender" class="form-half-item">
@@ -119,7 +114,7 @@ import { onMounted, onUnmounted, reactive, ref } from "vue";
 import { ElNotification, FormInstance, FormRules } from "element-plus";
 import axiosInstance from "../utils/axios";
 import { sha256 } from "js-sha256";
-import { Lock, Unlock, Edit, User } from "@element-plus/icons-vue";
+import { Lock, Unlock, User } from "@element-plus/icons-vue";
 import axios from "axios";
 
 // 路由管理
@@ -132,32 +127,27 @@ const currentStep = ref(0);
 const stepOneFormRef = ref<FormInstance>();
 const stepTwoFormRef = ref<FormInstance>();
 
-// 账号长度提示
-const accountLengthMessage = ref("");
-
 // 密码强度相关
 const passwordStrengthLevel = ref("low");
 const passwordStrengthMessage = ref("");
 
 // 表单数据
 const stepOneFormData = reactive({
-  account: "",
+  username: "",
   password: "",
   passwordConfirm: "",
 });
 
 const stepTwoFormData = reactive({
-  username: "",
   gender: "",
   birthdate: "",
 });
 
 // 表单验证规则
 const formValidationRules: FormRules = {
-  account: [{ required: true, message: "请输入7位账号", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
   passwordConfirm: [{ required: true, message: "请确认密码", trigger: "blur" }],
-  username: [{ required: true, message: "请输入昵称", trigger: "blur" }],
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   gender: [{ required: true, message: "请选择性别", trigger: "change" }],
   birthdate: [{ required: true, message: "请选择出生日期", trigger: "change" }],
 };
@@ -206,17 +196,15 @@ async function submitRegistrationData() {
 
     // 构建请求数据
     const requestData = {
-      account: stepOneFormData.account,
+      username: stepOneFormData.username,
       password: sha256(stepOneFormData.password), // 使用SHA256加密密码
-      username: stepTwoFormData.username,
       gender: stepTwoFormData.gender,
       birthdate: formattedDate
     };
 
     console.log('发送注册数据:', requestData);
 
-    // 这里替换为您的实际API端点
-    const response = await axiosInstance.post('https://your-api-domain.com/api/auth/register', requestData, {
+    const response = await axiosInstance.post('https://api.com/api/register', requestData, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -240,7 +228,7 @@ async function submitRegistrationData() {
         } else if (error.response.status === 404) {
           errorMessage = '请求参数错误';
         } else if (error.response.status === 409) {
-          errorMessage = '账号已存在';
+          errorMessage = '用户已存在';
         } else if (error.response.status >= 500) {
           errorMessage = '服务器内部错误，请稍后重试';
         }
@@ -263,14 +251,6 @@ async function submitRegistrationData() {
   }
 }
 
-
-// 账号长度验证
-function validateAccountLength() {
-  const account = stepOneFormData.account;
-  if (account.length < 7) {
-    accountLengthMessage.value = "请输入7位账号";
-  }
-}
 
 // 密码强度计算
 function calculatePasswordStrength() {

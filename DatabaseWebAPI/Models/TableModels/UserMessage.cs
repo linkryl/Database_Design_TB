@@ -49,5 +49,6 @@ public sealed class UserMessage
 
     // 关系定义
     public User? User { get; set; }
+    [NotMapped]
     public User? Commenter { get; set; }
 }

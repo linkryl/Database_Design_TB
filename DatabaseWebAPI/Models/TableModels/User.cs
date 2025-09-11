@@ -150,18 +150,20 @@ public sealed class User
     public ICollection<PostReport> PostReportEntityReportedUser { get; set; } =
         new HashSet<PostReport>();
 
+    [NotMapped]
     public ICollection<UserFollow> UserFollowEntityUser { get; set; } =
         new HashSet<UserFollow>();
-
+        
+    [NotMapped]
     public ICollection<UserFollow> UserFollowEntityFollower { get; set; } =
         new HashSet<UserFollow>();
-
+    [NotMapped]
     public ICollection<UserMessage> UserMessageEntityUser { get; set; } =
         new HashSet<UserMessage>();
-
+    [NotMapped]
     public ICollection<UserMessage> UserMessageEntityCommenter { get; set; } =
         new HashSet<UserMessage>();
-
+    [NotMapped]
     public ICollection<UserSetting> UserSettingEntity { get; set; } =
         new HashSet<UserSetting>();
 }

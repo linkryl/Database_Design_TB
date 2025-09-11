@@ -25,8 +25,8 @@
             <h1 class='display-name'>{{ userInfo.userName }}</h1>
             <span class='uid-tag'>UID: {{ userInfo.uid }}</span>
           </div>
-          <!-- 等级与收藏数 -->
-          <p class='join-info'>LV: {{ userInfo.experience / 1000 }} | 收藏数: {{ userInfo.favoriteCount }}</p>
+          <!-- 加入时间信息 -->
+          <p class='join-info'>用户角色: {{ formatRole(userInfo.role) }}</p>
         </div>
 
         <!-- 操作按钮区 -->
@@ -63,10 +63,6 @@
                 <span class='grid-value'>{{ formatBirthdate(userInfo.birthdate) }}</span>
               </div>
               <div class='info-grid-item'>
-                <span class='grid-label'>电话</span>
-                <span class='grid-value'>{{ userInfo.telephone || '未公开' }}</span>
-              </div>
-              <div class='info-grid-item'>
                 <span class='grid-label'>角色</span>
                 <span class='grid-value'>{{ formatRole(userInfo.role) }}</span>
               </div>
@@ -86,22 +82,6 @@
 
           </div>
         </div>
-
-        <!-- 我的收藏卡片 -->
-        <div v-if='isSelf' class='collection-showcase-card' @click='goToCollections'>
-          <div class='showcase-bg'></div>
-          <div class='showcase-content'>
-            <el-icon class='showcase-icon'><Collection/></el-icon>
-            <div class='showcase-info'>
-              <h3 class='showcase-title'>我的收藏夹</h3>
-              <p class='showcase-desc'>查看和管理所有收藏内容</p>
-            </div>
-            <el-icon class='go-icon'><ArrowRightBold/></el-icon>
-          </div>
-          <div class='collection-preview'>
-            <span class='preview-count'>{{ userInfo.favoriteCount }} 个收藏</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -114,6 +94,22 @@
       class='edit-dialog'>
       
       <el-form :model='editData' label-width='100px' class='edit-form'>
+        <!-- UID -->
+        <el-form-item label='UID'>
+          <el-input 
+            :value='userInfo.uid' 
+            disabled
+            style='background: #f5f5f5'/>
+        </el-form-item>
+
+        <!-- 昵称 -->
+        <el-form-item label='昵称'>
+          <el-input 
+            :value='userInfo.userName' 
+            disabled
+            style='background: #f5f5f5'/>
+        </el-form-item>
+
         <!-- 头像 -->
         <el-form-item label='头像'>
           <div class='avatar-upload-area'>
@@ -129,18 +125,9 @@
             </el-upload>
             <div class='avatar-tips'>
               点击上传新头像<br>
-              支持 JPG/PNG，最大 2MB
+              只支持 JPG，最大 2MB
             </div>
           </div>
-        </el-form-item>
-
-        <!-- 昵称 -->
-        <el-form-item label='昵称' required>
-          <el-input 
-            v-model='editData.userName' 
-            maxlength='16'
-            show-word-limit
-            placeholder='请输入昵称'/>
         </el-form-item>
 
         <!-- 性别 -->
@@ -161,14 +148,6 @@
             value-format='YYYY-MM-DD'
             :disabled-date='disableFutureDate'
             style='width: 100%'/>
-        </el-form-item>
-
-        <!-- 电话 -->
-        <el-form-item label='电话'>
-          <el-input 
-            v-model='editData.telephone'
-            maxlength='20'
-            placeholder='请输入电话号码'/>
         </el-form-item>
 
         <!-- 个人简介 -->
@@ -194,24 +173,12 @@
 </template>
 
 <script setup lang='ts'>
-import {computed, onMounted, ref, watch} from 'vue'
+import {computed, onMounted, onBeforeUnmount, ref, watch} from 'vue'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import {useRoute, useRouter} from 'vue-router'
 import {formatDateTimeToCST, ossBaseUrl} from '../globals'
-import {UserFilled, User, Collection, ArrowRightBold, EditPen, Plus} from '@element-plus/icons-vue'
-
-// TypeScript 类型定义
-interface UploadFile {
-  name: string
-  percentage?: number
-  status: string
-  size: number
-  response?: any
-  uid: number
-  url?: string
-  raw: File
-}
+import {UserFilled, User, EditPen, Plus} from '@element-plus/icons-vue'
 
 interface UploadRequestOptions {
   action: string
@@ -228,8 +195,6 @@ interface UploadRequestOptions {
 
 const route = useRoute()
 const router = useRouter()
-
-// 用户相关数据
 const viewedUserId = ref(parseInt(route.params.id as string))
 const localUserId = localStorage.getItem('currentUserId')
 const currentUserId = ref(localUserId ? parseInt(localUserId) : 0)
@@ -239,28 +204,23 @@ const isSelf = computed(() => viewedUserId.value === currentUserId.value && curr
 const userInfo = ref({
   uid: viewedUserId.value,
   userName: '',
-  telephone: '',
   role: 0,
   status: 0,
   avatarUrl: '',
   profile: '',
   gender: 0,
-  birthdate: '',
-  experience: 0,
-  favoriteCount: 0
+  birthdate: ''
 })
 
 const showEditDialog = ref(false)
 const editData = ref({
-  userName: '',
   avatarUrl: '',
   profile: '',
   gender: 0,
-  birthdate: '',
-  telephone: ''
+  birthdate: ''
 })
 
-// 添加头像预览URL
+// 头像预览URL
 const previewAvatarUrl = ref('')
 const uploadedFile = ref<File | null>(null)
 
@@ -288,7 +248,7 @@ const formatStatus = (status: number) => {
 // 获取用户信息
 const fetchUserProfile = async () => {
   try {
-    // 从后端获取信息
+    // GET接口，从后端获取信息
     const res = await axiosInstance.get(`user/${viewedUserId.value}`)
     if (res.status === 404) {
       await router.push('/404')
@@ -299,15 +259,12 @@ const fetchUserProfile = async () => {
     userInfo.value = {
       uid: data.userId || viewedUserId.value,
       userName: data.userName || '',
-      telephone: data.telephone || '',
       role: data.role || 0,
       status: data.status || 0,
       avatarUrl: data.avatarUrl || 'default-avatar.png',
       profile: data.profile || '',
       gender: data.gender !== undefined ? data.gender : 0,
-      birthdate: data.birthdate || '',
-      experience: data.experiencePoints || 0,
-      favoriteCount: data.favoritesCount || 0
+      birthdate: data.birthdate || ''
     }
   } catch (error) {
     ElMessage.error('GET:获取用户信息失败')
@@ -318,12 +275,10 @@ const fetchUserProfile = async () => {
 // 打开编辑对话框
 const openEditPanel = () => {
   editData.value = {
-    userName: userInfo.value.userName,
     avatarUrl: userInfo.value.avatarUrl,
     profile: userInfo.value.profile,
     gender: userInfo.value.gender,
-    birthdate: userInfo.value.birthdate,
-    telephone: userInfo.value.telephone
+    birthdate: userInfo.value.birthdate
   }
   // 重置预览URL和上传文件
   previewAvatarUrl.value = ''
@@ -341,53 +296,45 @@ const cancelEdit = () => {
 
 // 保存修改
 const updateProfile = async () => {
-  if (!editData.value.userName.trim()) {
-    ElMessage.warning('昵称不能为空')
-    return
-  }
-  
   try {
     // 如果有新头像，先上传头像
     if (uploadedFile.value) {
       const formData = new FormData()
-      formData.append('avatar', uploadedFile.value)
+      formData.append('file', uploadedFile.value, 'avatar.jpg')
       
       try {
-        const uploadRes = await axiosInstance.post('/upload/avatar', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-        
+        // POST接口，头像文件上传到服务器
+        const uploadRes = await axiosInstance.post('upload-avatar', formData)
         if (uploadRes.data && uploadRes.data.fileName) {
+          // PUT接口，更新数据库里用户的 avatarUrl 字段
+          await axiosInstance.put(`user/avatar-url/${viewedUserId.value}`, {
+            avatarUrl: uploadRes.data.fileName
+          })
           editData.value.avatarUrl = uploadRes.data.fileName
         }
       } catch (uploadError) {
-        ElMessage.error('POST:头像保存失败')
-        console.error('POST:头像保存失败:', uploadError)
+        ElMessage.error('头像上传失败')
+        console.error('头像上传失败:', uploadError)
         return
       }
     }
     
-    // 向后端传递信息接口
+    // PUT接口，更新用户信息
     const updatePayload = {
-      userName: editData.value.userName,
       profile: editData.value.profile,
       gender: editData.value.gender,
-      birthdate: editData.value.birthdate,
-      avatarUrl: editData.value.avatarUrl,
-      telephone: editData.value.telephone
+      birthdate: editData.value.birthdate
     }
     
-    await axiosInstance.put(`user/${viewedUserId.value}`, updatePayload)
+    await axiosInstance.put(`user/personal-information/${viewedUserId.value}`, updatePayload)
     
     // 更新显示数据
-    userInfo.value.userName = editData.value.userName
     userInfo.value.profile = editData.value.profile
     userInfo.value.gender = editData.value.gender
     userInfo.value.birthdate = editData.value.birthdate
-    userInfo.value.avatarUrl = editData.value.avatarUrl
-    userInfo.value.telephone = editData.value.telephone
+    if (editData.value.avatarUrl) {
+      userInfo.value.avatarUrl = editData.value.avatarUrl
+    }
     
     // 清理并关闭对话框
     previewAvatarUrl.value = ''
@@ -395,17 +342,17 @@ const updateProfile = async () => {
     showEditDialog.value = false
     ElMessage.success('资料更新成功')
   } catch (error) {
-    ElMessage.error('PUT:保存失败，请稍后重试')
+    ElMessage.error('保存失败，请稍后重试')
   }
 }
 
 // 头像验证
 const validateAvatar = (file: File): boolean => {
-  const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isImage = file.type === 'image/jpeg' || file.type === 'image/jpg'
   const isLt2M = file.size / 1024 / 1024 < 2
   
   if (!isImage) {
-    ElMessage.error('只支持 JPG/PNG 格式的图片')
+    ElMessage.error('只支持 JPG 格式的图片')
     return false
   }
   if (!isLt2M) {
@@ -430,11 +377,6 @@ const handleAvatarUpload = (options: UploadRequestOptions) => {
   }
 }
 
-// 跳转到收藏页
-const goToCollections = () => {
-  router.push('/collections')
-}
-
 // 禁用未来日期
 const disableFutureDate = (date: Date) => {
   return date.getTime() > Date.now()
@@ -450,12 +392,12 @@ watch(() => route.params.id, (newId) => {
 // 组件卸载时清理URL
 onMounted(() => {
   fetchUserProfile()
-  
-  // 清理函数
-  return () => {
-    if (previewAvatarUrl.value) {
-      URL.revokeObjectURL(previewAvatarUrl.value)
-    }
+})
+
+// 组件卸载时清理URL
+onBeforeUnmount(() => {
+  if (previewAvatarUrl.value) {
+    URL.revokeObjectURL(previewAvatarUrl.value)
   }
 })
 </script>
@@ -637,78 +579,6 @@ onMounted(() => {
   color: #424242;
   font-size: 15px;
   font-weight: 500;
-}
-
-/* 收藏夹卡片 */
-.collection-showcase-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  position: relative;
-}
-
-.collection-showcase-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(37,99,235,0.15);
-}
-
-.showcase-bg {
-  position: absolute;
-  top: 0;
-  right: -50px;
-  width: 200px;
-  height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(37,99,235,0.05));
-  transform: skewX(-20deg);
-}
-
-.showcase-content {
-  padding: 30px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-}
-
-.showcase-icon {
-  font-size: 48px;
-  color: #fbbf24;
-}
-
-.showcase-info {
-  flex: 1;
-}
-
-.showcase-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 0 0 8px 0;
-}
-
-.showcase-desc {
-  color: #757575;
-  font-size: 14px;
-  margin: 0;
-}
-
-.go-icon {
-  font-size: 24px;
-  color: #2563eb;
-}
-
-.collection-preview {
-  padding: 15px 30px;
-  background: #f8f9fa;
-  border-top: 1px solid #e8e8e8;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: #616161;
 }
 
 /* 编辑对话框 */

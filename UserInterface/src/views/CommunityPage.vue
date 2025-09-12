@@ -51,9 +51,7 @@
       
       <!-- 有帖子时显示帖子列表 -->
       <template v-else>
-        <div v-for='postId in paginatedPostIds' :key='postId' class='post-detail-card'>
-          <PostDetailCard :post-id='postId' />
-        </div>
+        <PostDetailCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId' />
         
         <!-- 最后一页的结束提示 -->
         <div v-if='isLastPage && postIds.length > 0' class='end-posts-container'>
@@ -114,8 +112,8 @@ const handleCurrentChange = (page) => {
 
 onMounted(async () => {
   try {
-    console.log('正在请求API:', '/api/post/latest')
-    const response = await axiosInstance.get('post/latest')
+    console.log('正在请求API:', '/api/post/latest-ids')
+    const response = await axiosInstance.get('post/latest-ids')
     
     console.log('API响应状态:', response.status)
     console.log('后端返回的帖子数据:', response.data)
@@ -123,9 +121,31 @@ onMounted(async () => {
     console.log('数据长度:', response.data?.length)
     console.log('前5个帖子ID:', response.data?.slice(0, 5))
     
-    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
-    postIds.value = response.data || []
-    console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
+    // 后端 /post/latest-ids 接口应该直接返回按时间排序的帖子ID数组
+    const allPostIds = response.data || []
+    console.log('获取到的帖子ID列表:', allPostIds.slice(0, 10))
+    
+    // 验证每个帖子ID是否有效（可选，但会增加请求次数）
+    console.log('开始验证帖子ID的有效性...')
+    const validPostIds = []
+    
+    for (const postId of allPostIds) {
+      try {
+        // 快速验证帖子是否存在
+        const testResponse = await axiosInstance.get(`post/${postId}`)
+        if (testResponse.status === 200) {
+          validPostIds.push(postId)
+          console.log(`帖子ID ${postId} 验证成功`)
+        }
+      } catch (error) {
+        console.warn(`帖子ID ${postId} 验证失败:`, error.response?.status)
+        // 继续处理下一个ID，不中断整个流程
+      }
+    }
+    
+    postIds.value = validPostIds
+    console.log(`验证完成，有效帖子数量: ${validPostIds.length}/${allPostIds.length}`)
+    console.log('有效的帖子ID列表:', validPostIds.slice(0, 10))
     
   } catch (error) {
     console.error('获取帖子列表失败:', error)
@@ -136,12 +156,11 @@ onMounted(async () => {
     if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }
   }
-  
 })
 
 // 发帖按钮点击事件 - 跳转到发帖页面
@@ -243,7 +262,7 @@ h1 {
 
 /* 帖子列表区域样式 */
 .posts-section {
-  max-width: 1440px;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;

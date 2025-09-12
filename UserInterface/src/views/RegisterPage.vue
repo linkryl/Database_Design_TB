@@ -222,7 +222,7 @@ async function submitRegistrationData() {
 
     console.log('发送注册数据:', requestData);
 
-    const response = await axiosInstance.post('api/User', requestData, {
+    const response = await axiosInstance.post('User', requestData, {
       headers: {
         'Content-Type': 'application/json'
       }

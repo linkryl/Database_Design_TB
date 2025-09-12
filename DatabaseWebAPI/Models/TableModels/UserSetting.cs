@@ -24,10 +24,6 @@ public sealed class UserSetting
     [SwaggerSchema("用户ID")]
     public int UserId { get; set; }
 
-    [Required]
-    [Column("IS_TELEPHONE_PUBLIC")]
-    [SwaggerSchema("是否公开手机号码")]
-    public int IsTelephonePublic { get; set; }
 
     [Required]
     [Column("IS_REGISTRATION_DATE_PUBLIC")]

@@ -87,16 +87,37 @@ const getRandomCategory = () => {
 // 计算属性
 const formatTime = (timestamp) => {
   if (!timestamp) return '未知时间'
-  const date = new Date(timestamp)
+  
+  // 解析原始时间
+  let date
+  if (typeof timestamp === 'string') {
+    date = new Date(timestamp)
+  } else {
+    date = new Date(timestamp)
+  }
+  
+  // 检查日期是否有效
+  if (isNaN(date.getTime())) {
+    return '时间格式错误'
+  }
+  
+  // 手动加8小时调整时区
+  const adjustedDate = new Date(date.getTime() + 8 * 60 * 60 * 1000)
+  
   const now = new Date()
-  const diff = now - date
+  const diff = now - adjustedDate
+  
+  // 如果调整后的时间超过当前时间，显示"刚刚"
+  if (diff < 0) {
+    return '刚刚'
+  }
   
   if (diff < 60000) return '刚刚'
   if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
   if (diff < 2592000000) return `${Math.floor(diff / 86400000)}天前`
   
-  return date.toLocaleDateString('zh-CN')
+  return adjustedDate.toLocaleDateString('zh-CN')
 }
 
 // 判断是否需要显示展开按钮

@@ -56,10 +56,10 @@
                     下一步
                   </el-button>
                   <!-- 跳过按钮 -->
-                  <el-button type="primary" size="large" @click="currentStep++"
+                  <!--<el-button type="primary" size="large" @click="currentStep++"
                     style="width: 100%; margin-bottom: 12px; margin-left: 1px;">
                     跳过
-                  </el-button>
+                  </el-button> -->
                 </div>
               </el-form>
             </div>
@@ -302,7 +302,8 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-left: 500px;
+  margin-left: 600px;
+  opacity: 0.8;
 }
 
 .form-wrapper {
@@ -333,7 +334,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 .page-title {
   text-align: center;
   margin-bottom: 20px;
-  color: #303133;
+  color: #0084ff;
 }
 
 .form-content-wrapper {

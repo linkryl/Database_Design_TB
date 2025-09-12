@@ -208,31 +208,38 @@ const completeRegistration = async (formEl: FormInstance | undefined) => {
 
 // 提交注册数据到API
 async function submitRegistrationData() {
+  // 格式化日期
+  const formattedDate = stepTwoFormData.birthdate;
+
+  // 当前时间
+  const now = new Date().toISOString()
+  const newUser = {
+    userName: stepOneFormData.username,
+    password: sha256(stepOneFormData.password),
+    registrationDate: now,
+    lastLoginTime: now,
+    role: 0,
+    status: 0,
+    avatarUrl: "",
+    profile: "",
+    gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),
+    birthdate: formattedDate,
+    experiencePoints: 0,
+    followsCount: 0,
+    followedCount: 0,
+    favoritesCount: 0,
+    favoritedCount: 0,
+    likesCount: 0,
+    likedCount: 0,
+    messageCount: 0,
+  }
+
   try {
-    // 格式化日期
-    const formattedDate = stepTwoFormData.birthdate;
+    console.log('发送注册数据:', newUser);
 
-    // 构建请求数据
-    const requestData = {
-      username: stepOneFormData.username,
-      password: sha256(stepOneFormData.password), // 使用SHA256加密密码
-      gender: stepTwoFormData.gender,
-      birthdate: formattedDate
-    };
+    const response = await axiosInstance.post('user', newUser);
 
-    console.log('发送注册数据:', requestData);
-
-    const response = await axiosInstance.post('User', requestData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.status === 201) {
-      return true;
-    } else {
-      throw new Error(`服务器返回错误状态: ${response.status}`);
-    }
+    return response.status == 201
   } catch (error) {
     console.error('注册请求错误:', error);
 

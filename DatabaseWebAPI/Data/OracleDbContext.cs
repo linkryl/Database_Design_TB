@@ -27,6 +27,7 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
     public DbSet<PostLike> PostLikeSet { get; set; }
     public DbSet<PostReport> PostReportSet { get; set; }
     public DbSet<User> UserSet { get; set; }
+
     public DbSet<UserFollow> UserFollowSet { get; set; }
     public DbSet<UserMessage> UserMessageSet { get; set; }
     public DbSet<UserSetting> UserSettingSet { get; set; }

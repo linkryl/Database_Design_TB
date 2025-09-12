@@ -46,8 +46,11 @@
 
                 <!-- 密码确认 -->
                 <el-form-item prop="passwordConfirm">
-                  <el-input v-model="stepOneFormData.passwordConfirm" type="password" size="large" :prefix-icon="Lock"
-                    placeholder="请确认密码" autocomplete="off" show-password />
+                  <el-tooltip :visible="stepOneFormData.password !== ''" :content="getPasswordMatchText()"
+                    placement="right" raw-content>
+                    <el-input v-model="stepOneFormData.passwordConfirm" type="password" size="large" :prefix-icon="Lock"
+                      placeholder="请确认密码" autocomplete="off" show-password @input="checkPasswordMatch" />
+                  </el-tooltip>
                 </el-form-item>
 
                 <div class="action-buttons">
@@ -127,7 +130,9 @@ const currentStep = ref(0);
 const stepOneFormRef = ref<FormInstance>();
 const stepTwoFormRef = ref<FormInstance>();
 
-// 密码强度相关
+// 密码相关
+const passwordsMatch = ref(false);
+const passwordsMatchMessage = ref("密码不匹配")
 const passwordStrengthLevel = ref("low");
 const passwordStrengthMessage = ref("");
 
@@ -157,9 +162,22 @@ const disableFutureDates = (time: Date) => {
   return time.getTime() > Date.now();
 };
 
+// 密码一致性检查
+const checkPasswordMatch = () => {
+  passwordsMatch.value = stepOneFormData.password === stepOneFormData.passwordConfirm;
+};
+
+function getPasswordMatchText() {
+  if (passwordsMatch.value) {
+    passwordsMatchMessage.value = "密码匹配"
+  }
+
+  return passwordsMatchMessage.value
+}
+
 // 步骤提交处理
 const proceedToNextStep = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+  if (!formEl || !passwordsMatch.value) return;
   await formEl.validate((valid) => {
     if (valid) currentStep.value++;
   });
@@ -248,7 +266,6 @@ async function submitRegistrationData() {
     return false;
   }
 }
-
 
 // 密码强度计算
 function calculatePasswordStrength() {

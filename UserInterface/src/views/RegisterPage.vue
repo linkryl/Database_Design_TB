@@ -208,14 +208,41 @@ const completeRegistration = async (formEl: FormInstance | undefined) => {
   });
 };
 
+// 东八区日期时间转换函数
+const convertToEast8ISOString = (date: string | Date): string => {
+  try {
+    // 确保输入是Date对象
+    const dateObj = date instanceof Date ? date : new Date(date);
+    
+    // 处理无效日期
+    if (isNaN(dateObj.getTime())) {
+      return ''; // 或者抛出错误
+    }
+    
+    // 获取东八区时间（UTC+8）
+    const offset = 8; // 东八区偏移量
+    const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
+    // *7200000转换后强制成为东八区时间
+    const east8Time = new Date(utc + (7200000 * offset));
+    console.log('btime:', east8Time);
+    // 转换为ISO字符串
+    return east8Time.toISOString();
+  } catch (error) {
+    console.error('Date conversion error:', error);
+    return ''; // 返回默认值
+  }
+};
+
 // 提交注册数据到API
 async function submitRegistrationData() {
   // 格式化日期
-  const formattedDate = stepTwoFormData.birthdate;
+  const formattedDate = convertToEast8ISOString(stepTwoFormData.birthdate);
+  
+  // 当前时间(0时区时间)
+  const now = new Date().toISOString();
 
-  // 当前时间
-  const now = new Date().toISOString()
-  const newUser = {
+  // 
+  const newUserData = {
     userName: stepOneFormData.username,
     password: sha256(stepOneFormData.password),
     registrationDate: now,
@@ -237,9 +264,9 @@ async function submitRegistrationData() {
   }
 
   try {
-    console.log('发送注册数据:', newUser);
+    console.log('发送注册数据:', newUserData);
 
-    const response = await axiosInstance.post('user', newUser);
+    const response = await axiosInstance.post('user', newUserData);
 
     return response.status == 201
   } catch (error) {

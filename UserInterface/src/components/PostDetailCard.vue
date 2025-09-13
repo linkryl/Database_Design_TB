@@ -55,7 +55,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axiosInstance from '../utils/axios'
 import { ElMessage } from 'element-plus'
-import githubLogo from '../assets/LogosAndIcons/GitHubLogo.png'
+import githubLogo from '/images/GitHubLogo.png'
 
 // Props
 const props = defineProps<{

@@ -13,7 +13,8 @@
         <el-card class="form-card" shadow="hover">
           <!-- 社区标识 -->
           <div class="society-logo">
-            <img src='../assets/LogosAndIcons/TreeHoleLogo.png' alt="TreeHole Logo" />
+            <img :src='`${ossBaseUrl}TreeHoleLogo.png`'
+                 alt="TreeHole Logo" />
           </div>
 
           <!-- 页面标题与步骤指示器 -->
@@ -119,6 +120,7 @@ import axiosInstance from "../utils/axios";
 import { sha256 } from "js-sha256";
 import { Lock, Unlock, User } from "@element-plus/icons-vue";
 import axios from "axios";
+import {ossBaseUrl} from '../globals';
 
 // 路由管理
 const router = useRouter();
@@ -314,7 +316,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 <style scoped>
 .register-container {
   display: flex;
-  background: url('../assets/BackgroundImages/L&RBackgroundImage.png') no-repeat center center fixed;
+  background: url('/images/L&RBackgroundImage.png') no-repeat center center fixed;
   background-size: cover;
   justify-content: center;
   align-items: center;

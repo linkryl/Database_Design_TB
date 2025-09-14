@@ -68,18 +68,6 @@
   
           </el-dropdown-item>
 
-
-
-          <!--用户管理按钮（仅管理员可见）-->
-          <el-dropdown-item v-if="isAdmin" :icon='Setting' @click="router.push('/user-management')">  
-            <div class='dropdown-item'>          
-              <span>{{ "用户管理" }}</span>         
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
-            </div>
-          </el-dropdown-item>
-
-
-
           <!--注销账号按钮-->
           <el-dropdown-item :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
             <div class='dropdown-item'>
@@ -316,59 +304,6 @@ h1 {
   pointer-events: none;
   opacity: 0.5;
 }
-
-
-
-/* 用户身份提示样式 */
-.user-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  margin: 8px 16px 16px 16px;
-  border-radius: 20px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-/* 调整文字位置，向左偏移以与"用户中心"对齐 */
-.user-indicator .user-text {
-  position: relative;
-  left: -12px;
-}
-
-/* 管理员身份提示样式 */
-.admin-indicator {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-  animation: adminPulse 2s infinite;
-}
-
-/* 普通用户身份提示样式 */
-.normal-user-indicator {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-}
-
-.user-text {
-  font-size: 13px;
-  letter-spacing: 0.5px;
-}
-
-@keyframes adminPulse {
-  0%, 100% {
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-  }
-  50% {
-    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5);
-  }
-}
-
 
 /* 注销账号按钮样式 */
 .delete-account-item {

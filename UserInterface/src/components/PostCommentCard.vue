@@ -21,17 +21,15 @@
     <div class="comment-actions">
       <div class="comment-stats">
         <span class="stat-item">
-          <img :src="`${ossBaseUrl}LogosAndIcons/Like.png`" 
-               class="comment-like-logo" 
-               alt="LikeLogo" 
-               height="14px"/>
+          <div class="comment-like-button" @click="handleCommentLike">
+            <span class="comment-button-icon">👍</span>
+          </div>
           <span class="stat-text">{{ comment.commentLikeCount }}</span>
         </span>
         <span class="stat-item">
-          <img :src="`${ossBaseUrl}LogosAndIcons/Dislike.png`" 
-               class="comment-dislike-logo" 
-               alt="DislikeLogo" 
-               height="14px"/>
+          <div class="comment-dislike-button" @click="handleCommentDislike">
+            <span class="comment-button-icon">👎</span>
+          </div>
           <span class="stat-text">{{ comment.commentDislikeCount }}</span>
         </span>
       </div>
@@ -105,6 +103,64 @@ const sendReply = async () => {
     window.location.reload()
   } catch (error) {
     ElMessage.error('回复失败，请稍后重试')
+  }
+}
+
+// 处理评论点赞
+const handleCommentLike = async () => {
+  try {
+    // 检查是否已经点赞
+    await axiosInstance.get(`post-comment-like/${props.comment.commentId}-${props.user}`)
+    // 如果已经点赞，则取消点赞
+    try {
+      await axiosInstance.delete(`post-comment-like/${props.comment.commentId}-${props.user}`)
+      props.comment.commentLikeCount = props.comment.commentLikeCount - 1
+      ElMessage.success("已取消点赞")
+    } catch (error: any) {
+      ElMessage.error("取消点赞失败")
+    }
+  } catch (error) {
+    // 如果没有点赞，则添加点赞
+    try {
+      await axiosInstance.post('post-comment-like', {
+        commentId: props.comment.commentId,
+        userId: props.user,
+        likeTime: new Date().toISOString()
+      })
+      props.comment.commentLikeCount = props.comment.commentLikeCount + 1
+      ElMessage.success("已点赞")
+    } catch (error: any) {
+      ElMessage.error("点赞失败")
+    }
+  }
+}
+
+// 处理评论点踩
+const handleCommentDislike = async () => {
+  try {
+    // 检查是否已经点踩
+    await axiosInstance.get(`post-comment-dislike/${props.comment.commentId}-${props.user}`)
+    // 如果已经点踩，则取消点踩
+    try {
+      await axiosInstance.delete(`post-comment-dislike/${props.comment.commentId}-${props.user}`)
+      props.comment.commentDislikeCount = props.comment.commentDislikeCount - 1
+      ElMessage.success("已取消点踩")
+    } catch (error: any) {
+      ElMessage.error("取消点踩失败")
+    }
+  } catch (error) {
+    // 如果没有点踩，则添加点踩
+    try {
+      await axiosInstance.post('post-comment-dislike', {
+        commentId: props.comment.commentId,
+        userId: props.user,
+        dislikeTime: new Date().toISOString()
+      })
+      props.comment.commentDislikeCount = props.comment.commentDislikeCount + 1
+      ElMessage.success("已点踩")
+    } catch (error: any) {
+      ElMessage.error("点踩失败")
+    }
   }
 }
 </script>
@@ -183,10 +239,36 @@ const sendReply = async () => {
   color: #666;
 }
 
-.comment-like-logo,
-.comment-dislike-logo {
+/* 评论按钮样式 */
+.comment-like-button, .comment-dislike-button {
   cursor: pointer;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+}
+
+.comment-like-button:hover {
+  background: #e3f2fd;
+  border-color: #4a90e2;
+  transform: scale(1.05);
+}
+
+.comment-dislike-button:hover {
+  background: #ffebee;
+  border-color: #f44336;
+  transform: scale(1.05);
+}
+
+.comment-button-icon {
+  font-size: 12px;
+  line-height: 1;
 }
 
 .reply-button {

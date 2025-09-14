@@ -65,19 +65,15 @@
             </div>
             <div class='post-stats'>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Like.png`'
-                     class='post-card-like-logo'
-                     alt='LikeLogo'
-                     @click='handleLike'
-                     height='16px'/>
+                <div class='like-button' @click='handleLike'>
+                  <span class='button-icon'>👍</span>
+                </div>
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.likeCount }}</span>
               </div>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Star.png`'
-                     class='post-card-star-logo'
-                     alt='StarLogo'
-                     @click='handleFavorite'
-                     height='16px'/>
+                <div class='favorite-button' @click='handleFavorite'>
+                  <span class='button-icon'>⭐</span>
+                </div>
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.favoriteCount }}</span>
               </div>
               <div class='stat-item'>
@@ -85,11 +81,9 @@
                             placement='bottom-end'
                             :width='500'>
                   <template #reference>
-                    <img :src='`${ossBaseUrl}LogosAndIcons/Comment.png`'
-                         class='post-card-comment-logo'
-                         alt='CommentLogo'
-                         @click="commentVisible=!commentVisible; commentContent=''"
-                         height='16px'/>
+                    <div class='comment-button' @click="commentVisible=!commentVisible; commentContent=''">
+                      <span class='button-icon'>💬</span>
+                    </div>
                   </template>
                   <el-input v-model='commentContent'
                             size='large'
@@ -111,11 +105,9 @@
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.commentCount }}</span>
               </div>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Dislike.png`'
-                     class='post-card-dislike-logo'
-                     alt='DislikeLogo'
-                     @click='handleDislike'
-                     height='16px'/>
+                <div class='dislike-button' @click='handleDislike'>
+                  <span class='button-icon'>👎</span>
+                </div>
               </div>
             </div>
           </div>
@@ -586,32 +578,48 @@ async function handleDelete(id: number) {
   margin-left: 5px;
 }
 
-.post-card-like-logo {
+/* 按钮样式 */
+.like-button, .favorite-button, .comment-button, .dislike-button {
   cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 32px;
 }
 
-.post-card-dislike-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.like-button:hover {
+  background: #e3f2fd;
+  border-color: #4a90e2;
+  transform: scale(1.05);
 }
 
-.post-card-star-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.favorite-button:hover {
+  background: #fff3e0;
+  border-color: #ff9800;
+  transform: scale(1.05);
 }
 
-.post-card-comment-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.comment-button:hover {
+  background: #f3e5f5;
+  border-color: #9c27b0;
+  transform: scale(1.05);
 }
 
-.post-card-like-logo:hover, .post-card-comment-logo:hover, .post-card-star-logo:hover, .post-card-dislike-logo:hover {
-  transform: scale(1.1);
+.dislike-button:hover {
+  background: #ffebee;
+  border-color: #f44336;
+  transform: scale(1.05);
+}
+
+.button-icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .post-header {

@@ -33,6 +33,22 @@ TreeHole 发帖页面
           />
         </el-form-item>
         
+        <el-form-item label="分类" prop="categoryId">
+          <el-select 
+            v-model="thPostForm.categoryId" 
+            placeholder="请选择帖子分类"
+            :disabled="thLoading"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="category in thCategories"
+              :key="category.categoryId"
+              :label="category.category"
+              :value="category.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+        
         <el-form-item label="内容" prop="content">
           <el-input 
             v-model="thPostForm.content" 
@@ -68,7 +84,7 @@ TreeHole 发帖页面
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { createPost } from '@/api/index'
+import { createPost, getPostCategories, type THPostCategory } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
 
@@ -76,10 +92,12 @@ import { ossBaseUrl } from '@/globals'
 const router = useRouter()
 const thFormRef = ref<FormInstance>()
 const thLoading = ref(false)
+const thCategories = ref<THPostCategory[]>([])
 
 // 表单数据
 const thPostForm = reactive({
   title: '',
+  categoryId: 0,
   content: ''
 })
 
@@ -89,19 +107,36 @@ const thFormRules: FormRules = {
     { required: true, message: '请输入标题', trigger: 'blur' },
     { max: 100, message: '标题长度不能超过100个字符', trigger: 'blur' }
   ],
+  categoryId: [
+    { required: true, message: '请选择帖子分类', trigger: 'change' }
+  ],
   content: [
     { required: true, message: '请输入内容', trigger: 'blur' }
   ]
 }
 
-// 检查登录状态
-onMounted(() => {
+// 获取分类列表
+const fetchCategories = async () => {
+  try {
+    thCategories.value = await getPostCategories()
+    console.log('TreeHole: 获取分类列表成功:', thCategories.value)
+  } catch (error: any) {
+    console.error('TreeHole: 获取分类列表失败:', error)
+    ElMessage.error('获取分类列表失败，请重试')
+  }
+}
+
+// 检查登录状态并获取分类列表
+onMounted(async () => {
   const thCurrentUserId = getCurrentUserId()
   if (!thCurrentUserId) {
     ElMessage.warning('请先登录')
     router.push('/login')
     return
   }
+  
+  // 获取分类列表
+  await fetchCategories()
 })
 
 // 处理取消
@@ -130,7 +165,7 @@ const handleSubmit = async () => {
     // 调用API创建帖子 - 构造完整的Post对象
     const thCreateData = {
       userId: parseInt(thCurrentUserId),
-      categoryId: 1, // 使用刚创建的默认分类
+      categoryId: thPostForm.categoryId, // 使用用户选择的分类
       title: thPostForm.title.trim(),
       content: thPostForm.content.trim(),
       creationDate: new Date().toISOString(),

@@ -71,7 +71,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.Configure<KestrelServerOptions>(options => { options.Limits.MaxRequestBodySize = null; });
 
 // 添加服务到容器
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // 配置JSON序列化选项以处理循环引用
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // 可选：格式化JSON输出
+    });
 
 // 配置 Swagger 服务
 builder.Services.AddSwaggerGen(c =>

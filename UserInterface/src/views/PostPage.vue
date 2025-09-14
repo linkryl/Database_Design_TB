@@ -35,33 +35,19 @@
           <div class='post-bottom'>
             <div class='post-date-container'>
               <p class='post-date'>{{ postData.creationDate }}</p>
-              <el-popover :visible='reportVisible'
-                          placement='bottom-start'
-                          :width='500'>
-                <template #reference>
-                  <button v-if='postData.userId!=currentUserId'
-                          @click="reportVisible=!reportVisible; reportContent=''"
-                          class='report-button-icon'>
-                    {{ "举报" }}
-                  </button>
-                </template>
-                <el-input v-model='reportContent'
-                          size='large'
-                          maxlength='128'
-                          placeholder="请输入举报原因"
-                          show-word-limit/>
-                <div style='margin-top: 10px; display: flex; justify-content: space-between; align-items: center'>
-                  <p style='margin: 0; font-size: 12px'>{{"我们会尽快处理您的举报请求" }}</p>
-                  <el-button-group>
-                    <el-button size='small' @click="reportVisible=false; reportContent=''">
-                      {{ "取消" }}
-                    </el-button>
-                    <el-button type='primary' size='small' @click='sendReport'>
-                      {{ "举报" }}
-                    </el-button>
-                  </el-button-group>
-                </div>
-              </el-popover>
+              <button v-if="postData.userId!=currentUserId"
+                      @click="reportDialogVisible = true"
+                      class="report-button-icon">
+                举报
+              </button>
+                <el-dialog v-model="reportDialogVisible" width="400px" :close-on-click-modal="false">
+                  <ReportPage
+                    :postId="postId"
+                    :reportedUserId="postData.userId"
+                    :reporterId="currentUserId"
+                    @close="reportDialogVisible = false"
+                  />
+                </el-dialog>
             </div>
             <div class='post-stats'>
               <div class='stat-item'>
@@ -132,10 +118,9 @@ import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 import {ossBaseUrl, formatDateTimeToCST} from '../globals'
 import {useRouter} from 'vue-router'
-// 导入PostCommentCard组件
 import PostCommentCard from '../components/PostCommentCard.vue'
+import ReportPage from './ReportPage.vue'
 
-// 定义接口类型
 interface PostData {
   userId: number
   title: string
@@ -185,9 +170,8 @@ const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const commentVisible = ref(false)
 const commentContent = ref('')
-const reportContent = ref('')
 const isAdmin = ref(false)
-const reportVisible = ref(false)
+const reportDialogVisible = ref(false)
 
 const postData = ref<PostData>({
   userId: 0,
@@ -410,37 +394,6 @@ async function sendComment() {
     }
   }
 }
-
-async function sendReport() {
-  if (reportContent.value.trim().length != 0) {
-    try {
-      await axiosInstance.post('post-report', {
-        reporterId: currentUserId.value,
-        reportedUserId: postData.value.userId,
-        reportedPostId: postId.value,
-        reportReason: reportContent.value,
-        reportTime: new Date().toISOString(),
-        status: 0
-      })
-      window.location.reload()
-    } catch (error: any) {
-      ElNotification({
-        title: "举报失败",
-        message: "举报失败，请检查网络连接情况或稍后重试。",
-        type: 'error'
-      })
-    }
-  }
-}
-
-onMounted(async () => {
-  try {
-    const response = await axiosInstance.get(`user/role/${currentUserId.value}`)
-    isAdmin.value = response.data == 1
-  } catch (error: any) {
-    ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
-  }
-})
 
 async function handleDelete(id: number) {
   try {

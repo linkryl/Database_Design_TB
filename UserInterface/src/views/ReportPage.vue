@@ -26,11 +26,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 import axios from 'axios'
 
-const route = useRoute()
-const postId = Number(route.params.postId)
+const props = defineProps<{
+  postId: number,
+  reportedUserId: number,
+  reporterId: number
+}>()
+
 const reason = ref('')
 const detail = ref('')
 const message = ref('')
@@ -38,15 +41,18 @@ const message = ref('')
 const submitReport = async () => {
   try {
     await axios.post('/api/post-report', {
-      postId: postId,
-      reportReason: reason.value,
-      reportDetail: detail.value
+      reporterId: props.reporterId,
+      reportedUserId: props.reportedUserId,
+      reportedPostId: props.postId,
+      reportReason: reason.value + (detail.value ? '；补充说明：' + detail.value : ''),
+      reportTime: new Date().toISOString(),
+      status: 0
     })
     message.value = '举报成功，感谢您的反馈！'
     reason.value = ''
     detail.value = ''
   } catch (err) {
-    message.value = '举报失败，请稍后重试1。'
+    message.value = '举报失败，请稍后重试。'
   }
 }
 </script>

@@ -40,9 +40,14 @@
                       class="report-button-icon">
                 举报
               </button>
-              <el-dialog v-model="reportDialogVisible" width="400px" :close-on-click-modal="false">
-                <ReportPage :postId="postId" @close="reportDialogVisible = false" />
-              </el-dialog>
+                <el-dialog v-model="reportDialogVisible" width="400px" :close-on-click-modal="false">
+                  <ReportPage
+                    :postId="postId"
+                    :reportedUserId="postData.userId"
+                    :reporterId="currentUserId"
+                    @close="reportDialogVisible = false"
+                  />
+                </el-dialog>
             </div>
             <div class='post-stats'>
               <div class='stat-item'>

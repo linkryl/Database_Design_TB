@@ -159,25 +159,20 @@ public class UserFollowController(OracleDbContext context) : ControllerBase
         return Ok($"Data with User ID: {userId} and Follower ID: {followerId} has been updated successfully.");
     }
 
-    // 根据用户 ID（UserId）获取关注用户列表
-    [HttpGet("following/{userId:int}")]
-    [SwaggerOperation(Summary = "根据用户 ID（UserId）获取关注用户列表", Description = "根据用户 ID（UserId）获取关注用户列表")]
+    // 根据用户 ID（UserId）获取关注用户ID列表
+    [HttpGet("following-ids/{userId:int}")]
+    [SwaggerOperation(Summary = "根据用户 ID（UserId）获取关注用户ID列表", Description = "根据用户 ID（UserId）获取关注用户ID列表")]
     [SwaggerResponse(200, "获取数据成功")]
     [SwaggerResponse(500, "服务器内部错误")]
-    public async Task<ActionResult<IEnumerable<object>>> GetFollowingByUserId(int userId)
+    public async Task<ActionResult<IEnumerable<int>>> GetFollowingIdsByUserId(int userId)
     {
         try
         {
-            return Ok(await context.UserFollowSet
+            var followingIds = await context.UserFollowSet
                 .Where(uf => uf.FollowerId == userId)
-                .Select(uf => new
-                {
-                    uf.UserId,
-                    uf.User!.UserName,
-                    uf.User.Profile,
-                    uf.User.AvatarUrl
-                })
-                .ToListAsync());
+                .Select(uf => uf.UserId)
+                .ToListAsync();
+            return Ok(followingIds);
         }
         catch (Exception ex)
         {
@@ -185,25 +180,20 @@ public class UserFollowController(OracleDbContext context) : ControllerBase
         }
     }
 
-    // 根据用户 ID（UserId）获取粉丝用户列表
-    [HttpGet("followers/{userId:int}")]
-    [SwaggerOperation(Summary = "根据用户 ID（UserId）获取粉丝用户列表", Description = "根据用户 ID（UserId）获取粉丝用户列表")]
+    // 根据用户 ID（UserId）获取粉丝用户ID列表
+    [HttpGet("followers-ids/{userId:int}")]
+    [SwaggerOperation(Summary = "根据用户 ID（UserId）获取粉丝用户ID列表", Description = "根据用户 ID（UserId）获取粉丝用户ID列表")]
     [SwaggerResponse(200, "获取数据成功")]
     [SwaggerResponse(500, "服务器内部错误")]
-    public async Task<ActionResult<IEnumerable<object>>> GetFollowersByUserId(int userId)
+    public async Task<ActionResult<IEnumerable<int>>> GetFollowersIdsByUserId(int userId)
     {
         try
         {
-            return Ok(await context.UserFollowSet
+            var followerIds = await context.UserFollowSet
                 .Where(uf => uf.UserId == userId)
-                .Select(uf => new
-                {
-                    uf.FollowerId,
-                    uf.Follower!.UserName,
-                    uf.Follower.Profile,
-                    uf.Follower.AvatarUrl
-                })
-                .ToListAsync());
+                .Select(uf => uf.FollowerId)
+                .ToListAsync();
+            return Ok(followerIds);
         }
         catch (Exception ex)
         {

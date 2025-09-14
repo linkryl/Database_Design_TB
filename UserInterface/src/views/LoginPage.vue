@@ -108,24 +108,6 @@ const loginForm = reactive<LoginForm>({
 })
 
 const loginRules: FormRules = {
-  // telephone: [// TODO: 到时候删掉
-  //   {
-  //     required: true,
-  //     message: t('RegisterPage.EmptyTelephone'),
-  //     trigger: 'change',
-  //   },
-  //   {
-  //     validator: (rule, value, callback) => {
-  //       const phoneRegex = /^\d{11}$/
-  //       if (value && !phoneRegex.test(value)) {
-  //         callback(new Error(t('RegisterPage.InvalidTelephone')))// TODO: 修改成检查用户名是否合法
-  //       } else {
-  //         callback()
-  //       }
-  //     },
-  //     trigger: 'blur'
-  //   }
-  // ],
   username:[
     {
       required: true,
@@ -246,7 +228,7 @@ onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 }
 
 .el-card-wrapper {
-  background-image: url('../assets/LoginPage/BackgroundImage.png');
+  background-image: url('/images/BackgroundImage.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

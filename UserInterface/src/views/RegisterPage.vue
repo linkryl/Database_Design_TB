@@ -13,7 +13,8 @@
         <el-card class="form-card" shadow="hover">
           <!-- 社区标识 -->
           <div class="society-logo">
-            <img src='../assets/LogosAndIcons/TreeHoleLogo.png' alt="TreeHole Logo" />
+            <img :src='`${ossBaseUrl}TreeHoleLogo.png`'
+                 alt="TreeHole Logo" />
           </div>
 
           <!-- 页面标题与步骤指示器 -->
@@ -119,6 +120,7 @@ import axiosInstance from "../utils/axios";
 import { sha256 } from "js-sha256";
 import { Lock, Unlock, User } from "@element-plus/icons-vue";
 import axios from "axios";
+import {ossBaseUrl} from '../globals';
 
 // 路由管理
 const router = useRouter();
@@ -206,33 +208,67 @@ const completeRegistration = async (formEl: FormInstance | undefined) => {
   });
 };
 
+// 东八区日期时间转换函数
+const convertToEast8ISOString = (date: string | Date): string => {
+  try {
+    // 确保输入是Date对象
+    const dateObj = date instanceof Date ? date : new Date(date);
+    
+    // 处理无效日期
+    if (isNaN(dateObj.getTime())) {
+      return ''; // 或者抛出错误
+    }
+    
+    // 获取东八区时间（UTC+8）
+    const offset = 8; // 东八区偏移量
+    const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
+    // *7200000转换后强制成为东八区时间
+    const east8Time = new Date(utc + (7200000 * offset));
+    console.log('btime:', east8Time);
+    // 转换为ISO字符串
+    return east8Time.toISOString();
+  } catch (error) {
+    console.error('Date conversion error:', error);
+    return ''; // 返回默认值
+  }
+};
+
 // 提交注册数据到API
 async function submitRegistrationData() {
+  // 格式化日期
+  const formattedDate = convertToEast8ISOString(stepTwoFormData.birthdate);
+  
+  // 当前时间(0时区时间)
+  const now = new Date().toISOString();
+
+  // 
+  const newUserData = {
+    userName: stepOneFormData.username,
+    password: sha256(stepOneFormData.password),
+    registrationDate: now,
+    lastLoginTime: now,
+    role: 0,
+    status: 0,
+    avatarUrl: "",
+    profile: "",
+    gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),
+    birthdate: formattedDate,
+    experiencePoints: 0,
+    followsCount: 0,
+    followedCount: 0,
+    favoritesCount: 0,
+    favoritedCount: 0,
+    likesCount: 0,
+    likedCount: 0,
+    messageCount: 0,
+  }
+
   try {
-    // 格式化日期
-    const formattedDate = stepTwoFormData.birthdate;
+    console.log('发送注册数据:', newUserData);
 
-    // 构建请求数据
-    const requestData = {
-      username: stepOneFormData.username,
-      password: sha256(stepOneFormData.password), // 使用SHA256加密密码
-      gender: stepTwoFormData.gender,
-      birthdate: formattedDate
-    };
+    const response = await axiosInstance.post('user', newUserData);
 
-    console.log('发送注册数据:', requestData);
-
-    const response = await axiosInstance.post('User', requestData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.status === 201) {
-      return true;
-    } else {
-      throw new Error(`服务器返回错误状态: ${response.status}`);
-    }
+    return response.status == 201
   } catch (error) {
     console.error('注册请求错误:', error);
 
@@ -307,7 +343,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 <style scoped>
 .register-container {
   display: flex;
-  background: url('../assets/BackgroundImages/L&RBackgroundImage.png') no-repeat center center fixed;
+  background: url('/images/L&RBackgroundImage.png') no-repeat center center fixed;
   background-size: cover;
   justify-content: center;
   align-items: center;

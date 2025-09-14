@@ -6,7 +6,7 @@ TreeHole 发帖页面
 <template>
   <div class="th-post-edit-container">
     <!-- 添加背景图片 -->
-    <img :src="`${ossBaseUrl}HomePage/BackgroundImage.jpg`" alt="Background" class="th-background-image">
+    <img :src="`${ossBaseUrl}BackgroundImage.jpg`" alt="Background" class="th-background-image">
     
     <el-card class="th-post-edit-card">
       <template #header>

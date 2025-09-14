@@ -8,7 +8,7 @@
 
     <!--主页按钮-->
     <el-container ref='tourRef1' class='logo-title' @click="router.push('/')">
-      <img :src='`${ossBaseUrl}LogosAndIcons/TreeHoleLogo.png`' style='height: 45px; margin-left: 10px' alt='TreeHoleLogo'>
+      <img :src='`${ossBaseUrl}TreeHoleLogo.png`' style='height: 45px; margin-left: 10px' alt='TreeHoleLogo'>
       <h1 style='white-space: nowrap'>树洞 Treehole</h1>
     </el-container>
     
@@ -27,7 +27,7 @@
     <el-dropdown ref='tourRef3' size='large'>
       
       <!--头像显示-->
-      <el-avatar class='avatar' :src='`${ossBaseUrl}LogosAndIcons/GitHubLogo.png`'/>
+      <el-avatar class='avatar' :src='`${ossBaseUrl}GitHubLogo.png`'/>
 
       <template #dropdown>
 

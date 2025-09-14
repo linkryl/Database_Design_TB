@@ -57,6 +57,15 @@ const routes: Array<RouteRecordRaw> = [
             requiresAuth: true
         }
     },
+    {
+        path: '/market',
+        name: 'MarketPage',
+        // @ts-ignore
+        component: () => import('../views/MarketPage.vue'),
+        meta:{
+            title:'道具商城',
+            
+        }
     // 贴吧相关路由
     {
         path: '/bars',

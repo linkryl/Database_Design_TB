@@ -87,7 +87,7 @@ const routes: Array<RouteRecordRaw> = [
             requiresAdmin: true
         }
     },
-
+    {
         path: '/PostPage/:id',
         name: 'PostPage',
         // @ts-ignore

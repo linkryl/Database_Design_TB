@@ -138,7 +138,7 @@ const handleAdminLogin = async (elFormRef: FormInstance | undefined) => {
         console.log('请求URL:', axiosInstance.defaults.baseURL + 'admin-login')
         console.log('请求数据:', { username: adminLoginForm.username, password: '***' })
         
-        const response = await axiosInstance.post('admin-login', {
+        const response = await axiosInstance.post('http://localhost:5101/api/admin-login', {
           username: adminLoginForm.username,
           password: adminLoginForm.password
         })

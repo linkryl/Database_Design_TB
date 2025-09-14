@@ -71,6 +71,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { createPost } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
+import axiosInstance from '@/utils/axios'
 
 // TreeHole前缀命名
 const router = useRouter()
@@ -128,9 +129,22 @@ const handleSubmit = async () => {
     thLoading.value = true
     
     // 调用API创建帖子 - 构造完整的Post对象
+    let categoryId = 1 // 默认分类ID
+    
+    // 尝试获取可用的分类，如果失败则使用默认值
+    try {
+      const categoriesResponse = await axiosInstance.get('post-category')
+      if (categoriesResponse.data && categoriesResponse.data.length > 0) {
+        categoryId = categoriesResponse.data[0].categoryId // 使用第一个可用分类
+        console.log('使用分类ID:', categoryId, '分类名:', categoriesResponse.data[0].category)
+      }
+    } catch (error) {
+      console.warn('获取分类失败，使用默认分类ID:', categoryId, error)
+    }
+    
     const thCreateData = {
       userId: parseInt(thCurrentUserId),
-      categoryId: 1, // 使用刚创建的默认分类
+      categoryId: categoryId, // 使用动态获取的分类ID
       title: thPostForm.title.trim(),
       content: thPostForm.content.trim(),
       creationDate: new Date().toISOString(),

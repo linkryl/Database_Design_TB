@@ -23,6 +23,10 @@
     <!--超级占位符-->
     <div class='flex-grow'/>
 
+    <!-- 用户信息显示 -->
+    <div v-if="currentUserId !== 0" class="user-info-display">
+      <span class="user-name">{{ currentUserName || '用户' }}</span>
+    </div>
 
     <el-dropdown ref='tourRef3' size='large'>
       
@@ -121,6 +125,9 @@ watch(route, (newRoute) => {
 /*登出*/
 function logout() {
   localStorage.setItem('currentUserId', '0')  // 清除用户ID
+  localStorage.removeItem('jwtToken')         // 清除JWT Token
+  currentUserId.value = 0                     // 重置当前用户ID
+  currentUserName.value = ''                  // 重置用户名
   router.push('/')                            // 路由跳转到首页
   window.location.href = '/'                  // 强制刷新页面
 }
@@ -237,6 +244,23 @@ h1 {
 .disable-dropdown {
   pointer-events: none;
   opacity: 0.5;
+}
+
+/* 用户信息显示样式 */
+.user-info-display {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  color: #333;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 </style>

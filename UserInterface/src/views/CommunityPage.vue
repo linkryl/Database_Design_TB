@@ -84,6 +84,7 @@ import {useRouter} from 'vue-router'
 import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import PostDetailCard from '../components/PostDetailCard.vue'
+import { getLatestPostIds } from '@/api/index'
 
 
 const router = useRouter()
@@ -114,17 +115,16 @@ const handleCurrentChange = (page) => {
 
 onMounted(async () => {
   try {
-    console.log('正在请求API:', '/api/post/latest')
-    const response = await axiosInstance.get('post/latest')
+    console.log('正在请求API:', '/api/post/latest-ids')
+    const data = await getLatestPostIds(50) // 获取50个最新帖子ID
     
-    console.log('API响应状态:', response.status)
-    console.log('后端返回的帖子数据:', response.data)
-    console.log('数据类型:', typeof response.data)
-    console.log('数据长度:', response.data?.length)
-    console.log('前5个帖子ID:', response.data?.slice(0, 5))
+    console.log('后端返回的帖子数据:', data)
+    console.log('数据类型:', typeof data)
+    console.log('数据长度:', data?.length)
+    console.log('前5个帖子ID:', data?.slice(0, 5))
     
-    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
-    postIds.value = response.data || []
+    // 后端 /post/latest-ids 接口直接返回按时间排序的帖子ID数组
+    postIds.value = data || []
     console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
     
   } catch (error) {
@@ -136,7 +136,7 @@ onMounted(async () => {
     if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }
@@ -156,9 +156,9 @@ function publishPost() {
 // 刷新帖子列表的函数
 async function refreshPosts() {
   try {
-    const response = await axiosInstance.get('post/latest')
-    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
-    postIds.value = response.data || []
+    const data = await getLatestPostIds(50) // 获取50个最新帖子ID
+    // 后端 /post/latest-ids 接口直接返回按时间排序的帖子ID数组
+    postIds.value = data || []
     currentPage.value = 1 // 重置到第一页
   } catch (error) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
@@ -205,12 +205,13 @@ async function refreshPosts() {
 }
 
 .page-container {
-  width: 1200px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   margin-top: -20px;
+  padding: 0 20px;
 }
 
 h1 {
@@ -247,6 +248,7 @@ h1 {
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;
+  width: 100%;
 }
 
 /* 空状态提示样式 */

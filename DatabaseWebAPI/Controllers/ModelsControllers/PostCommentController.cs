@@ -104,8 +104,29 @@ public class PostCommentController(OracleDbContext context) : ControllerBase
                 return NotFound($"No corresponding data found for ID: {id}");
             }
 
+            // 先删除所有相关的外键引用记录
+            // 删除评论点赞记录
+            var commentLikes = await context.PostCommentLikeSet
+                .Where(pcl => pcl.CommentId == id)
+                .ToListAsync();
+            context.PostCommentLikeSet.RemoveRange(commentLikes);
+
+            // 删除评论点踩记录
+            var commentDislikes = await context.PostCommentDislikeSet
+                .Where(pcd => pcd.CommentId == id)
+                .ToListAsync();
+            context.PostCommentDislikeSet.RemoveRange(commentDislikes);
+
+            // 删除评论举报记录
+            var commentReports = await context.PostCommentReportSet
+                .Where(pcr => pcr.ReportedCommentId == id)
+                .ToListAsync();
+            context.PostCommentReportSet.RemoveRange(commentReports);
+
+            // 最后删除评论本身
             context.PostCommentSet.Remove(postComment);
             await context.SaveChangesAsync();
+            
             return Ok($"Data with ID: {id} has been deleted successfully.");
         }
         catch (Exception ex)

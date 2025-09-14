@@ -17,38 +17,35 @@ namespace DatabaseWebAPI.Models.TableModels;
 [SwaggerSchema(Description = "用户留言表")]
 public sealed class UserMessage
 {
-    // 属性定义
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("MESSAGE_ID")]
-    [SwaggerSchema("留言ID")]
+    [SwaggerSchema("消息ID")]
     public int MessageId { get; set; }
 
     [Required]
-    [ForeignKey("User")]
-    [Column("USER_ID")]
-    [SwaggerSchema("用户ID")]
-    public int UserId { get; set; }
+    [Column("SENDER_ID")]
+    [SwaggerSchema("发送者ID")]
+    public int SenderId { get; set; }
 
     [Required]
-    [ForeignKey("Commenter")]
-    [Column("COMMENTER_ID")]
-    [SwaggerSchema("留言者ID")]
-    public int CommenterId { get; set; }
+    [Column("RECEIVER_ID")]
+    [SwaggerSchema("接收者ID")]
+    public int ReceiverId { get; set; }
 
     [Required]
-    [Column("MESSAGE")]
-    [StringLength(512)]
-    [SwaggerSchema("留言内容")]
-    public string Message { get; set; } = string.Empty;
+    [Column("CONTENT")]
+    [StringLength(1000)]
+    [SwaggerSchema("消息内容")]
+    public string Content { get; set; } = string.Empty;
 
     [Required]
-    [Column("COMMENT_TIME")]
-    [SwaggerSchema("留言时间")]
-    public DateTime CommentTime { get; set; }
+    [Column("SEND_TIME")]
+    [SwaggerSchema("发送时间")]
+    public DateTime SendTime { get; set; }
 
-    // 关系定义
-    public User? User { get; set; }
-    [NotMapped]
-    public User? Commenter { get; set; }
+    [Required]
+    [Column("STATUS")]
+    [SwaggerSchema("消息状态 0未读 1已读")]
+    public int Status { get; set; } = 0;
 }

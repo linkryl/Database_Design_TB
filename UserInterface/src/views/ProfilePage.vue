@@ -16,6 +16,7 @@
         <div class='user-info'>
           <h1 class='user-name'>{{ userInfo.userName }}</h1>
           <span class='user-uid'>UID: {{ userInfo.uid }}</span>
+            <el-button type="primary" size="small" @click="goToChat(userInfo.uid)" v-if="!isSelf" style="margin-left:16px;">私聊</el-button>
           
           <!-- 等级信息 -->
           <div class='level-section'>
@@ -342,6 +343,10 @@
 </template>
 
 <script setup lang='ts'>
+// 私聊跳转方法
+const goToChat = (userId: number) => {
+  router.push({ name: 'UserChat', params: { userId } })
+}
 
 import {computed, onMounted, onBeforeUnmount, ref, watch} from 'vue'
 import axiosInstance from '../utils/axios'

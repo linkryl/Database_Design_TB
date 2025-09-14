@@ -49,12 +49,12 @@ public sealed class User
     [Required]
     [Column("ROLE")]
     [SwaggerSchema("用户角色")]
-    public int Role { get; set; } = 0; // 默认为普通用户
+    public int Role { get; set; }
 
     [Required]
     [Column("STATUS")]
     [SwaggerSchema("用户状态")]
-    public int Status { get; set; } = 1; // 默认为正常状态
+    public int Status { get; set; }
 
     [Column("AVATAR_URL")]
     [StringLength(2048)]

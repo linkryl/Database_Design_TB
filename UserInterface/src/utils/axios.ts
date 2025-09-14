@@ -5,6 +5,9 @@ TreeHole制作组
 
 import axios from 'axios'
 import {apiBaseUrl} from '../globals'
+import {useRouter} from 'vue-router'
+
+const router = useRouter()
 
 const axiosInstance = axios.create({
     baseURL: apiBaseUrl
@@ -26,14 +29,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     response => response, error => {
         if (error.response && error.response.status == 401) {
-            // 清除本地存储的认证信息并跳转
-            localStorage.removeItem('jwtToken')
-            localStorage.removeItem('currentUserId')
-            localStorage.removeItem('userRole')
-            localStorage.removeItem('isAdmin')
-            
-            // 使用 window.location 进行页面跳转，避免 router 未初始化的问题
-            window.location.href = '/login'
+            router.push('/login').then()
         }
         return Promise.reject(error)
     }

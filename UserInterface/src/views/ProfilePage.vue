@@ -355,9 +355,9 @@ import {
 } from '@element-plus/icons-vue'
 
 // 引入组件
-import UserCard from '../components/UserCard.vue'
-import PostCard from '../components/PostCard.vue'
-import BarCard from '../components/BarCard.vue'
+import UserCard from '../components/ProfileUserCard.vue'
+import PostCard from '../components/ProfilePostCard.vue'
+import BarCard from '../components/ProfileBarCard.vue'
 
 interface UploadRequestOptions {
   action: string

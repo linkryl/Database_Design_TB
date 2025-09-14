@@ -264,7 +264,6 @@ async function submitRegistrationData() {
   }
 
   try {
-<<<<<<< HEAD
     // 格式化日期为字符串
     let formattedDate = ''
     if (stepTwoFormData.birthdate) {
@@ -286,7 +285,7 @@ async function submitRegistrationData() {
       registrationDate: new Date().toISOString(), // 添加注册时间
       lastLoginTime: new Date().toISOString(), // 添加最后登录时间
       role: 0, // 普通用户
-      status: 0, // 正常状态
+      status: 1, // 正常状态（修正：应该是1表示正常，0表示封禁）
       experiencePoints: 0,
       followsCount: 0,
       followedCount: 0,
@@ -296,13 +295,10 @@ async function submitRegistrationData() {
       likedCount: 0,
       messageCount: 0
     };
-=======
-    console.log('发送注册数据:', newUserData);
 
-    const response = await axiosInstance.post('user', newUserData);
->>>>>>> origin/main
-
-    return response.status == 201
+    // 发送注册请求
+    const response = await axiosInstance.post('/user', requestData);
+    return response.status === 201;
   } catch (error) {
     console.error('注册请求错误:', error);
 

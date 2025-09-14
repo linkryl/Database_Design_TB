@@ -128,7 +128,29 @@ public class PostController(OracleDbContext context) : ControllerBase
 
             context.PostSet.Add(post);
             await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
+            
+            // 重新查询帖子以避免循环引用问题
+            var createdPost = await context.PostSet
+                .Where(p => p.PostId == post.PostId)
+                .Select(p => new
+                {
+                    p.PostId,
+                    p.UserId,
+                    p.CategoryId,
+                    p.Title,
+                    p.Content,
+                    p.CreationDate,
+                    p.UpdateDate,
+                    p.IsSticky,
+                    p.LikeCount,
+                    p.DislikeCount,
+                    p.FavoriteCount,
+                    p.CommentCount,
+                    p.ImageUrl
+                })
+                .FirstOrDefaultAsync();
+            
+            return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, createdPost);
         }
         catch (Exception ex)
         {

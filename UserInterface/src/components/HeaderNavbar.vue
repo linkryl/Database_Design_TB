@@ -91,7 +91,7 @@
               <span>{{ "用户管理" }}</span>         
               <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
             </div>
-  
+          </el-dropdown-item>
 
           <!--注销账号按钮-->
           <el-dropdown-item :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
@@ -398,6 +398,7 @@ h1 {
   50% {
     box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5);
   }
+}
 
 /* 注销账号按钮样式 */
 .delete-account-item {

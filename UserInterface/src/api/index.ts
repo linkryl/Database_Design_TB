@@ -73,12 +73,29 @@ export interface THCreatePostResponse {
 }
 
 /**
+ * 帖子分类数据接口
+ */
+export interface THPostCategory {
+  categoryId: number
+  category: string
+}
+
+/**
  * 创建新帖子
  * @param data 帖子数据
  * @returns Promise<THCreatePostResponse>
  */
 export const createPost = async (data: THCreatePostRequest): Promise<THCreatePostResponse> => {
   const response = await thApiClient.post('/post', data)
+  return response.data
+}
+
+/**
+ * 获取帖子分类列表
+ * @returns Promise<THPostCategory[]>
+ */
+export const getPostCategories = async (): Promise<THPostCategory[]> => {
+  const response = await thApiClient.get('/post-category')
   return response.data
 }
 

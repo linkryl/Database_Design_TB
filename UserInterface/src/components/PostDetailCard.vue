@@ -16,8 +16,18 @@
           <div class="post-time">{{ formatTime(postInfo?.creationDate) }}</div>
         </div>
       </div>
-      <div class="post-category" v-if="categoryInfo && categoryInfo.category">
-        <span class="category-tag">{{ categoryInfo.category }}</span>
+      <div class="post-source-info">
+        <!-- 贴吧来源标识 -->
+        <div v-if="postInfo?.barId" class="post-source-tag">
+          <span class="source-icon">🏠</span>
+          <span class="source-text">来自贴吧</span>
+          <span class="source-name">{{ barSourceName || '贴吧' }}</span>
+        </div>
+        
+        <!-- 分类标签 -->
+        <div v-if="categoryInfo && categoryInfo.category" class="post-category">
+          <span class="category-tag">{{ categoryInfo.category }}</span>
+        </div>
       </div>
     </div>
 
@@ -165,6 +175,7 @@ import {
   getPostById,
   getUserById,
   getPostCategoryById,
+  getBarById,
   likePost,
   unlikePost,
   dislikePost,
@@ -191,6 +202,7 @@ const loading = ref(true)
 const postInfo = ref<any>(null)
 const userInfo = ref<any>(null)
 const categoryInfo = ref<any>(null)
+const barSourceName = ref<string>('')
 const githubLogoUrl = githubLogo
 const isContentExpanded = ref(false)
 
@@ -327,6 +339,18 @@ const fetchPostDetail = async () => {
     } else {
       // 没有分类ID时也不显示
       categoryInfo.value = null
+    }
+    
+    // 获取贴吧来源信息（如果帖子属于某个贴吧）
+    if (postInfo.value?.barId) {
+      try {
+        const barResponse = await getBarById(postInfo.value.barId)
+        barSourceName.value = barResponse.barName
+        console.log('帖子来源贴吧:', barSourceName.value)
+      } catch (error) {
+        console.error('获取贴吧来源信息失败:', error)
+        barSourceName.value = '未知贴吧'
+      }
     }
     
     // 如果用户已登录，检查互动状态
@@ -581,6 +605,56 @@ onMounted(() => {
   font-size: 12px;
 }
 
+/* 帖子来源信息区域 */
+.post-source-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* 贴吧来源标签 */
+.post-source-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #d81b60;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(216, 27, 96, 0.2);
+}
+
+.source-icon {
+  font-size: 10px;
+}
+
+.source-text {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.source-name {
+  font-weight: 600;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 来源信息区域 */
+.post-source-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* 分类标签 */
 .post-category {
   flex-shrink: 0;
 }

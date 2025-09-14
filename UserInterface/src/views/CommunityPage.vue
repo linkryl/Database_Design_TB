@@ -81,7 +81,6 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
-import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import PostDetailCard from '../components/PostDetailCard.vue'
 import { getLatestPostIds } from '@/api/index'
@@ -107,7 +106,7 @@ const paginatedPostIds = computed(() => {
   return postIds.value.slice(start, end)
 })
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = (page: number) => {
   currentPage.value = page
 }
 
@@ -116,27 +115,29 @@ const handleCurrentChange = (page) => {
 onMounted(async () => {
   try {
     console.log('正在请求API:', '/api/post/latest-ids')
-    const data = await getLatestPostIds(50) // 获取50个最新帖子ID
+    const data = await getLatestPostIds(50) // 回退到稳定API，确保基本功能正常
     
     console.log('后端返回的帖子数据:', data)
     console.log('数据类型:', typeof data)
     console.log('数据长度:', data?.length)
     console.log('前5个帖子ID:', data?.slice(0, 5))
     
-    // 后端 /post/latest-ids 接口直接返回按时间排序的帖子ID数组
+    // 暂时显示所有帖子，等数据库字段问题解决后再启用分区
     postIds.value = data || []
     console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
     
-  } catch (error) {
-    console.error('获取帖子列表失败:', error)
+  } catch (error: any) {
+    console.error('获取树洞帖子列表失败:', error)
     console.error('错误详情:', error.response?.data)
     console.error('错误状态码:', error.response?.status)
     console.error('完整错误响应:', error.response)
     
-    if (error.response?.status === 500) {
+    if (error.code === 'ECONNABORTED') {
+      ElMessage.error('请求超时，后端服务器可能遇到问题，请稍后重试')
+    } else if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/treehole-ids 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }
@@ -156,14 +157,19 @@ function publishPost() {
 // 刷新帖子列表的函数
 async function refreshPosts() {
   try {
-    const data = await getLatestPostIds(50) // 获取50个最新帖子ID
-    // 后端 /post/latest-ids 接口直接返回按时间排序的帖子ID数组
+    const data = await getLatestPostIds(50) // 回退到稳定API
+    // 暂时显示所有帖子，等数据库字段问题解决后再启用分区
     postIds.value = data || []
     currentPage.value = 1 // 重置到第一页
-  } catch (error) {
+  } catch (error: any) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 }
+
+// 暴露刷新函数供外部调用
+defineExpose({
+  refreshPosts
+})
 </script>
 
 <style scoped>

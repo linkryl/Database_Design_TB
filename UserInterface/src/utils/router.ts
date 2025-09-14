@@ -66,6 +66,34 @@ const routes: Array<RouteRecordRaw> = [
             requiresAuth: true
         }
     },
+    {
+        path: '/bars',
+        name: 'BarListPage',
+        // @ts-ignore
+        component: () => import('../views/BarListPage.vue'),
+        meta: {
+            title: '贴吧广场'
+        }
+    },
+    {
+        path: '/bar/:id',
+        name: 'BarDetailPage',
+        // @ts-ignore
+        component: () => import('../views/BarDetailPage.vue'),
+        meta: {
+            title: '贴吧详情'
+        }
+    },
+    {
+        path: '/bar/:id/edit',
+        name: 'BarEditPage',
+        // @ts-ignore
+        component: () => import('../views/BarEditPage.vue'),
+        meta: {
+            title: '编辑贴吧',
+            requiresAuth: true
+        }
+    },
 ]
 
 const router: Router = createRouter({

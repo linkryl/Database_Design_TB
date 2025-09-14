@@ -20,6 +20,11 @@
       {{"树洞社区" }}
     </el-menu-item>
 
+    <!--贴吧按钮-->
+    <el-menu-item index='2' class='navbar-item' @click="router.push('/bars')">
+      {{"贴吧广场" }}
+    </el-menu-item>
+
     <!--超级占位符-->
     <div class='flex-grow'/>
 
@@ -117,6 +122,8 @@ const currentUserName = ref('')
 watch(route, (newRoute) => {
   if (newRoute.path === '/CommunityPage') {
     activeIndex.value = '1' // 社区页面高亮
+  } else if (newRoute.path === '/bars' || newRoute.path.startsWith('/bar/')) {
+    activeIndex.value = '2' // 贴吧页面高亮
   } else {
     activeIndex.value = '0' // 其他页面不高亮
   }

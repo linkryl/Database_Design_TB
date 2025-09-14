@@ -10,7 +10,7 @@ const thApiBaseUrl = (import.meta as any).env?.VITE_API_BASE || '/api'
 
 const thApiClient = axios.create({
   baseURL: thApiBaseUrl,
-  timeout: 10000,
+  timeout: 15000, // 增加超时时间到15秒
   headers: {
     'Content-Type': 'application/json'
   }
@@ -51,6 +51,7 @@ thApiClient.interceptors.response.use(
 export interface THCreatePostRequest {
   userId: number
   categoryId: number
+  barId?: number | null // 贴吧ID，可选
   title: string
   content: string
   creationDate: string
@@ -61,6 +62,7 @@ export interface THCreatePostRequest {
   favoriteCount: number
   commentCount: number
   imageUrl: string | null
+  alsoInTreehole?: number // 是否同时在树洞显示：1=是，0=否
 }
 
 /**
@@ -225,6 +227,22 @@ export const getPostById = async (postId: number) => {
  */
 export const getLatestPostIds = async (count: number = 10) => {
   const response = await thApiClient.get(`/post/latest-ids?count=${count}`)
+  return response.data
+}
+
+/**
+ * 获取树洞社区的帖子ID列表
+ */
+export const getTreeholePostIds = async (count: number = 20) => {
+  const response = await thApiClient.get(`/post/treehole-ids?count=${count}`)
+  return response.data
+}
+
+/**
+ * 获取指定贴吧的帖子ID列表
+ */
+export const getBarPostIds = async (barId: number, count: number = 20) => {
+  const response = await thApiClient.get(`/post/bar/${barId}/post-ids?count=${count}`)
   return response.data
 }
 
@@ -487,13 +505,33 @@ export const getPostCategoryById = async (categoryId: number) => {
   return response.data
 }
 
+/**
+ * 获取所有帖子分类
+ */
+export const getAllPostCategories = async () => {
+  const response = await thApiClient.get('/post-category')
+  return response.data
+}
+
 // ==================== 贴吧相关接口 ====================
 
 /**
  * 获取所有贴吧
  */
-export const getAllBars = async () => {
-  const response = await thApiClient.get('/bar')
+export const getAllBars = async (page: number = 1, pageSize: number = 20) => {
+  const response = await thApiClient.get('/bar', {
+    params: { page, pageSize }
+  })
+  return response.data
+}
+
+/**
+ * 获取热门贴吧
+ */
+export const getPopularBars = async (count: number = 10) => {
+  const response = await thApiClient.get('/bar/popular', {
+    params: { count }
+  })
   return response.data
 }
 
@@ -533,23 +571,19 @@ export const updateBar = async (barId: number, data: THBar) => {
  * 更新贴吧状态
  */
 export const updateBarStatus = async (barId: number, status: number) => {
-  const response = await thApiClient.put(`/bar/${barId}/status`, status, {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
+  const response = await thApiClient.put(`/bar/${barId}/status`, { status })
   return response.data
 }
 
 /**
- * 获取贴吧内的帖子
+ * 获取贴吧内的帖子（暂未实现，需要数据库表关联）
  */
-export const getBarPosts = async (barId: number, sortBy: string = 'time', page: number = 1, pageSize: number = 20) => {
-  const response = await thApiClient.get(`/bar/${barId}/posts`, {
-    params: { sortBy, page, pageSize }
-  })
-  return response.data
-}
+// export const getBarPosts = async (barId: number, sortBy: string = 'time', page: number = 1, pageSize: number = 20) => {
+//   const response = await thApiClient.get(`/bar/${barId}/posts`, {
+//     params: { sortBy, page, pageSize }
+//   })
+//   return response.data
+// }
 
 /**
  * 搜索贴吧

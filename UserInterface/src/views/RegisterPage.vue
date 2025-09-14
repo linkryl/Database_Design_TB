@@ -209,15 +209,36 @@ const completeRegistration = async (formEl: FormInstance | undefined) => {
 // 提交注册数据到API
 async function submitRegistrationData() {
   try {
-    // 格式化日期
-    const formattedDate = stepTwoFormData.birthdate;
+    // 格式化日期为字符串
+    let formattedDate = ''
+    if (stepTwoFormData.birthdate) {
+      if (stepTwoFormData.birthdate instanceof Date) {
+        // 如果是Date对象，转换为YYYY-MM-DD格式
+        formattedDate = stepTwoFormData.birthdate.toISOString().split('T')[0]
+      } else {
+        // 如果已经是字符串，直接使用
+        formattedDate = stepTwoFormData.birthdate
+      }
+    }
 
     // 构建请求数据
     const requestData = {
       username: stepOneFormData.username,
       password: sha256(stepOneFormData.password), // 使用SHA256加密密码
-      gender: stepTwoFormData.gender,
-      birthdate: formattedDate
+      gender: stepTwoFormData.gender === 'Male' ? 0 : 1, // 转换为int：0=男，1=女
+      birthdate: formattedDate, // 已经是YYYY-MM-DD字符串格式
+      registrationDate: new Date().toISOString(), // 添加注册时间
+      lastLoginTime: new Date().toISOString(), // 添加最后登录时间
+      role: 0, // 普通用户
+      status: 0, // 正常状态
+      experiencePoints: 0,
+      followsCount: 0,
+      followedCount: 0,
+      favoritesCount: 0,
+      favoritedCount: 0,
+      likesCount: 0,
+      likedCount: 0,
+      messageCount: 0
     };
 
     console.log('发送注册数据:', requestData);

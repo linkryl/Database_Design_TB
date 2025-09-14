@@ -107,9 +107,19 @@ public class PostController(OracleDbContext context) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        context.PostSet.Add(post);
-        await context.SaveChangesAsync();
-        return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
+        try
+        {
+            // 设置默认值（AlsoInTreehole如果没有显式设置，确保为0）
+            // 由于是int类型，默认就是0，这里无需额外检查
+
+            context.PostSet.Add(post);
+            await context.SaveChangesAsync();
+            return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     // 根据主键（ID）更新帖子表的数据
@@ -195,6 +205,55 @@ public class PostController(OracleDbContext context) : ControllerBase
         {
             var postIds = await context.PostSet
                 .OrderByDescending(post => post.CreationDate)
+                .Take(count)
+                .Select(post => post.PostId)
+                .ToListAsync();
+            return Ok(postIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 获取树洞社区的帖子ID列表（排除纯贴吧帖子）
+    [HttpGet("treehole-ids")]
+    [SwaggerOperation(Summary = "获取树洞社区的帖子ID列表", Description = "获取发布到树洞或设置了跨发布的帖子ID")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<IEnumerable<int>>> GetTreeholePostIds([FromQuery] int count = 20)
+    {
+        try
+        {
+            var postIds = await context.PostSet
+                .Where(post => post.BarId == null || post.BarId == 0 || post.AlsoInTreehole == 1) // 树洞帖子或跨发布帖子
+                .OrderByDescending(post => post.IsSticky)
+                .ThenByDescending(post => post.CreationDate)
+                .Take(count)
+                .Select(post => post.PostId)
+                .ToListAsync();
+            return Ok(postIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 获取指定贴吧的帖子ID列表
+    [HttpGet("bar/{barId:int}/post-ids")]
+    [SwaggerOperation(Summary = "获取指定贴吧的帖子ID列表", Description = "获取发布到指定贴吧的帖子ID")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(404, "贴吧不存在")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<IEnumerable<int>>> GetBarPostIds(int barId, [FromQuery] int count = 20)
+    {
+        try
+        {
+            var postIds = await context.PostSet
+                .Where(post => post.BarId == barId && post.BarId != 0) // 排除BAR_ID为0的帖子（0表示树洞）
+                .OrderByDescending(post => post.IsSticky)
+                .ThenByDescending(post => post.CreationDate)
                 .Take(count)
                 .Select(post => post.PostId)
                 .ToListAsync();

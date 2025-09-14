@@ -112,8 +112,8 @@ const handleCurrentChange = (page) => {
 
 onMounted(async () => {
   try {
-    console.log('正在请求API:', '/api/post/latest-ids')
-    const response = await axiosInstance.get('post/latest-ids')
+    console.log('正在请求API:', '/api/post/latest')
+    const response = await axiosInstance.get('post/latest')
     
     console.log('API响应状态:', response.status)
     console.log('后端返回的帖子数据:', response.data)

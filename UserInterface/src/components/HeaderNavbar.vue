@@ -25,6 +25,11 @@
       {{"贴吧广场" }}
     </el-menu-item>
 
+    <!--商店按钮-->
+    <el-menu-item index='3' class='navbar-item' @click="router.push('/market')">
+      {{"装扮商城" }}
+    </el-menu-item>
+
     <!--超级占位符-->
     <div class='flex-grow'/>
 
@@ -177,6 +182,8 @@ watch(route, (newRoute) => {
     activeIndex.value = '1' // 社区页面高亮
   } else if (newRoute.path === '/bars' || newRoute.path.startsWith('/bar/')) {
     activeIndex.value = '2' // 贴吧页面高亮
+  } else if (newRoute.path === '/market') {
+    activeIndex.value = '3' // 商店页面高亮
   } else {
     activeIndex.value = '0' // 其他页面不高亮
   }

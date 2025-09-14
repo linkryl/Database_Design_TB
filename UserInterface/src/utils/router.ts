@@ -66,6 +66,7 @@ const routes: Array<RouteRecordRaw> = [
             title:'道具商城',
             
         }
+    },
     // 贴吧相关路由
     {
         path: '/bars',

@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseWebAPI.Data;
 using DatabaseWebAPI.Models.TableModels;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace DatabaseWebAPI.Controllers.ModelsControllers;
 
@@ -107,18 +105,6 @@ public class PostController(OracleDbContext context) : ControllerBase
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
-        }
-
-        // 检查用户是否被封禁
-        var user = await context.UserSet.FindAsync(post.UserId);
-        if (user == null)
-        {
-            return BadRequest("用户不存在");
-        }
-        
-        if (user.Status == 0) // 0表示被封禁状态
-        {
-            return Forbid("您的账号已被封禁，无法发帖");
         }
 
         context.PostSet.Add(post);
@@ -219,5 +205,4 @@ public class PostController(OracleDbContext context) : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
 }

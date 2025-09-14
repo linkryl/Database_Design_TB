@@ -16,8 +16,10 @@
           <div class="post-time">{{ formatTime(postInfo?.CreationDate || postInfo?.creationDate || postInfo?.CREATION_DATE) }}</div>
         </div>
       </div>
-      <div class="post-category">
-        <span class="category-tag">{{ getRandomCategory() }}</span>
+      <div class="post-actions">
+        <div class="post-category">
+          <span class="category-tag">{{ getRandomCategory() }}</span>
+        </div>
       </div>
     </div>
 
@@ -63,7 +65,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import githubLogo from '/images/GitHubLogo.png'
 
 // Props
@@ -71,8 +73,15 @@ const props = defineProps<{
   postId: number
 }>()
 
+
+// Emits
+const emit = defineEmits<{
+  'post-deleted': [postId: number]
+}>()
+
 // 路由
 const router = useRouter()
+
 
 // 响应式数据
 const loading = ref(true)
@@ -80,6 +89,9 @@ const postInfo = ref(null)
 const userInfo = ref(null)
 const githubLogoUrl = githubLogo
 const isContentExpanded = ref(false)
+
+// 管理员权限检查
+const isAdmin = ref(false)
 
 // 校园树洞分类列表 - 简化分类
 const campusCategories = [
@@ -145,12 +157,23 @@ const toggleContentExpansion = () => {
   isContentExpanded.value = !isContentExpanded.value
 }
 
+
+// 检查管理员权限
+const checkAdminPermission = () => {
+  const userRole = localStorage.getItem('userRole')
+  const isAdminFlag = localStorage.getItem('isAdmin')
+  isAdmin.value = userRole === '1' && isAdminFlag === 'true'
+}
+
+
+
 // 跳转到帖子详情页面
 const navigateToPostDetail = () => {
   if (props.postId) {
     router.push(`/PostPage/${props.postId}`)
   }
 }
+
 
 
 
@@ -232,6 +255,7 @@ const fetchPostDetail = async () => {
 
 // 组件挂载时获取数据
 onMounted(() => {
+  checkAdminPermission()
   fetchPostDetail()
 })
 </script>
@@ -265,6 +289,12 @@ onMounted(() => {
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-info {
@@ -317,6 +347,7 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 500;
 }
+
 
 /* 帖子内容 */
 .post-content {

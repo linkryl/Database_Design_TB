@@ -183,10 +183,42 @@ const handleSubmitLogin = async (elFormRef: FormInstance | undefined) => {
             try {
               axiosInstance.put(`user/last-login-time/${userId}`, {
                 lastLoginTime: new Date().toISOString()
-              }).then(() => {
-                localStorage.setItem('currentUserId', userId.toString())
-                router.push('/')
-                window.location.href = '/'
+              }).then(async () => {
+                // 获取JWT Token
+                try {
+                  const tokenResponse = await axiosInstance.post('get-jwt-token', {
+                    username: loginForm.username,
+                    password: loginForm.password
+                  })
+                  
+                  if (tokenResponse.data && tokenResponse.data.token) {
+                    // 获取用户信息以确定角色
+                    const userResponse = await axiosInstance.get(`user/${userId}`)
+                    const userInfo = userResponse.data
+                    
+                    // 设置用户信息到localStorage
+                    localStorage.setItem('jwtToken', tokenResponse.data.token)
+                    localStorage.setItem('currentUserId', userId.toString())
+                    localStorage.setItem('userRole', userInfo.role?.toString() || '0')
+                    localStorage.setItem('isAdmin', (userInfo.role === 1).toString())
+                    
+                    ElMessage.success('登录成功！')
+                    router.push('/')
+                    window.location.href = '/'
+                  } else {
+                    throw new Error('获取Token失败')
+                  }
+                } catch (error) {
+                  console.error('获取Token或用户信息失败:', error)
+                  // 如果获取Token失败，设置为普通用户但不设置Token
+                  localStorage.setItem('currentUserId', userId.toString())
+                  localStorage.setItem('userRole', '0')
+                  localStorage.setItem('isAdmin', 'false')
+                  
+                  ElMessage.success('登录成功！')
+                  router.push('/')
+                  window.location.href = '/'
+                }
               }).catch(() => {
                 ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
               })

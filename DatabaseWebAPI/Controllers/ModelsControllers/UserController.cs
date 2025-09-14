@@ -16,6 +16,8 @@ using DatabaseWebAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DatabaseWebAPI.Controllers.ModelsControllers;
 
@@ -434,6 +436,157 @@ public class UserController(OracleDbContext context) : ControllerBase
             }
 
             return Ok(user.UserId);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 管理员封禁用户接口
+    [HttpPost("admin/ban/{id:int}")]
+    [Authorize]
+    [SwaggerOperation(Summary = "管理员封禁用户", Description = "只有管理员可以封禁用户")]
+    [SwaggerResponse(200, "封禁成功")]
+    [SwaggerResponse(401, "未授权")]
+    [SwaggerResponse(403, "权限不足")]
+    [SwaggerResponse(404, "用户不存在")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> AdminBanUser(int id, [FromBody] BanUserRequest banRequest)
+    {
+        try
+        {
+            // 获取当前用户信息
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                             User.FindFirst("userId") ?? 
+                             User.FindFirst("sub");
+            
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var adminUserId))
+            {
+                return Unauthorized("无法获取管理员信息");
+            }
+
+            // 检查用户是否为管理员
+            var adminUser = await context.UserSet.FindAsync(adminUserId);
+            if (adminUser == null || adminUser.Role != 1)
+            {
+                return Forbid("只有管理员可以封禁用户");
+            }
+
+            // 查找要封禁的用户
+            var targetUser = await context.UserSet.FindAsync(id);
+            if (targetUser == null)
+            {
+                return NotFound($"用户ID {id} 不存在");
+            }
+
+            // 不能封禁管理员
+            if (targetUser.Role == 1)
+            {
+                return BadRequest("不能封禁管理员用户");
+            }
+
+            // 封禁用户
+            targetUser.Status = 0; // 0表示被封禁状态
+            await context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"用户 {targetUser.UserName} 已被封禁", 
+                bannedUser = new { 
+                    id = targetUser.UserId, 
+                    username = targetUser.UserName,
+                    status = targetUser.Status
+                },
+                reason = banRequest.Reason
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 管理员解封用户接口
+    [HttpPost("admin/unban/{id:int}")]
+    [Authorize]
+    [SwaggerOperation(Summary = "管理员解封用户", Description = "只有管理员可以解封用户")]
+    [SwaggerResponse(200, "解封成功")]
+    [SwaggerResponse(401, "未授权")]
+    [SwaggerResponse(403, "权限不足")]
+    [SwaggerResponse(404, "用户不存在")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> AdminUnbanUser(int id)
+    {
+        try
+        {
+            // 获取当前用户信息
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                             User.FindFirst("userId") ?? 
+                             User.FindFirst("sub");
+            
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var adminUserId))
+            {
+                return Unauthorized("无法获取管理员信息");
+            }
+
+            // 检查用户是否为管理员
+            var adminUser = await context.UserSet.FindAsync(adminUserId);
+            if (adminUser == null || adminUser.Role != 1)
+            {
+                return Forbid("只有管理员可以解封用户");
+            }
+
+            // 查找要解封的用户
+            var targetUser = await context.UserSet.FindAsync(id);
+            if (targetUser == null)
+            {
+                return NotFound($"用户ID {id} 不存在");
+            }
+
+            // 解封用户
+            targetUser.Status = 1; // 1表示正常状态
+            await context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"用户 {targetUser.UserName} 已被解封", 
+                unbannedUser = new { 
+                    id = targetUser.UserId, 
+                    username = targetUser.UserName,
+                    status = targetUser.Status
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 临时修复接口：更新所有普通用户状态为正常
+    [HttpPost("fix-user-status")]
+    [SwaggerOperation(Summary = "修复用户状态", Description = "将所有普通用户状态设置为正常")]
+    [SwaggerResponse(200, "修复成功")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> FixUserStatus()
+    {
+        try
+        {
+            // 更新所有普通用户（Role = 0）且状态为封禁（Status = 0）的用户
+            var usersToUpdate = await context.UserSet
+                .Where(u => u.Role == 0 && u.Status == 0)
+                .ToListAsync();
+
+            foreach (var user in usersToUpdate)
+            {
+                user.Status = 1; // 设置为正常状态
+            }
+
+            await context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"已修复 {usersToUpdate.Count} 个用户的状态",
+                updatedUsers = usersToUpdate.Count
+            });
         }
         catch (Exception ex)
         {

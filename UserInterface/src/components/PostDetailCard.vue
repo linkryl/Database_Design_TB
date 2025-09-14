@@ -4,7 +4,7 @@
 -->
 
 <template>
-  <div class="post-detail-card" v-loading="loading">
+  <div class="post-detail-card" v-loading="loading" @click="navigateToPostDetail">
     <!-- 帖子头部信息 -->
     <div class="post-header">
       <div class="user-info">
@@ -36,7 +36,7 @@
       <button 
         v-if="shouldShowExpandButton" 
         class="expand-button" 
-        @click="toggleContentExpansion"
+        @click.stop="toggleContentExpansion"
       >
         <span v-if="!isContentExpanded">📖 展开阅读全文</span>
         <span v-else>📄 收起</span>
@@ -50,11 +50,20 @@
         <span class="hint-text">这是一篇长帖，点击上方按钮查看完整内容</span>
       </div>
     </div>
+    
+    <!-- 点击提示 -->
+    <div class="click-hint">
+      <div class="click-hint-content">
+        <span class="click-hint-icon">👆</span>
+        <span class="click-hint-text">点击查看完整内容</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang='ts'>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import githubLogo from '/images/GitHubLogo.png'
@@ -64,10 +73,15 @@ const props = defineProps<{
   postId: number
 }>()
 
+
 // Emits
 const emit = defineEmits<{
   'post-deleted': [postId: number]
 }>()
+
+// 路由
+const router = useRouter()
+
 
 // 响应式数据
 const loading = ref(true)
@@ -143,11 +157,21 @@ const toggleContentExpansion = () => {
   isContentExpanded.value = !isContentExpanded.value
 }
 
+
 // 检查管理员权限
 const checkAdminPermission = () => {
   const userRole = localStorage.getItem('userRole')
   const isAdminFlag = localStorage.getItem('isAdmin')
   isAdmin.value = userRole === '1' && isAdminFlag === 'true'
+}
+
+
+
+// 跳转到帖子详情页面
+const navigateToPostDetail = () => {
+  if (props.postId) {
+    router.push(`/PostPage/${props.postId}`)
+  }
 }
 
 
@@ -244,14 +268,17 @@ onMounted(() => {
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e8e8e8;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   width: 100%;
   max-width: 100%;
   min-width: 800px;
+  cursor: pointer;
 }
 
 .post-detail-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  border-color: #4a90e2;
 }
 
 /* 帖子头部 */
@@ -438,6 +465,60 @@ onMounted(() => {
   color: #6c757d;
   font-size: 13px;
   font-weight: 500;
+}
+
+/* 点击提示样式 */
+.click-hint {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  border-left: 4px solid #6c757d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.post-detail-card:hover .click-hint {
+  opacity: 1;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-color: #4a90e2;
+  border-left-color: #4a90e2;
+}
+
+.click-hint-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.click-hint-icon {
+  font-size: 14px;
+  animation: bounce 2s infinite;
+}
+
+.click-hint-text {
+  color: #6c757d;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.post-detail-card:hover .click-hint-text {
+  color: #4a90e2;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
 }
 
 

@@ -67,6 +67,7 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
+
         path: '/admin-login',
         name: 'AdminLoginPage',
         // @ts-ignore
@@ -86,6 +87,31 @@ const routes: Array<RouteRecordRaw> = [
             requiresAdmin: true
         }
     },
+
+        path: '/PostPage/:id',
+        name: 'PostPage',
+        // @ts-ignore
+        component: () => import('../views/PostPage.vue'),
+        meta: {
+            title: '帖子详情'
+        }
+    },
+    // 添加404页面路由
+    {
+        path: '/404',
+        name: 'NotFound',
+        // @ts-ignore
+        component: () => import('../views/NotFoundPage.vue'),
+        meta: {
+            title: '页面不存在'
+        }
+    },
+    // 添加通配符路由，捕获所有未匹配的路由
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: '/404'
+    }
+
 ]
 
 const router: Router = createRouter({

@@ -248,7 +248,7 @@ async function submitRegistrationData() {
     registrationDate: now,
     lastLoginTime: now,
     role: 0,
-    status: 0,
+    status: 1, // 新注册用户默认为正常状态
     avatarUrl: "",
     profile: "",
     gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),

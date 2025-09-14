@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseWebAPI.Data;
 using DatabaseWebAPI.Models.TableModels;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DatabaseWebAPI.Controllers.ModelsControllers;
 
@@ -107,6 +109,18 @@ public class PostController(OracleDbContext context) : ControllerBase
             return BadRequest(ModelState);
         }
 
+        // 检查用户是否被封禁
+        var user = await context.UserSet.FindAsync(post.UserId);
+        if (user == null)
+        {
+            return BadRequest("用户不存在");
+        }
+        
+        if (user.Status == 0) // 0表示被封禁状态
+        {
+            return Forbid("您的账号已被封禁，无法发帖");
+        }
+
         context.PostSet.Add(post);
         await context.SaveChangesAsync();
         return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
@@ -199,6 +213,70 @@ public class PostController(OracleDbContext context) : ControllerBase
                 .Select(post => post.PostId)
                 .ToListAsync();
             return Ok(postIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    // 管理员删除帖子接口
+    [HttpDelete("admin/{id:int}")]
+    [Authorize]
+    [SwaggerOperation(Summary = "管理员删除帖子", Description = "只有管理员可以删除帖子")]
+    [SwaggerResponse(200, "删除成功")]
+    [SwaggerResponse(401, "未授权")]
+    [SwaggerResponse(403, "权限不足")]
+    [SwaggerResponse(404, "帖子不存在")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> AdminDeletePost(int id)
+    {
+        try
+        {
+            // 调试：打印所有Claims
+            Console.WriteLine("=== 管理员删除帖子调试信息 ===");
+            Console.WriteLine($"所有Claims:");
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"  {claim.Type}: {claim.Value}");
+            }
+            
+            // 获取当前用户信息 - 尝试多种方式
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? 
+                             User.FindFirst("userId") ?? 
+                             User.FindFirst("sub");
+            Console.WriteLine($"找到的userIdClaim: {userIdClaim?.Type} = {userIdClaim?.Value}");
+            
+            int userId;
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out userId))
+            {
+                Console.WriteLine($"直接解析用户ID: {userId}");
+            }
+            else
+            {
+                Console.WriteLine("无法直接解析用户ID，尝试其他方式");
+                return Unauthorized("无法获取用户信息");
+            }
+
+            // 检查用户是否为管理员
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null || user.Role != 1) // 1表示管理员角色
+            {
+                return Forbid("只有管理员可以删除帖子");
+            }
+
+            // 查找帖子
+            var post = await context.PostSet.FindAsync(id);
+            if (post == null)
+            {
+                return NotFound($"帖子ID {id} 不存在");
+            }
+
+            // 删除帖子（级联删除相关数据）
+            context.PostSet.Remove(post);
+            await context.SaveChangesAsync();
+
+            return Ok(new { message = $"帖子ID {id} 已成功删除", deletedPost = new { id = post.PostId, title = post.Title } });
         }
         catch (Exception ex)
         {

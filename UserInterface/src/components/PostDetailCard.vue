@@ -16,8 +16,20 @@
           <div class="post-time">{{ formatTime(postInfo?.CreationDate || postInfo?.creationDate || postInfo?.CREATION_DATE) }}</div>
         </div>
       </div>
-      <div class="post-category">
-        <span class="category-tag">{{ getRandomCategory() }}</span>
+      <div class="post-actions">
+        <div class="post-category">
+          <span class="category-tag">{{ getRandomCategory() }}</span>
+        </div>
+        <!-- 管理员删除按钮 -->
+        <button 
+          v-if="isAdmin" 
+          class="admin-delete-button" 
+          @click="confirmDeletePost"
+          title="管理员删除此帖子"
+        >
+          <span class="delete-icon">🗑️</span>
+          <span class="delete-text">删除</span>
+        </button>
       </div>
     </div>
 
@@ -54,12 +66,17 @@
 <script setup lang='ts'>
 import { ref, onMounted, computed } from 'vue'
 import axiosInstance from '../utils/axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import githubLogo from '/images/GitHubLogo.png'
 
 // Props
 const props = defineProps<{
   postId: number
+}>()
+
+// Emits
+const emit = defineEmits<{
+  'post-deleted': [postId: number]
 }>()
 
 // 响应式数据
@@ -68,6 +85,9 @@ const postInfo = ref(null)
 const userInfo = ref(null)
 const githubLogoUrl = githubLogo
 const isContentExpanded = ref(false)
+
+// 管理员权限检查
+const isAdmin = ref(false)
 
 // 校园树洞分类列表 - 简化分类
 const campusCategories = [
@@ -131,6 +151,91 @@ const shouldShowExpandButton = computed(() => {
 // 切换内容展开状态
 const toggleContentExpansion = () => {
   isContentExpanded.value = !isContentExpanded.value
+}
+
+// 检查管理员权限
+const checkAdminPermission = () => {
+  const userRole = localStorage.getItem('userRole')
+  const isAdminFlag = localStorage.getItem('isAdmin')
+  isAdmin.value = userRole === '1' && isAdminFlag === 'true'
+}
+
+// 确认删除帖子
+const confirmDeletePost = () => {
+  ElMessageBox.confirm(
+    `确定要删除帖子"${postInfo.value?.Title || postInfo.value?.title || postInfo.value?.TITLE || '无标题'}"吗？此操作不可撤销！`,
+    '管理员删除确认',
+    {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
+    }
+  ).then(async () => {
+    await deletePost()
+  }).catch(() => {
+    ElMessage.info('已取消删除')
+  })
+}
+
+// 删除帖子
+const deletePost = async () => {
+  try {
+    // 检查管理员权限
+    const userRole = localStorage.getItem('userRole')
+    const isAdminFlag = localStorage.getItem('isAdmin')
+    const token = localStorage.getItem('jwtToken')
+    
+    console.log('删除帖子调试信息:')
+    console.log('用户角色:', userRole)
+    console.log('管理员标志:', isAdminFlag)
+    console.log('Token存在:', !!token)
+    console.log('帖子ID:', props.postId)
+    
+    if (!token) {
+      ElMessage.error('请先登录管理员账号')
+      return
+    }
+    
+    if (userRole !== '1' || isAdminFlag !== 'true') {
+      ElMessage.error('权限不足，只有管理员可以删除帖子')
+      return
+    }
+    
+    console.log('发送删除请求到:', `post/admin/${props.postId}`)
+    const response = await axiosInstance.delete(`post/admin/${props.postId}`)
+    console.log('删除响应:', response.data)
+    
+    ElMessage.success('帖子删除成功！')
+    
+    // 触发父组件刷新列表
+    emit('post-deleted', props.postId)
+    
+    // 延迟刷新页面
+    setTimeout(() => {
+      window.location.reload()
+    }, 1500)
+  } catch (error) {
+    console.error('删除帖子失败:', error)
+    console.error('错误响应:', error.response?.data)
+    console.error('错误状态:', error.response?.status)
+    
+    if (error.response?.status === 403) {
+      ElMessage.error('权限不足，只有管理员可以删除帖子')
+    } else if (error.response?.status === 401) {
+      ElMessage.error('认证失败，请重新登录管理员账号')
+      // 清除本地存储并跳转到登录页面
+      localStorage.removeItem('jwtToken')
+      localStorage.removeItem('currentUserId')
+      localStorage.removeItem('userRole')
+      localStorage.removeItem('isAdmin')
+      window.location.href = '/admin-login'
+    } else if (error.response?.status === 404) {
+      ElMessage.error('帖子不存在或已被删除')
+    } else {
+      ElMessage.error(`删除失败: ${error.response?.data?.message || error.message}`)
+    }
+  }
 }
 
 
@@ -213,6 +318,7 @@ const fetchPostDetail = async () => {
 
 // 组件挂载时获取数据
 onMounted(() => {
+  checkAdminPermission()
   fetchPostDetail()
 })
 </script>
@@ -243,6 +349,12 @@ onMounted(() => {
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-info {
@@ -294,6 +406,42 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+}
+
+/* 管理员删除按钮 */
+.admin-delete-button {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.admin-delete-button:hover {
+  background: linear-gradient(135deg, #ee5a52 0%, #e74c3c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+}
+
+.admin-delete-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.delete-icon {
+  font-size: 14px;
+}
+
+.delete-text {
+  font-size: 12px;
 }
 
 /* 帖子内容 */

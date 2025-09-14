@@ -51,6 +51,13 @@
             </div>
           </el-dropdown-item>
 
+          <!--管理员登录按钮-->
+          <el-dropdown-item :icon='Setting' @click="router.push('/admin-login')">
+            <div class='dropdown-item'>
+              <span>{{ "管理员登录" }}</span>
+              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
+            </div>
+          </el-dropdown-item>
 
         </el-dropdown-menu>
 
@@ -58,11 +65,29 @@
         <el-dropdown-menu v-else style='width: 250px'>
 
           <h2 style='text-align: center'>{{ "用户中心" }}</h2>
+          
+          <!--用户身份提示-->
+          <div class="user-indicator" :class="{ 'admin-indicator': isAdmin, 'normal-user-indicator': !isAdmin }">
+            <el-icon :size="16" :color="isAdmin ? '#ff6b6b' : '#4a90e2'">
+              <Setting v-if="isAdmin" />
+              <User v-else />
+            </el-icon>
+            <span class="user-text">{{ isAdmin ? '管理员模式' : '普通用户' }}</span>
+          </div>
 
           <!--个人中心按钮-->  
           <el-dropdown-item :icon='User' @click="router.push(`/profile/${currentUserId}`)">  
             <div class='dropdown-item'>          
               <span>{{ "个人中心" }}</span>         
+              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
+            </div>
+  
+          </el-dropdown-item>
+
+          <!--用户管理按钮（仅管理员可见）-->
+          <el-dropdown-item v-if="isAdmin" :icon='Setting' @click="router.push('/user-management')">  
+            <div class='dropdown-item'>          
+              <span>{{ "用户管理" }}</span>         
               <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
             </div>
   
@@ -99,6 +124,7 @@ import {
   Link,
   CirclePlus,
   ArrowRightBold,
+  Setting,
 } from '@element-plus/icons-vue'
 
 const activeIndex = ref('0')
@@ -108,6 +134,7 @@ const storedValue = localStorage.getItem('currentUserId')
 const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const currentUserName = ref('')
+const isAdmin = ref(false)
 
 /*跳转到论坛页面*/
 watch(route, (newRoute) => {
@@ -134,7 +161,20 @@ onMounted(async () => {
       ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
     }
   }
+  
+  // 检查管理员权限
+  checkAdminPermission()
 })
+
+// 检查管理员权限
+const checkAdminPermission = () => {
+  const userRole = localStorage.getItem('userRole')
+  const isAdminFlag = localStorage.getItem('isAdmin')
+  const token = localStorage.getItem('jwtToken')
+  
+  // 只有同时满足所有条件才认为是管理员
+  isAdmin.value = !!(token && userRole === '1' && isAdminFlag === 'true')
+}
 
 // 透明处理
 const handleScroll = () => {
@@ -237,6 +277,56 @@ h1 {
 .disable-dropdown {
   pointer-events: none;
   opacity: 0.5;
+}
+
+/* 用户身份提示样式 */
+.user-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 8px 16px 16px 16px;
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* 调整文字位置，向左偏移以与"用户中心"对齐 */
+.user-indicator .user-text {
+  position: relative;
+  left: -12px;
+}
+
+/* 管理员身份提示样式 */
+.admin-indicator {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: adminPulse 2s infinite;
+}
+
+/* 普通用户身份提示样式 */
+.normal-user-indicator {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.user-text {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+@keyframes adminPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5);
+  }
 }
 
 </style>

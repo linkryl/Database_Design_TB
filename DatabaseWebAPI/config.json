@@ -13,8 +13,8 @@
     "BucketName": "[TODO: BucketName]"
   },
   "Jwt": {
-    "Key": "Abc123!@#xyz456$%^",
-    "Issuer": "http://localhost:5101",
-    "Audience": "http://localhost:5101"
+    "Key": "TreeHoleJWTSecretKey2024!@#$%^&*()_+{}|:<>?[]\\;',./",
+    "Issuer": "TreeHoleAPI",
+    "Audience": "TreeHoleClient"
   }
 }

@@ -87,6 +87,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { createPost, getPostCategories, type THPostCategory } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
+import axiosInstance from '../utils/axios'
 
 // TreeHole前缀命名
 const router = useRouter()
@@ -157,6 +158,22 @@ const handleSubmit = async () => {
     if (!thCurrentUserId) {
       ElMessage.error('用户未登录')
       router.push('/login')
+      return
+    }
+    
+    // 检查用户是否被封禁
+    try {
+      const userResponse = await axiosInstance.get(`user/${thCurrentUserId}`)
+      const userInfo = userResponse.data
+      
+      if (userInfo.status === 0) {
+        ElMessage.error('您的账号已被封禁，无法发帖')
+        router.push('/CommunityPage')
+        return
+      }
+    } catch (error) {
+      console.error('检查用户状态失败:', error)
+      ElMessage.error('无法验证用户状态，请稍后重试')
       return
     }
     

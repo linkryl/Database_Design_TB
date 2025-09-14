@@ -128,6 +128,18 @@ public class PostCommentController(OracleDbContext context) : ControllerBase
             return BadRequest(ModelState);
         }
 
+        // 检查用户是否被封禁
+        var user = await context.UserSet.FindAsync(postComment.UserId);
+        if (user == null)
+        {
+            return BadRequest("用户不存在");
+        }
+        
+        if (user.Status == 0) // 0表示被封禁状态
+        {
+            return Forbid("您的账号已被封禁，无法评论");
+        }
+
         context.PostCommentSet.Add(postComment);
         await context.SaveChangesAsync();
         return CreatedAtAction(nameof(PostPostComment), new { id = postComment.CommentId }, postComment);

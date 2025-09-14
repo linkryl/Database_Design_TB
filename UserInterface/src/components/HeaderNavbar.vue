@@ -41,7 +41,7 @@
       <template #dropdown>
 
         <!--未登录下拉栏 -->
-        <el-dropdown-menu style='width: 210px' v-if='currentUserId==0'>
+        <el-dropdown-menu style='width: 210px' v-if='!isLoggedIn'>
           <h2 style='text-align: center'>{{ "用户中心" }}</h2>
 
           <!--登陆按钮-->
@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang='ts'>
-import {onMounted, onUnmounted,ref, watch} from 'vue'
+import {onMounted, onUnmounted, ref, watch, computed} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox} from 'element-plus'
@@ -159,6 +159,18 @@ const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const currentUserName = ref('')
 const isAdmin = ref(false)
 
+// 响应式变量，用于触发重新计算
+const authState = ref(0)
+
+// 计算属性：判断用户是否已登录
+const isLoggedIn = computed(() => {
+  // 使用authState来触发重新计算
+  authState.value
+  const token = localStorage.getItem('jwtToken')
+  const userId = localStorage.getItem('currentUserId')
+  return !!(token && userId && userId !== '0')
+})
+
 /*跳转到论坛页面*/
 watch(route, (newRoute) => {
   if (newRoute.path === '/CommunityPage') {
@@ -172,10 +184,36 @@ watch(route, (newRoute) => {
 
 /*登出*/
 function logout() {
+<<<<<<< HEAD
   localStorage.setItem('currentUserId', '0')  // 清除用户ID
   localStorage.removeItem('jwtToken')         // 清除JWT Token
   currentUserId.value = 0                     // 重置当前用户ID
   currentUserName.value = ''                  // 重置用户名
+=======
+  // 清除所有认证相关的本地存储
+  localStorage.removeItem('jwtToken')
+  localStorage.removeItem('currentUserId')
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('isAdmin')
+  
+  // 重置组件状态
+  currentUserId.value = 0
+  currentUserName.value = ''
+  isAdmin.value = false
+  
+  // 触发重新计算登录状态
+  authState.value++
+  
+  // 触发自定义事件，通知其他组件状态已更新
+  window.dispatchEvent(new CustomEvent('authStateChanged', {
+    detail: {
+      userId: 0,
+      userRole: 0,
+      isAdmin: false
+    }
+  }))
+  
+>>>>>>> main
   router.push('/')                            // 路由跳转到首页
   window.location.href = '/'                  // 强制刷新页面
 }
@@ -208,8 +246,19 @@ async function handleDeleteAccount() {
       // 注销成功
       ElMessage.success('账号注销成功，感谢您的使用！')
       
-      // 清除本地存储
+      // 清除所有认证相关的本地存储
+      localStorage.removeItem('jwtToken')
       localStorage.removeItem('currentUserId')
+      localStorage.removeItem('userRole')
+      localStorage.removeItem('isAdmin')
+      
+      // 重置组件状态
+      currentUserId.value = 0
+      currentUserName.value = ''
+      isAdmin.value = false
+      
+      // 触发重新计算登录状态
+      authState.value++
       
       // 跳转到首页
       router.push('/')
@@ -237,6 +286,33 @@ async function handleDeleteAccount() {
   }
 }
 
+// 监听认证状态变化事件
+const handleAuthStateChange = (e) => {
+  // 更新组件状态
+  const storedValue = localStorage.getItem('currentUserId')
+  const storedUserId = storedValue ? parseInt(storedValue) : 0
+  currentUserId.value = isNaN(storedUserId) ? 0 : storedUserId
+  
+  // 触发重新计算登录状态
+  authState.value++
+  
+  // 检查管理员权限
+  checkAdminPermission()
+  
+  // 如果用户已登录，获取用户名
+  if (currentUserId.value != 0) {
+    axiosInstance.get(`user/${currentUserId.value}`)
+      .then(response => {
+        currentUserName.value = response.data.userName
+      })
+      .catch(error => {
+        console.error('获取用户名失败:', error)
+      })
+  } else {
+    currentUserName.value = ''
+  }
+}
+
 onMounted(async () => {
   if (currentUserId.value != 0) {  // 如果用户已登录
     try {
@@ -249,6 +325,14 @@ onMounted(async () => {
   
   // 检查管理员权限
   checkAdminPermission()
+  
+  // 添加认证状态变化监听
+  window.addEventListener('authStateChanged', handleAuthStateChange)
+})
+
+onUnmounted(() => {
+  // 移除认证状态变化监听
+  window.removeEventListener('authStateChanged', handleAuthStateChange)
 })
 
 // 检查管理员权限

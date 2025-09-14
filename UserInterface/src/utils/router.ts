@@ -39,15 +39,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/profile/:id',
-        name: 'ProfilePage',
-        // @ts-ignore
-        component: () => import('../views/ProfilePage.vue'),
-        meta: {
-            title: '个人主页'
-        }
-    },
-    {
         path: '/register',
         name: 'RegisterPage',
         // @ts-ignore
@@ -97,6 +88,19 @@ const routes: Array<RouteRecordRaw> = [
     },
     // 管理员相关路由
     {
+<<<<<<< HEAD
+=======
+        path: '/profile/:id',
+        name: 'ProfilePage',
+        // @ts-ignore
+        component: () => import('../views/ProfilePage.vue'),
+        meta: {
+            title: '个人主页'
+        }
+    },
+    {
+
+>>>>>>> main
         path: '/admin-login',
         name: 'AdminLoginPage',
         // @ts-ignore

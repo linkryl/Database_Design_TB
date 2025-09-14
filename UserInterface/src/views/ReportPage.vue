@@ -1,4 +1,4 @@
-<!-- filepath: d:\DB\Database_Design_TB\UserInterface\src\views/ReportPage.vue -->
+<!-- filepath: d:\DB\Database_Design_TB\UserInterface\src\views\ReportPage.vue -->
 <template>
   <div class="report-page">
     <h2>举报帖子</h2>
@@ -23,6 +23,7 @@
       </div>
       <button type="submit">提交举报</button>
     </form>
+    <button @click="$emit('close')" style="margin-top:12px;">关闭</button>
     <div v-if="message" class="msg">{{ message }}</div>
   </div>
 </template>

@@ -94,9 +94,12 @@ const postIds = ref([])
 const isLastPage = computed(() => {
   return currentPage.value >= Math.ceil(totalPosts.value / pageSize.value)
 })
-const storedValue = localStorage.getItem('currentUserId')
-const storedUserId = storedValue ? parseInt(storedValue) : 0
-const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
+// 响应式获取当前用户ID
+const currentUserId = computed(() => {
+  const storedValue = localStorage.getItem('currentUserId')
+  const storedUserId = storedValue ? parseInt(storedValue) : 0
+  return isNaN(storedUserId) ? 0 : storedUserId
+})
 
 const paginatedPostIds = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value

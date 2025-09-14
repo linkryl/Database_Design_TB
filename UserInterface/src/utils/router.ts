@@ -39,15 +39,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/profile/:id',
-        name: 'ProfilePage',
-        // @ts-ignore
-        component: () => import('../views/ProfilePage.vue'),
-        meta: {
-            title: '个人主页'
-        }
-    },
-    {
         path: '/register',
         name: 'RegisterPage',
         // @ts-ignore
@@ -64,6 +55,15 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
             title: '发表树洞',
             requiresAuth: true
+        }
+    },
+    {
+        path: '/profile/:id',
+        name: 'ProfilePage',
+        // @ts-ignore
+        component: () => import('../views/ProfilePage.vue'),
+        meta: {
+            title: '个人主页'
         }
     },
     {

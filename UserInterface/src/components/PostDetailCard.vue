@@ -1,3 +1,4 @@
+<!-- filepath: d:\DB\Database_Design_TB\UserInterface\src\components\PostDetailCard.vue -->
 <!--
 帖子详情卡片组件 - 在社区页面完整展示帖子信息
 2351134 吕奎辰
@@ -24,6 +25,8 @@
     <!-- 帖子内容 -->
     <div class="post-content">
       <h3 class="post-title">{{ postInfo?.Title || postInfo?.title || postInfo?.TITLE || '无标题' }}</h3>
+      <!-- 举报按钮放在标题下方 -->
+      <button @click.stop="showReport = true" class="report-btn">举报</button>
       <div class="post-text" :class="{ 
         expanded: isContentExpanded,
         'has-expand-button': shouldShowExpandButton 
@@ -39,6 +42,7 @@
         <span v-if="!isContentExpanded">📖 展开阅读全文</span>
         <span v-else>📄 收起</span>
       </button>
+      <ReportPage v-if="showReport" @close="showReport = false" :postId="props.postId" />
     </div>
     
     <!-- 长帖提示条 -->
@@ -65,7 +69,8 @@ import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
 import { ElMessage } from 'element-plus'
 import githubLogo from '/images/GitHubLogo.png'
-
+import ReportPage from '@/views/ReportPage.vue'
+const showReport = ref(false)
 // Props
 const props = defineProps<{
   postId: number
@@ -151,8 +156,6 @@ const navigateToPostDetail = () => {
     router.push(`/PostPage/${props.postId}`)
   }
 }
-
-
 
 // 获取帖子详情
 const fetchPostDetail = async () => {
@@ -332,6 +335,25 @@ onMounted(() => {
   word-break: break-word;
   max-width: 100%;
   padding-right: 20px;
+}
+
+/* 举报按钮样式 */
+.report-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 18px;
+  margin-bottom: 16px;
+  margin-right: 12px;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(255, 77, 79, 0.15);
+}
+.report-btn:hover {
+  background: #d9363e;
 }
 
 .post-text {

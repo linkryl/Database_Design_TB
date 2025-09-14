@@ -46,7 +46,7 @@ const submitReport = async () => {
     reason.value = ''
     detail.value = ''
   } catch (err) {
-    message.value = '举报失败，请稍后重试。'
+    message.value = '举报失败，请稍后重试1。'
   }
 }
 </script>

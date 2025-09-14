@@ -153,6 +153,15 @@ const handleAdminLogin = async (elFormRef: FormInstance | undefined) => {
           localStorage.setItem('userRole', response.data.role.toString())
           localStorage.setItem('isAdmin', 'true')
           
+          // 触发自定义事件，通知其他组件状态已更新
+          window.dispatchEvent(new CustomEvent('authStateChanged', {
+            detail: {
+              userId: response.data.userId,
+              userRole: response.data.role,
+              isAdmin: true
+            }
+          }))
+          
           ElMessage.success('管理员登录成功！')
           
           // 跳转到用户管理页面

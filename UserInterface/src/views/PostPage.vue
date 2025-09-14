@@ -35,49 +35,31 @@
           <div class='post-bottom'>
             <div class='post-date-container'>
               <p class='post-date'>{{ postData.creationDate }}</p>
-              <el-popover :visible='reportVisible'
-                          placement='bottom-start'
-                          :width='500'>
-                <template #reference>
-                  <button v-if='postData.userId!=currentUserId'
-                          @click="reportVisible=!reportVisible; reportContent=''"
-                          class='report-button-icon'>
-                    {{ "举报" }}
-                  </button>
-                </template>
-                <el-input v-model='reportContent'
-                          size='large'
-                          maxlength='128'
-                          placeholder="请输入举报原因"
-                          show-word-limit/>
-                <div style='margin-top: 10px; display: flex; justify-content: space-between; align-items: center'>
-                  <p style='margin: 0; font-size: 12px'>{{"我们会尽快处理您的举报请求" }}</p>
-                  <el-button-group>
-                    <el-button size='small' @click="reportVisible=false; reportContent=''">
-                      {{ "取消" }}
-                    </el-button>
-                    <el-button type='primary' size='small' @click='sendReport'>
-                      {{ "举报" }}
-                    </el-button>
-                  </el-button-group>
-                </div>
-              </el-popover>
+              <button v-if="postData.userId!=currentUserId"
+                      @click="reportDialogVisible = true"
+                      class="report-button-icon">
+                举报
+              </button>
+                <el-dialog v-model="reportDialogVisible" width="400px" :close-on-click-modal="false">
+                  <ReportPage
+                    :postId="postId"
+                    :reportedUserId="postData.userId"
+                    :reporterId="currentUserId"
+                    @close="reportDialogVisible = false"
+                  />
+                </el-dialog>
             </div>
             <div class='post-stats'>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Like.png`'
-                     class='post-card-like-logo'
-                     alt='LikeLogo'
-                     @click='handleLike'
-                     height='16px'/>
+                <div class='like-button' @click='handleLike'>
+                  <span class='button-icon'>👍</span>
+                </div>
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.likeCount }}</span>
               </div>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Star.png`'
-                     class='post-card-star-logo'
-                     alt='StarLogo'
-                     @click='handleFavorite'
-                     height='16px'/>
+                <div class='favorite-button' @click='handleFavorite'>
+                  <span class='button-icon'>⭐</span>
+                </div>
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.favoriteCount }}</span>
               </div>
               <div class='stat-item'>
@@ -85,11 +67,9 @@
                             placement='bottom-end'
                             :width='500'>
                   <template #reference>
-                    <img :src='`${ossBaseUrl}LogosAndIcons/Comment.png`'
-                         class='post-card-comment-logo'
-                         alt='CommentLogo'
-                         @click="commentVisible=!commentVisible; commentContent=''"
-                         height='16px'/>
+                    <div class='comment-button' @click="commentVisible=!commentVisible; commentContent=''">
+                      <span class='button-icon'>💬</span>
+                    </div>
                   </template>
                   <el-input v-model='commentContent'
                             size='large'
@@ -111,11 +91,9 @@
                 <span class='stat-text' style='color: #6F9DDF'>{{ postData.commentCount }}</span>
               </div>
               <div class='stat-item'>
-                <img :src='`${ossBaseUrl}LogosAndIcons/Dislike.png`'
-                     class='post-card-dislike-logo'
-                     alt='DislikeLogo'
-                     @click='handleDislike'
-                     height='16px'/>
+                <div class='dislike-button' @click='handleDislike'>
+                  <span class='button-icon'>👎</span>
+                </div>
               </div>
             </div>
           </div>
@@ -140,10 +118,9 @@ import axiosInstance from '../utils/axios'
 import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 import {ossBaseUrl, formatDateTimeToCST} from '../globals'
 import {useRouter} from 'vue-router'
-// 导入PostCommentCard组件
 import PostCommentCard from '../components/PostCommentCard.vue'
+import ReportPage from './ReportPage.vue'
 
-// 定义接口类型
 interface PostData {
   userId: number
   title: string
@@ -193,9 +170,8 @@ const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const commentVisible = ref(false)
 const commentContent = ref('')
-const reportContent = ref('')
 const isAdmin = ref(false)
-const reportVisible = ref(false)
+const reportDialogVisible = ref(false)
 
 const postData = ref<PostData>({
   userId: 0,
@@ -419,37 +395,6 @@ async function sendComment() {
   }
 }
 
-async function sendReport() {
-  if (reportContent.value.trim().length != 0) {
-    try {
-      await axiosInstance.post('post-report', {
-        reporterId: currentUserId.value,
-        reportedUserId: postData.value.userId,
-        reportedPostId: postId.value,
-        reportReason: reportContent.value,
-        reportTime: new Date().toISOString(),
-        status: 0
-      })
-      window.location.reload()
-    } catch (error: any) {
-      ElNotification({
-        title: "举报失败",
-        message: "举报失败，请检查网络连接情况或稍后重试。",
-        type: 'error'
-      })
-    }
-  }
-}
-
-onMounted(async () => {
-  try {
-    const response = await axiosInstance.get(`user/role/${currentUserId.value}`)
-    isAdmin.value = response.data == 1
-  } catch (error: any) {
-    ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
-  }
-})
-
 async function handleDelete(id: number) {
   try {
     await axiosInstance.delete(`post/${id}`)
@@ -586,32 +531,48 @@ async function handleDelete(id: number) {
   margin-left: 5px;
 }
 
-.post-card-like-logo {
+/* 按钮样式 */
+.like-button, .favorite-button, .comment-button, .dislike-button {
   cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 32px;
 }
 
-.post-card-dislike-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.like-button:hover {
+  background: #e3f2fd;
+  border-color: #4a90e2;
+  transform: scale(1.05);
 }
 
-.post-card-star-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.favorite-button:hover {
+  background: #fff3e0;
+  border-color: #ff9800;
+  transform: scale(1.05);
 }
 
-.post-card-comment-logo {
-  cursor: pointer;
-  transition: filter 0.2s ease-in-out;
-  filter: invert(75%) sepia(60%) saturate(2531%) hue-rotate(185deg) brightness(87%) contrast(101%);
+.comment-button:hover {
+  background: #f3e5f5;
+  border-color: #9c27b0;
+  transform: scale(1.05);
 }
 
-.post-card-like-logo:hover, .post-card-comment-logo:hover, .post-card-star-logo:hover, .post-card-dislike-logo:hover {
-  transform: scale(1.1);
+.dislike-button:hover {
+  background: #ffebee;
+  border-color: #f44336;
+  transform: scale(1.05);
+}
+
+.button-icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .post-header {

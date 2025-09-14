@@ -4,20 +4,30 @@
 -->
 
 <template>
-  <div class="post-detail-card" v-loading="loading">
+  <div class="post-detail-card" v-loading="loading" @click="navigateToPostDetail">
     <!-- 帖子头部信息 -->
     <div class="post-header">
       <div class="user-info">
         <div class="user-avatar">
-          <img :src="githubLogoUrl" :alt="userInfo?.UserName || userInfo?.userName || userInfo?.USER_NAME || '用户'" />
+          <img :src="githubLogoUrl" :alt="userInfo?.userName || '用户'" />
         </div>
         <div class="user-details">
-          <div class="username">{{ userInfo?.UserName || userInfo?.userName || userInfo?.USER_NAME || '未知用户' }}</div>
-          <div class="post-time">{{ formatTime(postInfo?.CreationDate || postInfo?.creationDate || postInfo?.CREATION_DATE) }}</div>
+          <div class="username">{{ userInfo?.userName || '未知用户' }}</div>
+          <div class="post-time">{{ formatTime(postInfo?.creationDate) }}</div>
         </div>
       </div>
-      <div class="post-category">
-        <span class="category-tag">{{ getRandomCategory() }}</span>
+      <div class="post-source-info">
+        <!-- 贴吧来源标识 -->
+        <div v-if="postInfo?.barId" class="post-source-tag">
+          <span class="source-icon">🏠</span>
+          <span class="source-text">来自贴吧</span>
+          <span class="source-name">{{ barSourceName || '贴吧' }}</span>
+        </div>
+        
+        <!-- 分类标签 -->
+        <div v-if="categoryInfo && categoryInfo.category" class="post-category">
+          <span class="category-tag">{{ categoryInfo.category }}</span>
+        </div>
       </div>
     </div>
 
@@ -34,7 +44,7 @@
       <button 
         v-if="shouldShowExpandButton" 
         class="expand-button" 
-        @click="toggleContentExpansion"
+        @click.stop="toggleContentExpansion"
       >
         <span v-if="!isContentExpanded">📖 展开阅读全文</span>
         <span v-else>📄 收起</span>
@@ -48,76 +58,255 @@
         <span class="hint-text">这是一篇长帖，点击上方按钮查看完整内容</span>
       </div>
     </div>
+
+    <!-- 帖子互动区域 -->
+    <div class="post-interactions">
+      <div class="interaction-stats">
+        <span class="stat-item">
+          <span class="stat-icon">📅</span>
+          <span class="stat-text">{{ formatTime(postInfo?.creationDate) }}</span>
+        </span>
+        <span class="stat-item">
+          <span class="stat-icon">💬</span>
+          <span class="stat-text">{{ postInfo?.commentCount || 0 }} 评论</span>
+        </span>
+      </div>
+
+      <div class="interaction-buttons">
+        <!-- 点赞按钮 -->
+        <button 
+          class="interaction-btn"
+          :class="{ active: isLiked }"
+          @click="toggleLike"
+          :disabled="!currentUserId"
+        >
+          <span class="btn-icon">👍</span>
+          <span class="btn-text">{{ postInfo?.likeCount || 0 }}</span>
+        </button>
+
+        <!-- 点踩按钮 -->
+        <button 
+          class="interaction-btn dislike-btn"
+          :class="{ active: isDisliked }"
+          @click="toggleDislike"
+          :disabled="!currentUserId"
+        >
+          <span class="btn-icon">👎</span>
+          <span class="btn-text">{{ postInfo?.dislikeCount || 0 }}</span>
+        </button>
+
+        <!-- 收藏按钮 -->
+        <button 
+          class="interaction-btn favorite-btn"
+          :class="{ active: isFavorited }"
+          @click="toggleFavorite"
+          :disabled="!currentUserId"
+        >
+          <span class="btn-icon">{{ isFavorited ? '⭐' : '☆' }}</span>
+          <span class="btn-text">{{ postInfo?.favoriteCount || 0 }}</span>
+        </button>
+
+        <!-- 举报按钮 -->
+        <button 
+          v-if="currentUserId && currentUserId !== postInfo?.userId"
+          class="interaction-btn report-btn"
+          @click="showReportDialog"
+        >
+          <span class="btn-icon">🚨</span>
+          <span class="btn-text">举报</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 评论区域 -->
+    <div class="comment-area">
+      <CommentSection :post-id="postId" />
+    </div>
+
+    <!-- 举报对话框 -->
+    <el-dialog
+      v-model="reportDialogVisible"
+      title="举报帖子"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <div class="report-form">
+        <p class="report-hint">请选择举报理由：</p>
+        <el-radio-group v-model="reportReason">
+          <el-radio value="spam">垃圾信息</el-radio>
+          <el-radio value="inappropriate">内容不当</el-radio>
+          <el-radio value="harassment">骚扰行为</el-radio>
+          <el-radio value="fraud">虚假信息</el-radio>
+          <el-radio value="copyright">版权侵犯</el-radio>
+          <el-radio value="other">其他</el-radio>
+        </el-radio-group>
+        <el-input
+          v-if="reportReason === 'other'"
+          v-model="customReportReason"
+          type="textarea"
+          placeholder="请详细描述举报原因..."
+          :rows="3"
+          maxlength="200"
+          show-word-limit
+          style="margin-top: 10px;"
+        />
+      </div>
+      <template #footer>
+        <el-button @click="reportDialogVisible = false">取消</el-button>
+        <el-button 
+          type="primary" 
+          @click="submitReport"
+          :disabled="!reportReason || (reportReason === 'other' && !customReportReason.trim())"
+        >
+          提交举报
+        </el-button>
+      </template>
+    </el-dialog>
+    
+    <!-- 点击提示 -->
+    <div class="click-hint">
+      <div class="click-hint-content">
+        <span class="click-hint-icon">👆</span>
+        <span class="click-hint-text">点击查看完整内容</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang='ts'>
 import { ref, onMounted, computed } from 'vue'
-import axiosInstance from '../utils/axios'
 import { ElMessage } from 'element-plus'
-import githubLogo from '/images/GitHubLogo.png'
+import CommentSection from './CommentSection.vue'
+import { getCurrentUserId } from '@/utils/auth'
+import {
+  getPostById,
+  getUserById,
+  getPostCategoryById,
+  getBarById,
+  likePost,
+  unlikePost,
+  dislikePost,
+  undislikePost,
+  favoritePost,
+  unfavoritePost,
+  checkPostLiked,
+  checkPostDisliked,
+  checkPostFavorited,
+  reportPost,
+  type THPostLike,
+  type THPostDislike,
+  type THPostFavorite,
+  type THPostReport
+} from '@/api/index'
+import { useRouter } from 'vue-router'
 
 // Props
 const props = defineProps<{
   postId: number
 }>()
 
+
+// Emits
+// const emit = defineEmits<{
+//   'post-deleted': [postId: number]
+// }>()
+
+// 路由
+const router = useRouter()
+
+
 // 响应式数据
 const loading = ref(true)
-const postInfo = ref(null)
-const userInfo = ref(null)
-const githubLogoUrl = githubLogo
+const postInfo = ref<any>(null)
+const userInfo = ref<any>(null)
+const categoryInfo = ref<any>(null)
+const barSourceName = ref<string>('')
+const githubLogoUrl = '/images/GitHubLogo.png'
 const isContentExpanded = ref(false)
 
-// 校园树洞分类列表 - 简化分类
-const campusCategories = [
-  '闲聊', '奇思妙想', '日常吐槽', '分享交流'
-]
+// 当前用户相关
+const currentUserId = ref(getCurrentUserId() ? parseInt(getCurrentUserId()!) : null)
+const isAdmin = ref(false)
 
-// 根据帖子ID生成随机分类（确保同一帖子总是显示相同分类）
-const getRandomCategory = () => {
-  if (!props.postId) return '闲聊'
-  
-  // 使用帖子ID作为种子，确保同一帖子总是显示相同分类
-  const seed = props.postId
-  const index = seed % campusCategories.length
-  return campusCategories[index]
-}
+// 互动状态
+const isLiked = ref(false)
+const isDisliked = ref(false)
+const isFavorited = ref(false)
 
-// 计算属性
-const formatTime = (timestamp) => {
+// 举报相关
+const reportDialogVisible = ref(false)
+const reportReason = ref('')
+const customReportReason = ref('')
+
+// 时间格式化函数 - 修复时区问题
+const formatTime = (timestamp: string) => {
   if (!timestamp) return '未知时间'
   
-  // 解析原始时间
-  let date
-  if (typeof timestamp === 'string') {
-    date = new Date(timestamp)
-  } else {
-    date = new Date(timestamp)
-  }
-  
-  // 检查日期是否有效
-  if (isNaN(date.getTime())) {
+  try {
+    // 解析时间戳
+    let date = new Date(timestamp)
+    
+    // 检查后端返回的时间格式
+    if (timestamp.includes('T')) {
+      // ISO格式，可能是UTC时间
+      // 如果没有时区标识符（Z或+），假设是UTC时间，需要转换为本地时间
+      if (!timestamp.includes('Z') && !timestamp.includes('+') && !timestamp.includes('-', 10)) {
+        // 后端返回的是UTC时间但没有Z标识，手动添加Z
+        date = new Date(timestamp + 'Z')
+      } else {
+        // 有时区标识，直接解析
+        date = new Date(timestamp)
+      }
+    } else {
+      // 非ISO格式，假设是本地时间
+      date = new Date(timestamp)
+    }
+    
+    const now = new Date()
+    
+    // 计算时间差（毫秒）
+    const diff = now.getTime() - date.getTime()
+    
+    // 调试信息（仅在开发环境）
+    if (process.env.NODE_ENV === 'development') {
+      console.log('时间调试:', {
+        原始: timestamp,
+        解析: date.toLocaleString('zh-CN'),
+        当前: now.toLocaleString('zh-CN'),
+        差异小时: Math.round(diff / 3600000 * 10) / 10
+      })
+    }
+    
+    // 如果时间差为负且超过1小时，说明有问题
+    if (diff < -3600000) {
+      console.warn('时间异常，直接显示日期:', timestamp)
+      return date.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit', 
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+    
+    // 使用绝对值计算相对时间
+    const absDiff = Math.abs(diff)
+    
+    if (absDiff < 60000) return '刚刚'
+    if (absDiff < 3600000) return `${Math.floor(absDiff / 60000)}分钟前`
+    if (absDiff < 86400000) return `${Math.floor(absDiff / 3600000)}小时前`
+    if (absDiff < 604800000) return `${Math.floor(absDiff / 86400000)}天前`
+    
+    // 超过一周，显示具体日期
+    return date.toLocaleString('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (error: any) {
+    console.error('时间格式化错误:', error, timestamp)
     return '时间格式错误'
   }
-  
-  // 手动加8小时调整时区
-  const adjustedDate = new Date(date.getTime() + 8 * 60 * 60 * 1000)
-  
-  const now = new Date()
-  const diff = now - adjustedDate
-  
-  // 如果调整后的时间超过当前时间，显示"刚刚"
-  if (diff < 0) {
-    return '刚刚'
-  }
-  
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  if (diff < 2592000000) return `${Math.floor(diff / 86400000)}天前`
-  
-  return adjustedDate.toLocaleDateString('zh-CN')
 }
 
 // 判断是否需要显示展开按钮
@@ -134,6 +323,24 @@ const toggleContentExpansion = () => {
 }
 
 
+// 检查管理员权限
+const checkAdminPermission = () => {
+  const userRole = localStorage.getItem('userRole')
+  const isAdminFlag = localStorage.getItem('isAdmin')
+  isAdmin.value = userRole === '1' && isAdminFlag === 'true'
+}
+
+
+
+// 跳转到帖子详情页面
+const navigateToPostDetail = () => {
+  if (props.postId) {
+    router.push(`/PostPage/${props.postId}`)
+  }
+}
+
+
+
 
 // 获取帖子详情
 const fetchPostDetail = async () => {
@@ -142,48 +349,56 @@ const fetchPostDetail = async () => {
     console.log(`正在获取帖子详情: ${props.postId}`)
     
     // 获取帖子信息
-    const postResponse = await axiosInstance.get(`post/${props.postId}`)
-    postInfo.value = postResponse.data
-    console.log('原始帖子信息:', postResponse.data)
-    console.log('帖子信息类型:', typeof postResponse.data)
-    console.log('帖子信息键:', Object.keys(postResponse.data || {}))
+    const postResponse = await getPostById(props.postId)
+    postInfo.value = postResponse
+    console.log('帖子信息:', postInfo.value)
     
-    // 检查所有可能的字段名称
-    console.log('字段检查:', {
-      'PostId': postInfo.value?.PostId,
-      'postId': postInfo.value?.postId,
-      'POST_ID': postInfo.value?.POST_ID,
-      'UserId': postInfo.value?.UserId,
-      'userId': postInfo.value?.userId,
-      'USER_ID': postInfo.value?.USER_ID,
-      'CategoryId': postInfo.value?.CategoryId,
-      'categoryId': postInfo.value?.categoryId,
-      'CATEGORY_ID': postInfo.value?.CATEGORY_ID,
-      'Title': postInfo.value?.Title,
-      'title': postInfo.value?.title,
-      'TITLE': postInfo.value?.TITLE,
-      'Content': postInfo.value?.Content,
-      'content': postInfo.value?.content,
-      'CONTENT': postInfo.value?.CONTENT,
-      'CreationDate': postInfo.value?.CreationDate,
-      'creationDate': postInfo.value?.creationDate,
-      'CREATION_DATE': postInfo.value?.CREATION_DATE
-    })
-    
-    // 获取用户信息 - 尝试不同的字段名称
-    const userId = postInfo.value?.UserId || postInfo.value?.userId || postInfo.value?.USER_ID
-    if (userId) {
-      console.log(`正在获取用户信息: ${userId}`)
-      const userResponse = await axiosInstance.get(`user/${userId}`)
-      userInfo.value = userResponse.data
-      console.log('原始用户信息:', userResponse.data)
-      console.log('用户信息键:', Object.keys(userResponse.data || {}))
-    } else {
-      console.warn('帖子中没有找到用户ID字段')
+    // 获取用户信息
+    if (postInfo.value?.userId) {
+      try {
+        const userResponse = await getUserById(postInfo.value.userId)
+        userInfo.value = userResponse
+        console.log('用户信息:', userInfo.value)
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+        userInfo.value = { userName: '未知用户' }
+      }
     }
     
+    // 获取分类信息
+    if (postInfo.value?.categoryId) {
+      try {
+        const categoryResponse = await getPostCategoryById(postInfo.value.categoryId)
+        categoryInfo.value = categoryResponse
+        console.log('分类信息:', categoryInfo.value)
+      } catch (error) {
+        console.error('获取分类信息失败:', error)
+        // 分类获取失败时，不显示分类标签
+        categoryInfo.value = null
+      }
+    } else {
+      // 没有分类ID时也不显示
+      categoryInfo.value = null
+    }
     
-  } catch (error) {
+    // 获取贴吧来源信息（如果帖子属于某个贴吧）
+    if (postInfo.value?.barId) {
+      try {
+        const barResponse = await getBarById(postInfo.value.barId)
+        barSourceName.value = barResponse.barName
+        console.log('帖子来源贴吧:', barSourceName.value)
+      } catch (error) {
+        console.error('获取贴吧来源信息失败:', error)
+        barSourceName.value = '未知贴吧'
+      }
+    }
+    
+    // 如果用户已登录，检查互动状态
+    if (currentUserId.value) {
+      await checkInteractionStates()
+    }
+    
+  } catch (error: any) {
     console.error('获取帖子详情失败:', error)
     console.error('错误详情:', error.response?.data)
     console.error('错误状态码:', error.response?.status)
@@ -211,8 +426,175 @@ const fetchPostDetail = async () => {
   }
 }
 
+// 检查用户与帖子的互动状态
+const checkInteractionStates = async () => {
+  if (!currentUserId.value || !postInfo.value) return
+  
+  try {
+    // 并发检查各种状态
+    const [liked, disliked, favorited] = await Promise.allSettled([
+      checkPostLiked(props.postId, currentUserId.value),
+      checkPostDisliked(props.postId, currentUserId.value),
+      checkPostFavorited(props.postId, currentUserId.value)
+    ])
+    
+    isLiked.value = liked.status === 'fulfilled' ? liked.value : false
+    isDisliked.value = disliked.status === 'fulfilled' ? disliked.value : false
+    isFavorited.value = favorited.status === 'fulfilled' ? favorited.value : false
+    
+    console.log('互动状态:', { 
+      liked: isLiked.value, 
+      disliked: isDisliked.value, 
+      favorited: isFavorited.value 
+    })
+  } catch (error) {
+    console.error('检查互动状态失败:', error)
+  }
+}
+
+// 切换点赞状态
+const toggleLike = async () => {
+  if (!currentUserId.value) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  
+  try {
+    if (isLiked.value) {
+      // 取消点赞
+      await unlikePost(props.postId, currentUserId.value)
+      isLiked.value = false
+      postInfo.value.likeCount = Math.max(0, (postInfo.value.likeCount || 0) - 1)
+    } else {
+      // 点赞
+      const likeData: THPostLike = {
+        postId: props.postId,
+        userId: currentUserId.value,
+        likeTime: new Date().toISOString()
+      }
+      
+      await likePost(likeData)
+      isLiked.value = true
+      postInfo.value.likeCount = (postInfo.value.likeCount || 0) + 1
+      
+      // 如果之前是点踩状态，则取消点踩
+      if (isDisliked.value) {
+        await undislikePost(props.postId, currentUserId.value)
+        isDisliked.value = false
+        postInfo.value.dislikeCount = Math.max(0, (postInfo.value.dislikeCount || 0) - 1)
+      }
+    }
+  } catch (error) {
+    console.error('点赞操作失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+// 切换点踩状态
+const toggleDislike = async () => {
+  if (!currentUserId.value) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  
+  try {
+    if (isDisliked.value) {
+      // 取消点踩
+      await undislikePost(props.postId, currentUserId.value)
+      isDisliked.value = false
+      postInfo.value.dislikeCount = Math.max(0, (postInfo.value.dislikeCount || 0) - 1)
+    } else {
+      // 点踩
+      const dislikeData: THPostDislike = {
+        postId: props.postId,
+        userId: currentUserId.value,
+        dislikeTime: new Date().toISOString()
+      }
+      
+      await dislikePost(dislikeData)
+      isDisliked.value = true
+      postInfo.value.dislikeCount = (postInfo.value.dislikeCount || 0) + 1
+      
+      // 如果之前是点赞状态，则取消点赞
+      if (isLiked.value) {
+        await unlikePost(props.postId, currentUserId.value)
+        isLiked.value = false
+        postInfo.value.likeCount = Math.max(0, (postInfo.value.likeCount || 0) - 1)
+      }
+    }
+  } catch (error) {
+    console.error('点踩操作失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+// 切换收藏状态
+const toggleFavorite = async () => {
+  if (!currentUserId.value) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  
+  try {
+    if (isFavorited.value) {
+      // 取消收藏
+      await unfavoritePost(props.postId, currentUserId.value)
+      isFavorited.value = false
+      postInfo.value.favoriteCount = Math.max(0, (postInfo.value.favoriteCount || 0) - 1)
+      ElMessage.success('已取消收藏')
+    } else {
+      // 收藏
+      const favoriteData: THPostFavorite = {
+        postId: props.postId,
+        userId: currentUserId.value,
+        favoriteTime: new Date().toISOString()
+      }
+      
+      await favoritePost(favoriteData)
+      isFavorited.value = true
+      postInfo.value.favoriteCount = (postInfo.value.favoriteCount || 0) + 1
+      ElMessage.success('收藏成功')
+    }
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+// 显示举报对话框
+const showReportDialog = () => {
+  reportDialogVisible.value = true
+  reportReason.value = ''
+  customReportReason.value = ''
+}
+
+// 提交举报
+const submitReport = async () => {
+  if (!currentUserId.value || !postInfo.value) return
+  
+  try {
+    const reason = reportReason.value === 'other' ? customReportReason.value : reportReason.value
+    
+    const reportData: THPostReport = {
+      postId: props.postId,
+      userId: currentUserId.value,
+      reportReason: reason,
+      reportTime: new Date().toISOString()
+    }
+    
+    await reportPost(reportData)
+    
+    reportDialogVisible.value = false
+    ElMessage.success('举报已提交，感谢您维护社区环境！')
+  } catch (error) {
+    console.error('举报失败:', error)
+    ElMessage.error('举报失败，请重试')
+  }
+}
+
 // 组件挂载时获取数据
 onMounted(() => {
+  checkAdminPermission()
   fetchPostDetail()
 })
 </script>
@@ -221,18 +603,31 @@ onMounted(() => {
 .post-detail-card {
   background: white;
   border-radius: 12px;
-  padding: 24px 32px;
-  margin-bottom: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e8e8e8;
   transition: box-shadow 0.3s ease;
   width: 100%;
+  min-width: 600px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 24px 32px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+  width: 100%;
   max-width: 100%;
   min-width: 800px;
+  cursor: pointer;
 }
 
 .post-detail-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  border-color: #4a90e2;
 }
 
 /* 帖子头部 */
@@ -243,6 +638,12 @@ onMounted(() => {
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-info {
@@ -265,7 +666,6 @@ onMounted(() => {
   object-fit: cover;
 }
 
-
 .user-details {
   display: flex;
   flex-direction: column;
@@ -283,6 +683,56 @@ onMounted(() => {
   font-size: 12px;
 }
 
+/* 帖子来源信息区域 */
+.post-source-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* 贴吧来源标签 */
+.post-source-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #d81b60;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(216, 27, 96, 0.2);
+}
+
+.source-icon {
+  font-size: 10px;
+}
+
+.source-text {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.source-name {
+  font-weight: 600;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 来源信息区域 */
+.post-source-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* 分类标签 */
 .post-category {
   flex-shrink: 0;
 }
@@ -295,6 +745,7 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 500;
 }
+
 
 /* 帖子内容 */
 .post-content {
@@ -414,6 +865,196 @@ onMounted(() => {
   font-weight: 500;
 }
 
+/* 帖子互动区域样式 */
+.post-interactions {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 60px;
+}
+
+.interaction-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.stat-icon {
+  font-size: 14px;
+}
+
+.stat-text {
+  font-weight: 500;
+}
+
+.interaction-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.interaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid #e9ecef;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  color: #6c757d;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.interaction-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.interaction-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.interaction-btn:active {
+  transform: translateY(0);
+}
+
+.interaction-btn.active {
+  background: #e3f2fd;
+  border-color: #4a90e2;
+  color: #4a90e2;
+}
+
+.interaction-btn.dislike-btn.active {
+  background: #ffeaa7;
+  border-color: #fdcb6e;
+  color: #e17055;
+}
+
+.interaction-btn.favorite-btn.active {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.interaction-btn.report-btn:hover {
+  background: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+.btn-text {
+  font-weight: 500;
+}
+
+/* 点击提示样式 */
+.click-hint {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  border-left: 4px solid #6c757d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.post-detail-card:hover .click-hint {
+  opacity: 1;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-color: #4a90e2;
+  border-left-color: #4a90e2;
+}
+
+.click-hint-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.click-hint-icon {
+  font-size: 14px;
+  animation: bounce 2s infinite;
+}
+
+.click-hint-text {
+  color: #6c757d;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 评论区域样式 */
+.comment-area {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* 举报对话框样式 */
+.report-form {
+  padding: 12px 0;
+}
+
+.report-hint {
+  margin-bottom: 16px;
+  color: #495057;
+  font-weight: 500;
+}
+
+:deep(.el-radio-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:deep(.el-radio) {
+  margin-right: 0;
+  white-space: nowrap;
+}
+.post-detail-card:hover .click-hint-text {
+  color: #4a90e2;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
 
 /* 响应式设计 */
 @media (max-width: 768px) {
@@ -424,6 +1065,44 @@ onMounted(() => {
   
   .post-title {
     font-size: 16px;
+  }
+  
+  .post-interactions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .interaction-stats {
+    justify-content: center;
+  }
+  
+  .interaction-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .interaction-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+  }
+  
+  .comment-area {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .interaction-buttons {
+    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .interaction-btn {
+    min-width: auto;
   }
 }
 </style>

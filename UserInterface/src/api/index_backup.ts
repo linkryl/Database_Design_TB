@@ -1,7 +1,6 @@
 /*
-TreeHole API接口封装 - Git冲突解决版本
-整合了所有团队成员的功能
-TreeHole开发组
+TreeHole API接口封装 - 解决Git冲突后的干净版本
+2351270 王天一
 */
 
 import axios from 'axios'
@@ -11,7 +10,7 @@ const thApiBaseUrl = (import.meta as any).env?.VITE_API_BASE || '/api'
 
 const thApiClient = axios.create({
   baseURL: thApiBaseUrl,
-  timeout: 15000,
+  timeout: 15000, // 增加超时时间到15秒
   headers: {
     'Content-Type': 'application/json'
   }
@@ -52,7 +51,7 @@ thApiClient.interceptors.response.use(
 export interface THCreatePostRequest {
   userId: number
   categoryId: number
-  barId?: number | null
+  barId?: number | null // 贴吧ID，可选
   title: string
   content: string
   creationDate: string
@@ -63,7 +62,7 @@ export interface THCreatePostRequest {
   favoriteCount: number
   commentCount: number
   imageUrl: string | null
-  alsoInTreehole?: number
+  alsoInTreehole?: number // 是否同时在树洞显示：1=是，0=否
 }
 
 /**
@@ -75,14 +74,6 @@ export interface THCreatePostResponse {
   content: string
   userId: number
   createdAt: string
-}
-
-/**
- * 帖子分类数据接口
- */
-export interface THPostCategory {
-  categoryId: number
-  category: string
 }
 
 /**
@@ -197,7 +188,7 @@ export interface THBar {
   coverUrl?: string
   creationDate?: string
   updateDate?: string
-  status: number
+  status: number // 0=正常，1=归档，2=已解散
   followedCount: number
   postCount: number
   rules?: string
@@ -519,14 +510,6 @@ export const getPostCategoryById = async (categoryId: number) => {
  * 获取所有帖子分类
  */
 export const getAllPostCategories = async () => {
-  const response = await thApiClient.get('/post-category')
-  return response.data
-}
-
-/**
- * 获取帖子分类列表 (同学的接口)
- */
-export const getPostCategories = async (): Promise<THPostCategory[]> => {
   const response = await thApiClient.get('/post-category')
   return response.data
 }

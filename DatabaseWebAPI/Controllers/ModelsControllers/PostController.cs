@@ -109,21 +109,31 @@ public class PostController(OracleDbContext context) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        // 检查用户是否被封禁
-        var user = await context.UserSet.FindAsync(post.UserId);
-        if (user == null)
+        try
         {
-            return BadRequest("用户不存在");
-        }
-        
-        if (user.Status == 0) // 0表示被封禁状态
-        {
-            return Forbid("您的账号已被封禁，无法发帖");
-        }
+            // 检查用户是否被封禁（同学添加的功能）
+            var user = await context.UserSet.FindAsync(post.UserId);
+            if (user == null)
+            {
+                return BadRequest("用户不存在");
+            }
+            
+            if (user.Status == 0) // 0表示被封禁状态
+            {
+                return Forbid("您的账号已被封禁，无法发帖");
+            }
 
-        context.PostSet.Add(post);
-        await context.SaveChangesAsync();
-        return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
+            // 设置默认值（我们添加的功能）
+            // AlsoInTreehole字段默认为0，无需额外检查
+
+            context.PostSet.Add(post);
+            await context.SaveChangesAsync();
+            return CreatedAtAction(nameof(PostPost), new { id = post.PostId }, post);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     // 根据主键（ID）更新帖子表的数据
@@ -220,4 +230,6 @@ public class PostController(OracleDbContext context) : ControllerBase
         }
     }
 
+    // 注释：贴吧相关API暂时禁用，等数据库BAR_ID字段确认后再启用
+    // 避免Git冲突和编译错误
 }

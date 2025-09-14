@@ -20,9 +20,18 @@
       {{"树洞社区" }}
     </el-menu-item>
 
+    <!--贴吧按钮-->
+    <el-menu-item index='2' class='navbar-item' @click="router.push('/bars')">
+      {{"贴吧广场" }}
+    </el-menu-item>
+
     <!--超级占位符-->
     <div class='flex-grow'/>
 
+    <!-- 用户信息显示 -->
+    <div v-if="currentUserId !== 0" class="user-info-display">
+      <span class="user-name">{{ currentUserName || '用户' }}</span>
+    </div>
 
     <el-dropdown ref='tourRef3' size='large'>
       
@@ -166,6 +175,8 @@ const isLoggedIn = computed(() => {
 watch(route, (newRoute) => {
   if (newRoute.path === '/CommunityPage') {
     activeIndex.value = '1' // 社区页面高亮
+  } else if (newRoute.path === '/bars' || newRoute.path.startsWith('/bar/')) {
+    activeIndex.value = '2' // 贴吧页面高亮
   } else {
     activeIndex.value = '0' // 其他页面不高亮
   }
@@ -173,6 +184,10 @@ watch(route, (newRoute) => {
 
 /*登出*/
 function logout() {
+  localStorage.setItem('currentUserId', '0')  // 清除用户ID
+  localStorage.removeItem('jwtToken')         // 清除JWT Token
+  currentUserId.value = 0                     // 重置当前用户ID
+  currentUserName.value = ''                  // 重置用户名
   // 清除所有认证相关的本地存储
   localStorage.removeItem('jwtToken')
   localStorage.removeItem('currentUserId')
@@ -223,7 +238,7 @@ async function handleDeleteAccount() {
     
     // 用户确认后，发送注销请求
     try {
-      const response = await axiosInstance.delete(`/user/${currentUserId.value}`)
+      await axiosInstance.delete(`/user/${currentUserId.value}`)
       
       // 注销成功
       ElMessage.success('账号注销成功，感谢您的使用！')
@@ -269,7 +284,7 @@ async function handleDeleteAccount() {
 }
 
 // 监听认证状态变化事件
-const handleAuthStateChange = (e) => {
+const handleAuthStateChange = (_e: Event) => {
   // 更新组件状态
   const storedValue = localStorage.getItem('currentUserId')
   const storedUserId = storedValue ? parseInt(storedValue) : 0
@@ -430,6 +445,22 @@ h1 {
   opacity: 0.5;
 }
 
+/* 用户信息显示样式 */
+.user-info-display {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  color: #333;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* 用户身份提示样式 */
 .user-indicator {
@@ -497,7 +528,6 @@ h1 {
 .delete-account-item .dropdown-item span:first-child {
   color: #f56c6c;
   font-weight: 500;
-
 }
 
 </style>

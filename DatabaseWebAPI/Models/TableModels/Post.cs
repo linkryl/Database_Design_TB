@@ -36,6 +36,14 @@ public sealed class Post
     [SwaggerSchema("帖子分类ID")]
     public int CategoryId { get; set; }
 
+    [NotMapped] // 完全禁用新字段，确保不影响现有功能
+    [SwaggerSchema("所属贴吧ID")]
+    public int? BarId { get; set; }
+
+    [NotMapped] // 完全禁用新字段，确保不影响现有功能
+    [SwaggerSchema("是否同时在树洞显示：1=是，0=否")]
+    public int AlsoInTreehole { get; set; }
+
     [Required]
     [Column("TITLE")]
     [StringLength(256)]

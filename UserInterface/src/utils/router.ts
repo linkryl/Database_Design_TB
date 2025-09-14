@@ -57,6 +57,36 @@ const routes: Array<RouteRecordRaw> = [
             requiresAuth: true
         }
     },
+    // 贴吧相关路由
+    {
+        path: '/bars',
+        name: 'BarListPage',
+        // @ts-ignore
+        component: () => import('../views/BarListPage.vue'),
+        meta: {
+            title: '贴吧广场'
+        }
+    },
+    {
+        path: '/bar/:id',
+        name: 'BarDetailPage',
+        // @ts-ignore
+        component: () => import('../views/BarDetailPage.vue'),
+        meta: {
+            title: '贴吧详情'
+        }
+    },
+    {
+        path: '/bar/:id/edit',
+        name: 'BarEditPage',
+        // @ts-ignore
+        component: () => import('../views/BarEditPage.vue'),
+        meta: {
+            title: '编辑贴吧',
+            requiresAuth: true
+        }
+    },
+    // 管理员相关路由
     {
         path: '/profile/:id',
         name: 'ProfilePage',
@@ -87,6 +117,7 @@ const routes: Array<RouteRecordRaw> = [
             requiresAdmin: true
         }
     },
+    // 帖子详情页
     {
         path: '/PostPage/:id',
         name: 'PostPage',
@@ -96,7 +127,7 @@ const routes: Array<RouteRecordRaw> = [
             title: '帖子详情'
         }
     },
-    // 添加404页面路由
+    // 404页面路由
     {
         path: '/404',
         name: 'NotFound',
@@ -106,12 +137,11 @@ const routes: Array<RouteRecordRaw> = [
             title: '页面不存在'
         }
     },
-    // 添加通配符路由，捕获所有未匹配的路由
+    // 通配符路由，捕获所有未匹配的路由
     {
         path: '/:pathMatch(.*)*',
         redirect: '/404'
     }
-
 ]
 
 const router: Router = createRouter({

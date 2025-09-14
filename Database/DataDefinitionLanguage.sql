@@ -1,12 +1,3 @@
-/*
- * Project Name:  Database
- * File Name:     DataDefinitionLanguage.sql
- * File Function: 数据定义语言 SQL 代码
- * Author:        宠悦 | PetJoy 项目开发组
- * Update Date:   2024-09-07
- * License:       MIT License
- */
-
 -- 用户表 USER 的数据定义语言
 create table "USER"
 (

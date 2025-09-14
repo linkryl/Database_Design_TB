@@ -6,7 +6,7 @@ TreeHole 发帖页面
 <template>
   <div class="th-post-edit-container">
     <!-- 添加背景图片 -->
-    <img :src="`${ossBaseUrl}HomePage/BackgroundImage.jpg`" alt="Background" class="th-background-image">
+    <img :src="`${ossBaseUrl}BackgroundImage.jpg`" alt="Background" class="th-background-image">
     
     <el-card class="th-post-edit-card">
       <template #header>
@@ -68,7 +68,7 @@ TreeHole 发帖页面
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { createPost } from '@/utils/index'
+import { createPost } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
 
@@ -127,10 +127,20 @@ const handleSubmit = async () => {
     
     thLoading.value = true
     
-    // 调用API创建帖子
+    // 调用API创建帖子 - 构造完整的Post对象
     const thCreateData = {
+      userId: parseInt(thCurrentUserId),
+      categoryId: 1, // 使用刚创建的默认分类
       title: thPostForm.title.trim(),
-      content: thPostForm.content.trim()
+      content: thPostForm.content.trim(),
+      creationDate: new Date().toISOString(),
+      updateDate: new Date().toISOString(),
+      isSticky: 0, // 不置顶
+      likeCount: 0,
+      dislikeCount: 0,
+      favoriteCount: 0,
+      commentCount: 0,
+      imageUrl: null as any
     }
     
     console.log('TreeHole: 正在创建帖子:', thCreateData)

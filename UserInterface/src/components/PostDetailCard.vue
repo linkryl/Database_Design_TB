@@ -3,8 +3,6 @@
 2351134 吕奎辰
 -->
 
-
-
 <template>
   <div class="post-detail-card" v-loading="loading" @click="navigateToPostDetail">
     <!-- 帖子头部信息 -->
@@ -41,9 +39,6 @@
         <span v-if="!isContentExpanded">📖 展开阅读全文</span>
         <span v-else>📄 收起</span>
       </button>
-      <!-- 举报按钮 -->
-      <button @click="showReport = true" class="report-btn">举报</button>
-      <ReportPage v-if="showReport" @close="showReport = false" :postId="postInfo?.PostId || postInfo?.postId" />
     </div>
     
     <!-- 长帖提示条 -->
@@ -70,9 +65,7 @@ import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
 import { ElMessage } from 'element-plus'
 import githubLogo from '/images/GitHubLogo.png'
-import ReportPage from '@/views/ReportPage.vue'
 
-const showReport = ref(false)
 // Props
 const props = defineProps<{
   postId: number

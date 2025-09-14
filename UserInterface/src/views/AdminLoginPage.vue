@@ -74,7 +74,7 @@ TreeHole开发组
         <div class='admin-tips'>
           <p class='tips-title'>💡 管理员提示</p>
           <ul class='tips-list'>
-            <li>管理员可以删除违规帖子</li>
+            <li>管理员可以封禁和解封用户</li>
             <li>管理员可以查看举报信息</li>
             <li>管理员可以管理用户内容</li>
           </ul>

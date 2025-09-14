@@ -158,6 +158,28 @@ public class PostController(OracleDbContext context) : ControllerBase
         }
     }
 
+    // 根据用户 ID（UserId）获取帖子ID列表
+    [HttpGet("user-ids/{userId:int}")]
+    [SwaggerOperation(Summary = "根据用户 ID（UserId）获取帖子ID列表", Description = "根据用户 ID（UserId）获取该用户发布的所有帖子ID")]
+    [SwaggerResponse(200, "获取数据成功")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<IEnumerable<int>>> GetPostIdsByUserId(int userId)
+    {
+        try
+        {
+            var postIds = await context.PostSet
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.CreationDate)
+                .Select(p => p.PostId)
+                .ToListAsync();
+            return Ok(postIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
     // 根据主键（ID）更新帖子表的数据
     [HttpPut("{id:int}")]
     [SwaggerOperation(Summary = "根据主键（ID）更新帖子表的数据", Description = "根据主键（ID）更新帖子表的数据")]

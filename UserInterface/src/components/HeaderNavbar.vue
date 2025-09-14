@@ -94,8 +94,8 @@
           </el-dropdown-item>
   
 
-          <!--注销账号按钮-->
-          <el-dropdown-item :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
+          <!--注销账号按钮（仅普通用户可见）-->
+          <el-dropdown-item v-if="!isAdmin" :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
             <div class='dropdown-item'>
               <span>{{ "注销账号" }}</span>
               <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>

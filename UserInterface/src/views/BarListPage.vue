@@ -62,7 +62,7 @@ TreeHole开发组
             @click="goToBarDetail(bar.barId)"
           >
             <div class="bar-avatar">
-              <img :src="bar.avatarUrl || '/src/assets/LogosAndIcons/TreeHoleLogo.png'" :alt="bar.barName" />
+              <img :src="bar.avatarUrl || 'images/TreeHoleLogo.png'" :alt="bar.barName" />
             </div>
             <h3 class="bar-name">{{ bar.barName }}</h3>
             <p class="bar-followers">{{ bar.followedCount }} 关注</p>
@@ -108,7 +108,7 @@ TreeHole开发组
           >
             <div class="bar-header">
               <div class="bar-avatar-small">
-                <img :src="bar.avatarUrl || '/src/assets/LogosAndIcons/TreeHoleLogo.png'" :alt="bar.barName" />
+                <img :src="bar.avatarUrl || '/images/TreeHoleLogo.png'" :alt="bar.barName" />
               </div>
               <div class="bar-info">
                 <h3 class="bar-title">{{ bar.barName }}</h3>

@@ -184,12 +184,10 @@ watch(route, (newRoute) => {
 
 /*登出*/
 function logout() {
-<<<<<<< HEAD
   localStorage.setItem('currentUserId', '0')  // 清除用户ID
   localStorage.removeItem('jwtToken')         // 清除JWT Token
   currentUserId.value = 0                     // 重置当前用户ID
   currentUserName.value = ''                  // 重置用户名
-=======
   // 清除所有认证相关的本地存储
   localStorage.removeItem('jwtToken')
   localStorage.removeItem('currentUserId')
@@ -213,7 +211,6 @@ function logout() {
     }
   }))
   
->>>>>>> main
   router.push('/')                            // 路由跳转到首页
   window.location.href = '/'                  // 强制刷新页面
 }
@@ -241,7 +238,7 @@ async function handleDeleteAccount() {
     
     // 用户确认后，发送注销请求
     try {
-      const response = await axiosInstance.delete(`/user/${currentUserId.value}`)
+      await axiosInstance.delete(`/user/${currentUserId.value}`)
       
       // 注销成功
       ElMessage.success('账号注销成功，感谢您的使用！')
@@ -287,7 +284,7 @@ async function handleDeleteAccount() {
 }
 
 // 监听认证状态变化事件
-const handleAuthStateChange = (e) => {
+const handleAuthStateChange = (_e: Event) => {
   // 更新组件状态
   const storedValue = localStorage.getItem('currentUserId')
   const storedUserId = storedValue ? parseInt(storedValue) : 0

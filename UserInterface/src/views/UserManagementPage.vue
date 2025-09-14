@@ -146,7 +146,6 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 import { Search, Lock, Unlock } from '@element-plus/icons-vue'
 import axiosInstance from '../utils/axios'
-import githubLogo from '/images/GitHubLogo.png'
 
 // 响应式数据
 const users = ref([])
@@ -161,7 +160,7 @@ const banLoading = ref(false)
 const fixLoading = ref(false)
 const selectedUser = ref(null)
 const banFormRef = ref<FormInstance>()
-const githubLogoUrl = githubLogo
+const githubLogoUrl = '/images/GitHubLogo.png'
 
 // 封禁表单
 const banForm = ref({

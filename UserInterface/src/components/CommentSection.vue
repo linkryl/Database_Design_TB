@@ -186,7 +186,6 @@ import {
   type THCommentReport
 } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
-import githubLogo from '../assets/LogosAndIcons/GitHubLogo.png'
 
 // Props
 const props = defineProps<{
@@ -199,7 +198,7 @@ const comments = ref<any[]>([])
 const loading = ref(true)
 const isSubmitting = ref(false)
 const newCommentContent = ref('')
-const githubLogoUrl = githubLogo
+const githubLogoUrl = '/images/GitHubLogo.png'
 
 // 举报相关
 const reportDialogVisible = ref(false)

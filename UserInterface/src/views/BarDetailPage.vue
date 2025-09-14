@@ -8,11 +8,11 @@ TreeHole开发组
   <div class="bar-detail-container" v-loading="loading">
     <!-- 贴吧头部信息 -->
     <div class="bar-header">
-      <div class="bar-cover" :style="{ backgroundImage: `url(${barInfo?.coverUrl || '/src/assets/HomePage/BackgroundImage.jpg'})` }">
+      <div class="bar-cover" :style="{ backgroundImage: `url(${barInfo?.coverUrl || 'public/images/BackgroundImage.jpg'})` }">
         <div class="cover-overlay"></div>
         <div class="bar-main-info">
           <div class="bar-avatar-large">
-            <img :src="barInfo?.avatarUrl || '/src/assets/LogosAndIcons/TreeHoleLogo.png'" :alt="barInfo?.barName" />
+            <img :src="barInfo?.avatarUrl || '/images/TreeHoleLogo.png'" :alt="barInfo?.barName" />
           </div>
           <div class="bar-details">
             <h1 class="bar-name">{{ barInfo?.barName || '未知贴吧' }}</h1>
@@ -186,7 +186,7 @@ TreeHole开发组
                     class="member-item"
                   >
                     <div class="member-avatar">
-                      <img src="/src/assets/LogosAndIcons/GitHubLogo.png" :alt="`用户${member.userId}`" />
+                      <img src="/images/GitHubLogo.png" :alt="`用户${member.userId}`" />
                     </div>
                     <div class="member-info">
                       <div class="member-id">用户 {{ member.userId }}</div>

@@ -68,6 +68,7 @@ const routes: Array<RouteRecordRaw> = [
     },
     {
 
+
         path: '/admin-login',
         name: 'AdminLoginPage',
         // @ts-ignore
@@ -88,6 +89,7 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
+
         path: '/PostPage/:id',
         name: 'PostPage',
         // @ts-ignore
@@ -111,7 +113,6 @@ const routes: Array<RouteRecordRaw> = [
         path: '/:pathMatch(.*)*',
         redirect: '/404'
     }
-
 ]
 
 const router: Router = createRouter({
@@ -125,29 +126,6 @@ router.beforeEach((to, _, next) => {
     } else {
         document.title = 'TreeHole'
     }
-    
-    // 检查是否需要登录
-    if (to.meta.requiresAuth) {
-        const token = localStorage.getItem('jwtToken')
-        const userId = localStorage.getItem('currentUserId')
-        
-        if (!token || !userId || userId === '0') {
-            next('/login')
-            return
-        }
-    }
-    
-    // 检查是否需要管理员权限
-    if (to.meta.requiresAdmin) {
-        const userRole = localStorage.getItem('userRole')
-        const isAdmin = localStorage.getItem('isAdmin')
-        
-        if (userRole !== '1' || isAdmin !== 'true') {
-            next('/CommunityPage')
-            return
-        }
-    }
-    
     isProgressVisible.value = true
     setTimeout(() => {
         isProgressVisible.value = false

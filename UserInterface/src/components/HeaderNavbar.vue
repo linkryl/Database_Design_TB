@@ -51,13 +51,6 @@
             </div>
           </el-dropdown-item>
 
-          <!--管理员登录按钮-->
-          <el-dropdown-item :icon='Setting' @click="router.push('/admin-login')">
-            <div class='dropdown-item'>
-              <span>{{ "管理员登录" }}</span>
-              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
-            </div>
-          </el-dropdown-item>
 
         </el-dropdown-menu>
 
@@ -65,15 +58,6 @@
         <el-dropdown-menu v-else style='width: 250px'>
 
           <h2 style='text-align: center'>{{ "用户中心" }}</h2>
-          
-          <!--用户身份提示-->
-          <div class="user-indicator" :class="{ 'admin-indicator': isAdmin, 'normal-user-indicator': !isAdmin }">
-            <el-icon :size="16" :color="isAdmin ? '#ff6b6b' : '#4a90e2'">
-              <Setting v-if="isAdmin" />
-              <User v-else />
-            </el-icon>
-            <span class="user-text">{{ isAdmin ? '管理员模式' : '普通用户' }}</span>
-          </div>
 
           <!--个人中心按钮-->  
           <el-dropdown-item :icon='User' @click="router.push(`/profile/${currentUserId}`)">  
@@ -85,6 +69,7 @@
           </el-dropdown-item>
 
 
+
           <!--用户管理按钮（仅管理员可见）-->
           <el-dropdown-item v-if="isAdmin" :icon='Setting' @click="router.push('/user-management')">  
             <div class='dropdown-item'>          
@@ -93,13 +78,14 @@
             </div>
           </el-dropdown-item>
 
+
+
           <!--注销账号按钮-->
           <el-dropdown-item :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
             <div class='dropdown-item'>
               <span>{{ "注销账号" }}</span>
               <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
             </div>
-
           </el-dropdown-item>
 
           <!--退出-->
@@ -133,11 +119,7 @@ import {
   Link,
   CirclePlus,
   ArrowRightBold,
-
-  Setting,
-
   Delete,
-
 } from '@element-plus/icons-vue'
 
 const activeIndex = ref('0')
@@ -147,7 +129,6 @@ const storedValue = localStorage.getItem('currentUserId')
 const storedUserId = storedValue ? parseInt(storedValue) : 0
 const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const currentUserName = ref('')
-const isAdmin = ref(false)
 
 /*跳转到论坛页面*/
 watch(route, (newRoute) => {
@@ -231,20 +212,7 @@ onMounted(async () => {
       ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
     }
   }
-  
-  // 检查管理员权限
-  checkAdminPermission()
 })
-
-// 检查管理员权限
-const checkAdminPermission = () => {
-  const userRole = localStorage.getItem('userRole')
-  const isAdminFlag = localStorage.getItem('isAdmin')
-  const token = localStorage.getItem('jwtToken')
-  
-  // 只有同时满足所有条件才认为是管理员
-  isAdmin.value = !!(token && userRole === '1' && isAdminFlag === 'true')
-}
 
 // 透明处理
 const handleScroll = () => {
@@ -350,6 +318,7 @@ h1 {
 }
 
 
+
 /* 用户身份提示样式 */
 .user-indicator {
   display: flex;
@@ -400,6 +369,7 @@ h1 {
   }
 }
 
+
 /* 注销账号按钮样式 */
 .delete-account-item {
   color: #f56c6c !important;
@@ -416,7 +386,6 @@ h1 {
 .delete-account-item .dropdown-item span:first-child {
   color: #f56c6c;
   font-weight: 500;
-
 }
 
 </style>

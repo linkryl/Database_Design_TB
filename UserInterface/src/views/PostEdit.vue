@@ -6,7 +6,7 @@ TreeHole 发帖页面
 <template>
   <div class="th-post-edit-container">
     <!-- 添加背景图片 -->
-    <img :src="`${ossBaseUrl}HomePage/BackgroundImage.jpg`" alt="Background" class="th-background-image">
+    <img :src="`${ossBaseUrl}BackgroundImage.jpg`" alt="Background" class="th-background-image">
     
     <el-card class="th-post-edit-card">
       <template #header>
@@ -102,6 +102,22 @@ TreeHole 发帖页面
           />
         </el-form-item>
         
+        <el-form-item label="分类" prop="categoryId">
+          <el-select 
+            v-model="thPostForm.categoryId" 
+            placeholder="请选择帖子分类"
+            :disabled="thLoading"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="category in thCategories"
+              :key="category.categoryId"
+              :label="category.category"
+              :value="category.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+        
         <el-form-item label="内容" prop="content">
           <el-input 
             v-model="thPostForm.content" 
@@ -137,7 +153,7 @@ TreeHole 发帖页面
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { createPost, getAllBars, getUserFollowedBars, getBarsByOwnerId, getAllPostCategories } from '@/api/index'
+import { createPost, getAllBars, getUserFollowedBars, getBarsByOwnerId, getAllPostCategories, getPostCategories, type THPostCategory } from '@/api/index'
 import { getCurrentUserId } from '@/utils/auth'
 import { ossBaseUrl } from '@/globals'
 import axiosInstance from '@/utils/axios'
@@ -147,15 +163,21 @@ const router = useRouter()
 const route = useRoute()
 const thFormRef = ref<FormInstance>()
 const thLoading = ref(false)
+const thCategories = ref<THPostCategory[]>([])
 
 // 表单数据
 const thPostForm = reactive({
   title: '',
+<<<<<<< HEAD
   content: '',
   publishType: 'treehole' as 'treehole' | 'bar', // 发布位置：树洞或贴吧
   barId: null as number | null, // 选择的贴吧ID
   alsoInTreehole: false, // 是否同时在树洞显示
   categoryId: null as number | null // 帖子分类ID
+=======
+  categoryId: 0,
+  content: ''
+>>>>>>> origin/main
 })
 
 // 贴吧和分类相关数据
@@ -186,11 +208,15 @@ const thFormRules: FormRules = {
     { required: true, message: '请输入标题', trigger: 'blur' },
     { max: 100, message: '标题长度不能超过100个字符', trigger: 'blur' }
   ],
+  categoryId: [
+    { required: true, message: '请选择帖子分类', trigger: 'change' }
+  ],
   content: [
     { required: true, message: '请输入内容', trigger: 'blur' }
   ]
 }
 
+<<<<<<< HEAD
 // 加载用户可发帖的贴吧列表
 const loadAvailableBars = async () => {
   const thCurrentUserId = getCurrentUserId()
@@ -279,6 +305,20 @@ const loadAvailableCategories = async () => {
 }
 
 // 检查登录状态
+=======
+// 获取分类列表
+const fetchCategories = async () => {
+  try {
+    thCategories.value = await getPostCategories()
+    console.log('TreeHole: 获取分类列表成功:', thCategories.value)
+  } catch (error: any) {
+    console.error('TreeHole: 获取分类列表失败:', error)
+    ElMessage.error('获取分类列表失败，请重试')
+  }
+}
+
+// 检查登录状态并获取分类列表
+>>>>>>> origin/main
 onMounted(async () => {
   const thCurrentUserId = getCurrentUserId()
   if (!thCurrentUserId) {
@@ -287,11 +327,16 @@ onMounted(async () => {
     return
   }
   
+<<<<<<< HEAD
   // 并行加载贴吧列表和分类列表
   await Promise.all([
     loadAvailableBars(),
     loadAvailableCategories()
   ])
+=======
+  // 获取分类列表
+  await fetchCategories()
+>>>>>>> origin/main
 })
 
 // 处理取消
@@ -312,6 +357,22 @@ const handleSubmit = async () => {
     if (!thCurrentUserId) {
       ElMessage.error('用户未登录')
       router.push('/login')
+      return
+    }
+    
+    // 检查用户是否被封禁
+    try {
+      const userResponse = await axiosInstance.get(`user/${thCurrentUserId}`)
+      const userInfo = userResponse.data
+      
+      if (userInfo.status === 0) {
+        ElMessage.error('您的账号已被封禁，无法发帖')
+        router.push('/CommunityPage')
+        return
+      }
+    } catch (error) {
+      console.error('检查用户状态失败:', error)
+      ElMessage.error('无法验证用户状态，请稍后重试')
       return
     }
     
@@ -354,8 +415,12 @@ const handleSubmit = async () => {
     
     const thCreateData = {
       userId: parseInt(thCurrentUserId),
+<<<<<<< HEAD
       categoryId: thPostForm.categoryId, // 使用用户选择的分类ID
       barId: actualBarId, // 贴吧ID（树洞模式为null，贴吧模式为具体ID）
+=======
+      categoryId: thPostForm.categoryId, // 使用用户选择的分类
+>>>>>>> origin/main
       title: thPostForm.title.trim(),
       content: thPostForm.content.trim(),
       creationDate: new Date().toISOString(),

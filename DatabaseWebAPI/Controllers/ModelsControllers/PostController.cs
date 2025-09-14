@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseWebAPI.Data;
 using DatabaseWebAPI.Models.TableModels;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DatabaseWebAPI.Controllers.ModelsControllers;
 
@@ -109,8 +111,20 @@ public class PostController(OracleDbContext context) : ControllerBase
 
         try
         {
-            // 设置默认值（AlsoInTreehole如果没有显式设置，确保为0）
-            // 由于是int类型，默认就是0，这里无需额外检查
+            // 检查用户是否被封禁（同学添加的功能）
+            var user = await context.UserSet.FindAsync(post.UserId);
+            if (user == null)
+            {
+                return BadRequest("用户不存在");
+            }
+            
+            if (user.Status == 0) // 0表示被封禁状态
+            {
+                return Forbid("您的账号已被封禁，无法发帖");
+            }
+
+            // 设置默认值（我们添加的功能）
+            // AlsoInTreehole字段默认为0，无需额外检查
 
             context.PostSet.Add(post);
             await context.SaveChangesAsync();
@@ -216,52 +230,6 @@ public class PostController(OracleDbContext context) : ControllerBase
         }
     }
 
-    // 获取树洞社区的帖子ID列表（排除纯贴吧帖子）
-    [HttpGet("treehole-ids")]
-    [SwaggerOperation(Summary = "获取树洞社区的帖子ID列表", Description = "获取发布到树洞或设置了跨发布的帖子ID")]
-    [SwaggerResponse(200, "获取成功")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    public async Task<ActionResult<IEnumerable<int>>> GetTreeholePostIds([FromQuery] int count = 20)
-    {
-        try
-        {
-            var postIds = await context.PostSet
-                .Where(post => post.BarId == null || post.BarId == 0 || post.AlsoInTreehole == 1) // 树洞帖子或跨发布帖子
-                .OrderByDescending(post => post.IsSticky)
-                .ThenByDescending(post => post.CreationDate)
-                .Take(count)
-                .Select(post => post.PostId)
-                .ToListAsync();
-            return Ok(postIds);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    // 获取指定贴吧的帖子ID列表
-    [HttpGet("bar/{barId:int}/post-ids")]
-    [SwaggerOperation(Summary = "获取指定贴吧的帖子ID列表", Description = "获取发布到指定贴吧的帖子ID")]
-    [SwaggerResponse(200, "获取成功")]
-    [SwaggerResponse(404, "贴吧不存在")]
-    [SwaggerResponse(500, "服务器内部错误")]
-    public async Task<ActionResult<IEnumerable<int>>> GetBarPostIds(int barId, [FromQuery] int count = 20)
-    {
-        try
-        {
-            var postIds = await context.PostSet
-                .Where(post => post.BarId == barId && post.BarId != 0) // 排除BAR_ID为0的帖子（0表示树洞）
-                .OrderByDescending(post => post.IsSticky)
-                .ThenByDescending(post => post.CreationDate)
-                .Take(count)
-                .Select(post => post.PostId)
-                .ToListAsync();
-            return Ok(postIds);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
+    // 注释：贴吧相关API暂时禁用，等数据库BAR_ID字段确认后再启用
+    // 避免Git冲突和编译错误
 }

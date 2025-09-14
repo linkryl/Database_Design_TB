@@ -51,9 +51,7 @@
       
       <!-- 有帖子时显示帖子列表 -->
       <template v-else>
-        <div v-for='postId in paginatedPostIds' :key='postId' class='post-detail-card'>
-          <PostDetailCard :post-id='postId' />
-        </div>
+        <PostDetailCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId' />
         
         <!-- 最后一页的结束提示 -->
         <div v-if='isLastPage && postIds.length > 0' class='end-posts-container'>
@@ -115,16 +113,19 @@ const handleCurrentChange = (page: number) => {
 onMounted(async () => {
   try {
     console.log('正在请求API:', '/api/post/latest-ids')
-    const data = await getLatestPostIds(50) // 回退到稳定API，确保基本功能正常
+    const data = await getLatestPostIds(50) // 使用统一的API接口
     
     console.log('后端返回的帖子数据:', data)
     console.log('数据类型:', typeof data)
     console.log('数据长度:', data?.length)
     console.log('前5个帖子ID:', data?.slice(0, 5))
     
-    // 暂时显示所有帖子，等数据库字段问题解决后再启用分区
+    // 使用统一的API接口获取帖子ID列表
     postIds.value = data || []
     console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
+    
+    // 注：同学的帖子ID验证功能暂时注释，避免大量请求影响性能
+    // 如需启用，可以取消注释下面的验证代码
     
   } catch (error: any) {
     console.error('获取树洞帖子列表失败:', error)
@@ -137,12 +138,11 @@ onMounted(async () => {
     } else if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/treehole-ids 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }
   }
-  
 })
 
 // 发帖按钮点击事件 - 跳转到发帖页面
@@ -174,7 +174,7 @@ defineExpose({
 
 <style scoped>
 :global(:root) {
-  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #393B9C;
   --community-title-shadow-color: #787ACF;
   --community-img-title-color: #FFFFFF;
@@ -193,7 +193,7 @@ defineExpose({
 
 /* noinspection CssUnusedSymbol */
 :global(.dark) {
-  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #E4DBFF;
   --community-title-shadow-color: #473B7E;
   --community-img-title-color: #E0E0E0;
@@ -250,7 +250,7 @@ h1 {
 
 /* 帖子列表区域样式 */
 .posts-section {
-  max-width: 1440px;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;

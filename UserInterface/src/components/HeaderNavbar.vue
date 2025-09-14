@@ -68,6 +68,14 @@
   
           </el-dropdown-item>
 
+          <!--注销账号按钮-->
+          <el-dropdown-item :icon='Delete' @click='handleDeleteAccount' class='delete-account-item'>
+            <div class='dropdown-item'>
+              <span>{{ "注销账号" }}</span>
+              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>
+            </div>
+          </el-dropdown-item>
+
           <!--退出-->
           <el-dropdown-item :icon='Link' @click='logout'>
             <div class='dropdown-item'>
@@ -89,7 +97,7 @@
 import {onMounted, onUnmounted,ref, watch} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import axiosInstance from '../utils/axios'
-import {ElMessage} from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import {
   ossBaseUrl,
 } from '../globals'
@@ -99,6 +107,7 @@ import {
   Link,
   CirclePlus,
   ArrowRightBold,
+  Delete,
 } from '@element-plus/icons-vue'
 
 const activeIndex = ref('0')
@@ -125,12 +134,69 @@ function logout() {
   window.location.href = '/'                  // 强制刷新页面
 }
 
+/*注销账号*/
+async function handleDeleteAccount() {
+  try {
+    // 显示确认弹窗
+    await ElMessageBox.confirm(
+      '注销账号后，您的所有数据将被永久删除，此操作不可恢复。您确定要注销账号吗？',
+      '注销账号确认',
+      {
+        confirmButtonText: '确认注销',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger',
+        center: true,
+        dangerouslyUseHTMLString: false,
+        distinguishCancelAndClose: true,
+        showClose: true,
+        closeOnClickModal: false,
+        closeOnPressEscape: false,
+      }
+    )
+    
+    // 用户确认后，发送注销请求
+    try {
+      const response = await axiosInstance.delete(`/user/${currentUserId.value}`)
+      
+      // 注销成功
+      ElMessage.success('账号注销成功，感谢您的使用！')
+      
+      // 清除本地存储
+      localStorage.removeItem('currentUserId')
+      
+      // 跳转到首页
+      router.push('/')
+      window.location.href = '/'
+      
+    } catch (error: any) {
+      console.error('注销账号失败:', error)
+      
+      if (error.response?.status === 404) {
+        ElMessage.error('用户不存在或已被删除')
+      } else if (error.response?.status === 403) {
+        ElMessage.error('没有权限执行此操作')
+      } else if (error.response?.status === 500) {
+        ElMessage.error('服务器内部错误，请稍后重试')
+      } else {
+        ElMessage.error('注销账号失败，请检查网络连接或稍后重试')
+      }
+    }
+    
+  } catch (error: any) {
+    // 用户取消操作，不执行任何操作
+    if (error !== 'cancel') {
+      console.error('确认弹窗错误:', error)
+    }
+  }
+}
+
 onMounted(async () => {
   if (currentUserId.value != 0) {  // 如果用户已登录
     try {
       const response = await axiosInstance.get(`user/${currentUserId.value}`)
       currentUserName.value = response.data.userName          // 设置用户名
-    } catch (error) {
+    } catch (error: any) {
       ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
     }
   }
@@ -237,6 +303,24 @@ h1 {
 .disable-dropdown {
   pointer-events: none;
   opacity: 0.5;
+}
+
+/* 注销账号按钮样式 */
+.delete-account-item {
+  color: #f56c6c !important;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.delete-account-item:hover {
+  background-color: #fef0f0 !important;
+  color: #f56c6c !important;
+}
+
+.delete-account-item .dropdown-item span:first-child {
+  color: #f56c6c;
+  font-weight: 500;
 }
 
 </style>

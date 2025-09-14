@@ -112,8 +112,8 @@ const handleCurrentChange = (page) => {
 
 onMounted(async () => {
   try {
-    console.log('正在请求API:', '/api/post/latest-ids')
-    const response = await axiosInstance.get('post/latest-ids')
+    console.log('正在请求API:', '/api/post/latest')
+    const response = await axiosInstance.get('post/latest')
     
     console.log('API响应状态:', response.status)
     console.log('后端返回的帖子数据:', response.data)
@@ -156,7 +156,7 @@ onMounted(async () => {
     if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }

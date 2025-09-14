@@ -184,7 +184,7 @@ public class PostController(OracleDbContext context) : ControllerBase
         }
     }
     
-    [HttpGet("latest-ids")]
+    [HttpGet("latest")]
     [SwaggerOperation(Summary = "按创建时间倒序获取最新帖子的ID列表", Description = "只返回按创建时间排序的最新帖子主键ID")]
     [SwaggerResponse(200, "获取成功")]
     [SwaggerResponse(400, "请求无效")]

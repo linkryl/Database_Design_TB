@@ -8,7 +8,7 @@
   <el-container class='FooterNavbar'>
 
     <a href='https://sse.tongji.edu.cn' target='_blank'>
-      <img :src='`${ossBaseUrl}LogosAndIcons/TongjiSSELogo.png`'
+      <img :src='`${ossBaseUrl}TongjiSSELogo.png`'
            class='FooterSseLogoLeft'
            alt='TongjiSSELogo'
            height='40px'/>
@@ -16,7 +16,7 @@
 
     <a href='https://github.com/linkryl/Database_Design_TB' target='_blank'>
       <el-tooltip content="GitHub项目仓库" placement='top'>
-        <img :src='`${ossBaseUrl}LogosAndIcons/GitHubLogo.png`'
+        <img :src='`${ossBaseUrl}GitHubLogo.png`'
              class='FooterGithubLogoRight'
              alt='GitHubLogo'
              height='40px'/>

@@ -32,8 +32,13 @@ public static class JwtTokenUtils
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("userId", user.UserId.ToString()),
+            new Claim("role", user.Role.ToString())
         };
         var token = new JwtSecurityToken(
             issuer: Config["Jwt:Issuer"],

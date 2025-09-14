@@ -49,12 +49,12 @@ public sealed class User
     [Required]
     [Column("ROLE")]
     [SwaggerSchema("用户角色")]
-    public int Role { get; set; }
+    public int Role { get; set; } = 0; // 默认为普通用户
 
     [Required]
     [Column("STATUS")]
     [SwaggerSchema("用户状态")]
-    public int Status { get; set; }
+    public int Status { get; set; } = 1; // 默认为正常状态
 
     [Column("AVATAR_URL")]
     [StringLength(2048)]
@@ -150,18 +150,20 @@ public sealed class User
     public ICollection<PostReport> PostReportEntityReportedUser { get; set; } =
         new HashSet<PostReport>();
 
+    [NotMapped]
     public ICollection<UserFollow> UserFollowEntityUser { get; set; } =
         new HashSet<UserFollow>();
-
+        
+    [NotMapped]
     public ICollection<UserFollow> UserFollowEntityFollower { get; set; } =
         new HashSet<UserFollow>();
-
+    [NotMapped]
     public ICollection<UserMessage> UserMessageEntityUser { get; set; } =
         new HashSet<UserMessage>();
-
+    [NotMapped]
     public ICollection<UserMessage> UserMessageEntityCommenter { get; set; } =
         new HashSet<UserMessage>();
-
+    [NotMapped]
     public ICollection<UserSetting> UserSettingEntity { get; set; } =
         new HashSet<UserSetting>();
 }

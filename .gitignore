@@ -6,3 +6,4 @@ DatabaseWebAPI/obj/
 *.msi
 .env
 /UserInterface/.vscode
+/.idea

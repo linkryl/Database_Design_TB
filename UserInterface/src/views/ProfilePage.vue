@@ -771,7 +771,7 @@ const validateAvatar = (file: File): boolean => {
   return true
 }
 
-// 处理头像选择
+// 处理头像上传
 const handleAvatarUpload = (options: UploadRequestOptions) => {
   try {
     previewAvatarUrl.value = URL.createObjectURL(options.file)
@@ -779,7 +779,7 @@ const handleAvatarUpload = (options: UploadRequestOptions) => {
     options.onSuccess({ success: true })
     ElMessage.success('头像已选择，点击保存修改后生效')
   } catch (error) {
-    ElMessage.error('头像选择失败')
+    ElMessage.error('头像上传失败')
   }
 }
 
@@ -801,6 +801,7 @@ onMounted(() => {
   fetchFollowStatus()
 })
 
+// 组件卸载时清理URL
 onBeforeUnmount(() => {
   if (previewAvatarUrl.value) {
     URL.revokeObjectURL(previewAvatarUrl.value)

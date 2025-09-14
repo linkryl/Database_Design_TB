@@ -31,9 +31,6 @@
 
   <div class='background-container'>
     <h1>TreeHole树洞</h1>
-    <div class='search-container'>
-      <CommunitySearchBox/>
-    </div>
   </div>
 
   <div class='page-container'>
@@ -54,12 +51,7 @@
       
       <!-- 有帖子时显示帖子列表 -->
       <template v-else>
-        <!-- 临时调试：显示帖子数据状态 -->
-        <div style="background: #fff3cd; padding: 10px; margin: 10px 0; border-radius: 5px; font-size: 12px; border: 1px solid #ffeaa7;">
-          数据状态: 总帖子数 {{ postIds.length }}，当前页显示 {{ paginatedPostIds.length }} 个帖子
-        </div>
-        
-        <PostCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId'/>
+        <PostDetailCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId' />
         
         <!-- 最后一页的结束提示 -->
         <div v-if='isLastPage && postIds.length > 0' class='end-posts-container'>
@@ -82,118 +74,17 @@
     </div>
   </div>
 
-  <el-dialog v-model='showPublishPost'
-             width='1000px'
-             style='height: auto'
-             title="发布帖子"
-             :close-on-click-modal='false'
-             :close-on-press-escape='false'
-             align-center>
-    <el-form :model='postRuleForm'
-             ref='postRuleFormRef'
-             :rules='postRules'>
-      <el-form-item prop='title'>
-        <div class='form-label-wrapper'>
-          <div class='form-label-container'>
-            <span class='required-star'>*</span>
-            <el-icon :size='18' style='margin-right: 5px'>
-              <Postcard/>
-            </el-icon>
-            <span style='font-size: 16px'>帖子标题</span>
-          </div>
-
-          <el-input v-model='postRuleForm.title'
-                    maxlength='64'
-                    size='large'
-                    show-word-limit
-                    placeholder="请输入帖子标题"/>
-        </div>
-      </el-form-item>
-
-      <el-form-item prop='content'>
-        <div class='form-label-wrapper'>
-          <div class='form-label-container'>
-            <span class='required-star'>*</span>
-            <el-icon :size='18' style='margin-right: 5px'>
-              <Collection/>
-            </el-icon>
-            <span style='font-size: 16px'>帖子内容</span>
-          </div>
-
-          <el-input v-model='postRuleForm.content'
-                    maxlength='512'
-                    show-word-limit
-                    :autosize='{ minRows: 3 }'
-                    type='textarea'
-                    size='large'
-                    placeholder="请输入帖子内容"/>
-        </div>
-      </el-form-item>
-
-      <el-form-item prop='categoryId'>
-        <div class='form-label-wrapper'>
-          <div class='form-label-container'>
-            <span class='required-star'>*</span>
-            <el-icon :size='18' style='margin-right: 5px'>
-              <CollectionTag/>
-            </el-icon>
-            <span style='font-size: 16px'>帖子分类</span>
-          </div>
-
-          <el-radio-group size='large' v-model='postRuleForm.categoryId'>
-            <el-radio v-for='tag in sortedPostCategories' :key='tag.id' :label='tag.id'>{{ tag.name }}</el-radio>
-          </el-radio-group>
-        </div>
-      </el-form-item>
-    </el-form>
-
-    <div style='display: flex'>
-      <el-upload ref='postImage'
-                 :limit='1'
-                 :before-upload='handleBeforeUploadImage'
-                 accept='.jpeg, .jpg'
-                 :show-file-list='false'>
-        <el-button size='large' plain>
-          <span>上传帖子图片</span>
-        </el-button>
-      </el-upload>
-
-      <el-button v-if="imageUrls[0]!=''" size='large' plain style='margin-left: 12px' @click='imageViewerVisible=true'>
-        <span>查看帖子图片</span>
-      </el-button>
-    </div>
-
-    <el-button-group style='display: flex; justify-content: center; margin-top: 8px'>
-      <el-button size='large' @click='cancelPublishPost'>取消发帖</el-button>
-      <el-button size='large' @click='submitPost(postRuleFormRef)' type='primary'>
-        发布帖子
-      </el-button>
-    </el-button-group>
-  </el-dialog>
-
-  <el-image-viewer v-if='imageViewerVisible'
-                   :url-list='addOssPrefix()'
-                   :initial-index='0'
-                   @close='imageViewerVisible=false'/>
 </template>
 
 <script setup lang='ts'>
-import {ref, computed, onMounted, reactive} from 'vue'
-import {ossBaseUrl} from '../globals'
+import {ref, computed, onMounted} from 'vue'
+import {useRouter} from 'vue-router'
 import axiosInstance from '../utils/axios'
-import {ElMessage, ElMessageBox, ElNotification, FormInstance, FormRules, UploadInstance} from 'element-plus'
-import {Collection, CollectionTag, Postcard} from '@element-plus/icons-vue'
-import {onBeforeUnmount} from 'vue'
+import {ElMessage} from 'element-plus'
+import PostDetailCard from '../components/PostDetailCard.vue'
 
-const imageViewerVisible = ref(false)
-let isUnmounted = false
 
-// 卸载之前销毁，修改卸载状态为是
-onBeforeUnmount(() => {
-  imageViewerVisible.value = false
-  isUnmounted = true
-})
-
+const router = useRouter()
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalPosts = computed(() => postIds.value.length)
@@ -203,52 +94,12 @@ const postIds = ref([])
 const isLastPage = computed(() => {
   return currentPage.value >= Math.ceil(totalPosts.value / pageSize.value)
 })
-const storedValue = localStorage.getItem('currentUserId')
-const storedUserId = storedValue ? parseInt(storedValue) : 0
-const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
-const showPublishPost = ref(false)
-const postCategories = ref([])
-const postImage = ref<UploadInstance>()
-const postRuleFormRef = ref<FormInstance>()
-const imageUrls = ref([''])
-
-interface PostRuleForm {
-  title: string
-  content: string
-  categoryId: string
-}
-
-const sortedPostCategories = computed(() => postCategories.value.sort((a, b) => a.id - b.id))
-
-const postRuleForm = reactive<PostRuleForm>({
-  title: '',
-  content: '',
-  categoryId: ''
+// 响应式获取当前用户ID
+const currentUserId = computed(() => {
+  const storedValue = localStorage.getItem('currentUserId')
+  const storedUserId = storedValue ? parseInt(storedValue) : 0
+  return isNaN(storedUserId) ? 0 : storedUserId
 })
-
-const postRules: FormRules = {
-  title: [
-    {
-      required: true,
-      message: '帖子标题不能为空',
-      trigger: 'blur'
-    },
-  ],
-  content: [
-    {
-      required: true,
-      message: '帖子内容不能为空',
-      trigger: 'blur'
-    },
-  ],
-  categoryId: [
-    {
-      required: true,
-      message: '帖子分类不能为空',
-      trigger: 'blur'
-    }
-  ]
-}
 
 const paginatedPostIds = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -261,16 +112,11 @@ const handleCurrentChange = (page) => {
 }
 
 
-function addOssPrefix(): string[] {
-  return imageUrls.value.map(url => `${ossBaseUrl}${url}`)
-}
 
 onMounted(async () => {
   try {
-    // 使用后端即将实现的 /post/latest 接口获取最新帖子列表
-    console.log('正在请求API:', '/api/post/latest')
-    const response = await axiosInstance.get('post/latest')
-    
+    console.log('正在请求API:', '/api/post/latest-ids')
+    const response = await axiosInstance.get('post/latest-ids')
     
     console.log('API响应状态:', response.status)
     console.log('后端返回的帖子数据:', response.data)
@@ -278,17 +124,33 @@ onMounted(async () => {
     console.log('数据长度:', response.data?.length)
     console.log('前5个帖子ID:', response.data?.slice(0, 5))
     
-    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
-    postIds.value = response.data || []
-    console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
+    // 后端 /post/latest-ids 接口应该直接返回按时间排序的帖子ID数组
+    const allPostIds = response.data || []
+    console.log('获取到的帖子ID列表:', allPostIds.slice(0, 10))
     
-    // 添加销毁检测防止卡网页
-    if (!isUnmounted) {
-      postIds.value = response.data
+    // 验证每个帖子ID是否有效（可选，但会增加请求次数）
+    console.log('开始验证帖子ID的有效性...')
+    const validPostIds = []
+    
+    for (const postId of allPostIds) {
+      try {
+        // 快速验证帖子是否存在
+        const testResponse = await axiosInstance.get(`post/${postId}`)
+        if (testResponse.status === 200) {
+          validPostIds.push(postId)
+          console.log(`帖子ID ${postId} 验证成功`)
+        }
+      } catch (error) {
+        console.warn(`帖子ID ${postId} 验证失败:`, error.response?.status)
+        // 继续处理下一个ID，不中断整个流程
+      }
     }
     
-  } 
-  catch (error) {
+    postIds.value = validPostIds
+    console.log(`验证完成，有效帖子数量: ${validPostIds.length}/${allPostIds.length}`)
+    console.log('有效的帖子ID列表:', validPostIds.slice(0, 10))
+    
+  } catch (error) {
     console.error('获取帖子列表失败:', error)
     console.error('错误详情:', error.response?.data)
     console.error('错误状态码:', error.response?.status)
@@ -297,137 +159,19 @@ onMounted(async () => {
     if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
-      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest 接口')
+      ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
     } else {
       ElMessage.error(`GET 请求失败: ${error.message}`)
     }
   }
-  
-  try {
-    const response = await axiosInstance.get('post-category')
-    postCategories.value = response.data.map(tag => ({
-      id: tag.categoryId,
-      name: tag.category
-    }))
-  } catch (error) {
-    ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
-  }
 })
 
+// 发帖按钮点击事件 - 跳转到发帖页面
 function publishPost() {
   if (currentUserId.value && currentUserId.value != 0) {
-    showPublishPost.value = true
+    router.push('/PostNew')
   } else {
     ElMessage.warning('请先进行登录！')
-  }
-}
-
-function beforeUploadImage(file) {
-  const isJPG = file.type == 'image/jpeg'
-  const isLt5M = file.size / 1024 / 1024 < 5
-  if (!isJPG) {
-    ElMessage.error('上传帖子图片只能是 JPG 格式')
-    return false
-  }
-  if (!isLt5M) {
-    ElMessage.error('上传帖子图片大小不能超过 5MB')
-    return false
-  }
-  return true
-}
-
-const handleBeforeUploadImage = async (file: File) => {
-  if (!beforeUploadImage(file)) {
-    return
-  }
-  const formData = new FormData()
-  formData.append('file', file, 'postImage.jpg')
-  try {
-    const response = await axiosInstance.post('upload-post-image', formData)
-    imageUrls.value[0] = response.data.fileName
-    ElMessage.success('上传帖子图片成功')
-  } catch (error) {
-    ElMessage.error('上传帖子图片失败')
-  }
-}
-
-const cancelPublishPost = () => {
-  ElMessageBox.confirm(
-      '确认要取消发布帖子吗？您的输入内容将不会被保存。',
-      '取消发布帖子',
-      {
-        showClose: false,
-        closeOnClickModal: false,
-        closeOnPressEscape: false,
-        confirmButtonText: '继续发帖',
-        cancelButtonText: '取消发帖'
-      }
-  ).catch(() => {
-    showPublishPost.value = false
-    resetFeedback(postRuleFormRef.value)
-  })
-}
-
-const resetFeedback = (formEl: FormInstance | undefined) => {
-  if (!formEl) {
-    return
-  }
-  formEl.resetFields()
-  imageUrls.value[0] = ''
-}
-
-const submitPost = async (formEl: FormInstance | undefined) => {
-  if (!formEl) {
-    return
-  }
-  await formEl.validate(async (valid) => {
-    if (valid) {
-      const result = await postPost()
-      if (result) {
-        ElNotification({
-          title: '帖子发布成功',
-          message: '帖子发布成功，您可以在我发布的帖子中查看或继续浏览其他内容。',
-          type: 'success'
-        })
-        showPublishPost.value = false
-        resetFeedback(postRuleFormRef.value)
-      } else {
-        ElNotification({
-          title: '帖子发布失败',
-          message: '帖子发布失败，请检查网络连接情况或稍后重试。',
-          type: 'error'
-        })
-      }
-    }
-  })
-}
-
-async function postPost() {
-  const now = new Date().toISOString()
-  try {
-    const response = await axiosInstance.post('post', {
-      userId: currentUserId.value,
-      categoryId: parseInt(postRuleForm.categoryId),
-      title: postRuleForm.title,
-      content: postRuleForm.content,
-      creationDate: now,
-      updateDate: now,
-      isSticky: 0,
-      likeCount: 0,
-      dislikeCount: 0,
-      favoriteCount: 0,
-      commentCount: 0,
-      imageUrl: imageUrls.value[0] == '' ? null : imageUrls.value[0]
-    })
-    
-    if (response.status == 201) {
-      // 发布成功后刷新帖子列表
-      await refreshPosts()
-    }
-    
-    return response.status == 201
-  } catch (error) {
-    return false
   }
 }
 
@@ -446,7 +190,7 @@ async function refreshPosts() {
 
 <style scoped>
 :global(:root) {
-  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #393B9C;
   --community-title-shadow-color: #787ACF;
   --community-img-title-color: #FFFFFF;
@@ -465,7 +209,7 @@ async function refreshPosts() {
 
 /* noinspection CssUnusedSymbol */
 :global(.dark) {
-  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #E4DBFF;
   --community-title-shadow-color: #473B7E;
   --community-img-title-color: #E0E0E0;
@@ -505,12 +249,6 @@ h1 {
   z-index: 10;
 }
 
-.search-container {
-  position: relative;
-  margin: 0 auto 30px;
-  max-width: 600px;
-  padding: 0 20px;
-}
 
 .background-container {
   min-height: 300px;
@@ -527,7 +265,7 @@ h1 {
 
 /* 帖子列表区域样式 */
 .posts-section {
-  max-width: 1440px;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;
@@ -716,22 +454,6 @@ h1 {
   transform: translateY(-1px);
 }
 
-.form-label-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.form-label-container {
-  display: flex;
-  align-items: center;
-  padding-bottom: 6px;
-}
-
-.required-star {
-  color: #F56C6C;
-  margin-right: 5px;
-}
 
 .horizontal-container {
   display: flex;
@@ -844,5 +566,10 @@ h1 {
   font-size: 15px;
   margin-top: -2px;
   font-weight: 550;
+}
+
+/* 帖子详情卡片容器样式 */
+.post-detail-card {
+  margin-bottom: 20px;
 }
 </style>

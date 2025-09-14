@@ -15,6 +15,8 @@ namespace DatabaseWebAPI.Data;
 public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbContext(options)
 {
     // 配置数据库上下文实体集
+    public DbSet<Bar> BarSet { get; set; }
+    public DbSet<BarFollow> BarFollowSet { get; set; }
     public DbSet<DevelopmentTeam> DevelopmentTeamSet { get; set; }
     public DbSet<Post> PostSet { get; set; }
     public DbSet<PostCategory> PostCategorySet { get; set; }
@@ -38,6 +40,7 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
         base.OnModelCreating(modelBuilder);
 
         // 配置复合主键
+        modelBuilder.Entity<BarFollow>().HasKey(n => new { n.BarId, n.UserId });
         modelBuilder.Entity<PostCommentDislike>().HasKey(n => new { n.CommentId, n.UserId });
         modelBuilder.Entity<PostCommentLike>().HasKey(n => new { n.CommentId, n.UserId });
         modelBuilder.Entity<PostDislike>().HasKey(n => new { n.PostId, n.UserId });
@@ -64,6 +67,19 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
             .HasOne(n => n.ReportedUser)
             .WithMany(u => u.PostReportEntityReportedUser)
             .HasForeignKey(n => n.ReportedUserId);
+
+        // 暂时注释掉新字段配置，等字段确认存在后再启用
+        // modelBuilder.Entity<Post>(entity =>
+        // {
+        //     entity.Property(e => e.BarId)
+        //         .HasColumnName("BAR_ID")
+        //         .HasColumnType("NUMBER");
+        //         
+        //     entity.Property(e => e.AlsoInTreehole)
+        //         .HasColumnName("ALSO_IN_TREEHOLE")
+        //         .HasColumnType("NUMBER")
+        //         .HasDefaultValue(0);
+        // });
         
     }
 }

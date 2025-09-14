@@ -13,7 +13,8 @@
         <el-card class="form-card" shadow="hover">
           <!-- 社区标识 -->
           <div class="society-logo">
-            <img src='../assets/LogosAndIcons/TreeHoleLogo.png' alt="TreeHole Logo" />
+            <img :src='`${ossBaseUrl}TreeHoleLogo.png`'
+                 alt="TreeHole Logo" />
           </div>
 
           <!-- 页面标题与步骤指示器 -->
@@ -46,8 +47,11 @@
 
                 <!-- 密码确认 -->
                 <el-form-item prop="passwordConfirm">
-                  <el-input v-model="stepOneFormData.passwordConfirm" type="password" size="large" :prefix-icon="Lock"
-                    placeholder="请确认密码" autocomplete="off" show-password />
+                  <el-tooltip :visible="stepOneFormData.password !== ''" :content="getPasswordMatchText()"
+                    placement="right" raw-content>
+                    <el-input v-model="stepOneFormData.passwordConfirm" type="password" size="large" :prefix-icon="Lock"
+                      placeholder="请确认密码" autocomplete="off" show-password @input="checkPasswordMatch" />
+                  </el-tooltip>
                 </el-form-item>
 
                 <div class="action-buttons">
@@ -56,10 +60,10 @@
                     下一步
                   </el-button>
                   <!-- 跳过按钮 -->
-                  <el-button type="primary" size="large" @click="currentStep++"
+                  <!--<el-button type="primary" size="large" @click="currentStep++"
                     style="width: 100%; margin-bottom: 12px; margin-left: 1px;">
                     跳过
-                  </el-button>
+                  </el-button> -->
                 </div>
               </el-form>
             </div>
@@ -116,6 +120,7 @@ import axiosInstance from "../utils/axios";
 import { sha256 } from "js-sha256";
 import { Lock, Unlock, User } from "@element-plus/icons-vue";
 import axios from "axios";
+import {ossBaseUrl} from '../globals';
 
 // 路由管理
 const router = useRouter();
@@ -127,7 +132,9 @@ const currentStep = ref(0);
 const stepOneFormRef = ref<FormInstance>();
 const stepTwoFormRef = ref<FormInstance>();
 
-// 密码强度相关
+// 密码相关
+const passwordsMatch = ref(false);
+const passwordsMatchMessage = ref("密码不匹配")
 const passwordStrengthLevel = ref("low");
 const passwordStrengthMessage = ref("");
 
@@ -157,9 +164,22 @@ const disableFutureDates = (time: Date) => {
   return time.getTime() > Date.now();
 };
 
+// 密码一致性检查
+const checkPasswordMatch = () => {
+  passwordsMatch.value = stepOneFormData.password === stepOneFormData.passwordConfirm;
+};
+
+function getPasswordMatchText() {
+  if (passwordsMatch.value) {
+    passwordsMatchMessage.value = "密码匹配"
+  }
+
+  return passwordsMatchMessage.value
+}
+
 // 步骤提交处理
 const proceedToNextStep = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+  if (!formEl || !passwordsMatch.value) return;
   await formEl.validate((valid) => {
     if (valid) currentStep.value++;
   });
@@ -188,33 +208,97 @@ const completeRegistration = async (formEl: FormInstance | undefined) => {
   });
 };
 
+// 东八区日期时间转换函数
+const convertToEast8ISOString = (date: string | Date): string => {
+  try {
+    // 确保输入是Date对象
+    const dateObj = date instanceof Date ? date : new Date(date);
+    
+    // 处理无效日期
+    if (isNaN(dateObj.getTime())) {
+      return ''; // 或者抛出错误
+    }
+    
+    // 获取东八区时间（UTC+8）
+    const offset = 8; // 东八区偏移量
+    const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000);
+    // *7200000转换后强制成为东八区时间
+    const east8Time = new Date(utc + (7200000 * offset));
+    console.log('btime:', east8Time);
+    // 转换为ISO字符串
+    return east8Time.toISOString();
+  } catch (error) {
+    console.error('Date conversion error:', error);
+    return ''; // 返回默认值
+  }
+};
+
 // 提交注册数据到API
 async function submitRegistrationData() {
+  // 格式化日期
+  const formattedDate = convertToEast8ISOString(stepTwoFormData.birthdate);
+  
+  // 当前时间(0时区时间)
+  const now = new Date().toISOString();
+
+  // 
+  const newUserData = {
+    userName: stepOneFormData.username,
+    password: sha256(stepOneFormData.password),
+    registrationDate: now,
+    lastLoginTime: now,
+    role: 0,
+    status: 1, // 新注册用户默认为正常状态
+    avatarUrl: "",
+    profile: "",
+    gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),
+    birthdate: formattedDate,
+    experiencePoints: 0,
+    followsCount: 0,
+    followedCount: 0,
+    favoritesCount: 0,
+    favoritedCount: 0,
+    likesCount: 0,
+    likedCount: 0,
+    messageCount: 0,
+  }
+
   try {
-    // 格式化日期
-    const formattedDate = stepTwoFormData.birthdate;
+    // 格式化日期为字符串
+    let formattedDate = ''
+    if (stepTwoFormData.birthdate) {
+      if (stepTwoFormData.birthdate instanceof Date) {
+        // 如果是Date对象，转换为YYYY-MM-DD格式
+        formattedDate = stepTwoFormData.birthdate.toISOString().split('T')[0]
+      } else {
+        // 如果已经是字符串，直接使用
+        formattedDate = stepTwoFormData.birthdate
+      }
+    }
 
     // 构建请求数据
     const requestData = {
       username: stepOneFormData.username,
       password: sha256(stepOneFormData.password), // 使用SHA256加密密码
-      gender: stepTwoFormData.gender,
-      birthdate: formattedDate
+      gender: stepTwoFormData.gender === 'Male' ? 0 : 1, // 转换为int：0=男，1=女
+      birthdate: formattedDate, // 已经是YYYY-MM-DD字符串格式
+      registrationDate: new Date().toISOString(), // 添加注册时间
+      lastLoginTime: new Date().toISOString(), // 添加最后登录时间
+      role: 0, // 普通用户
+      status: 1, // 正常状态（修正：应该是1表示正常，0表示封禁）
+      experiencePoints: 0,
+      followsCount: 0,
+      followedCount: 0,
+      favoritesCount: 0,
+      favoritedCount: 0,
+      likesCount: 0,
+      likedCount: 0,
+      messageCount: 0
     };
 
-    console.log('发送注册数据:', requestData);
-
-    const response = await axiosInstance.post('api/User', requestData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.status === 201) {
-      return true;
-    } else {
-      throw new Error(`服务器返回错误状态: ${response.status}`);
-    }
+    // 发送注册请求
+    const response = await axiosInstance.post('/user', requestData);
+    return response.status === 201;
   } catch (error) {
     console.error('注册请求错误:', error);
 
@@ -248,7 +332,6 @@ async function submitRegistrationData() {
     return false;
   }
 }
-
 
 // 密码强度计算
 function calculatePasswordStrength() {
@@ -290,7 +373,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 <style scoped>
 .register-container {
   display: flex;
-  background: url('../assets/BackgroundImages/L&RBackgroundImage.png') no-repeat center center fixed;
+  background: url('/images/L&RBackgroundImage.png') no-repeat center center fixed;
   background-size: cover;
   justify-content: center;
   align-items: center;
@@ -302,7 +385,8 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-left: 500px;
+  margin-left: 600px;
+  opacity: 0.8;
 }
 
 .form-wrapper {
@@ -333,7 +417,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 .page-title {
   text-align: center;
   margin-bottom: 20px;
-  color: #303133;
+  color: #0084ff;
 }
 
 .form-content-wrapper {

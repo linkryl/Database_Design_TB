@@ -104,8 +104,29 @@ public class PostCommentController(OracleDbContext context) : ControllerBase
                 return NotFound($"No corresponding data found for ID: {id}");
             }
 
+            // 先删除所有相关的外键引用记录
+            // 删除评论点赞记录
+            var commentLikes = await context.PostCommentLikeSet
+                .Where(pcl => pcl.CommentId == id)
+                .ToListAsync();
+            context.PostCommentLikeSet.RemoveRange(commentLikes);
+
+            // 删除评论点踩记录
+            var commentDislikes = await context.PostCommentDislikeSet
+                .Where(pcd => pcd.CommentId == id)
+                .ToListAsync();
+            context.PostCommentDislikeSet.RemoveRange(commentDislikes);
+
+            // 删除评论举报记录
+            var commentReports = await context.PostCommentReportSet
+                .Where(pcr => pcr.ReportedCommentId == id)
+                .ToListAsync();
+            context.PostCommentReportSet.RemoveRange(commentReports);
+
+            // 最后删除评论本身
             context.PostCommentSet.Remove(postComment);
             await context.SaveChangesAsync();
+            
             return Ok($"Data with ID: {id} has been deleted successfully.");
         }
         catch (Exception ex)
@@ -126,6 +147,18 @@ public class PostCommentController(OracleDbContext context) : ControllerBase
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
+        }
+
+        // 检查用户是否被封禁
+        var user = await context.UserSet.FindAsync(postComment.UserId);
+        if (user == null)
+        {
+            return BadRequest("用户不存在");
+        }
+        
+        if (user.Status == 0) // 0表示被封禁状态
+        {
+            return Forbid("您的账号已被封禁，无法评论");
         }
 
         context.PostCommentSet.Add(postComment);

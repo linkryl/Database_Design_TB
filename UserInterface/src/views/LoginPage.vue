@@ -89,7 +89,8 @@ const windowWidth = ref(window.innerWidth)
 
 onMounted(() => {
   try{
-    if (currentUserId.value != 0) {
+    // 只有在登录页面且用户已登录时才跳转到个人主页
+    if (currentUserId.value != 0 && route.path === '/login') {
       router.push(`/profile/${currentUserId.value}`)
     }
   }catch(error){
@@ -108,24 +109,6 @@ const loginForm = reactive<LoginForm>({
 })
 
 const loginRules: FormRules = {
-  // telephone: [// TODO: 到时候删掉
-  //   {
-  //     required: true,
-  //     message: t('RegisterPage.EmptyTelephone'),
-  //     trigger: 'change',
-  //   },
-  //   {
-  //     validator: (rule, value, callback) => {
-  //       const phoneRegex = /^\d{11}$/
-  //       if (value && !phoneRegex.test(value)) {
-  //         callback(new Error(t('RegisterPage.InvalidTelephone')))// TODO: 修改成检查用户名是否合法
-  //       } else {
-  //         callback()
-  //       }
-  //     },
-  //     trigger: 'blur'
-  //   }
-  // ],
   username:[
     {
       required: true,
@@ -199,16 +182,45 @@ const handleSubmitLogin = async (elFormRef: FormInstance | undefined) => {
             ElMessage.error('密码不正确!')
           } else {
             try {
-              axiosInstance.put(`user/last-login-time/${userId}`, {
+              // 更新最后登录时间
+              await axiosInstance.put(`user/last-login-time/${userId}`, {
                 lastLoginTime: new Date().toISOString()
-              }).then(() => {
+              })
+              
+              // 获取JWT Token
+              const tokenResponse = await axiosInstance.post('get-jwt-token', {
+                userId: userId,
+                plainPassword: loginForm.password
+              })
+              
+              if (tokenResponse.data && tokenResponse.data.token) {
+                // 获取用户信息以确定角色
+                const userResponse = await axiosInstance.get(`user/${userId}`)
+                const userInfo = userResponse.data
+                
+                // 设置用户信息到localStorage
+                localStorage.setItem('jwtToken', tokenResponse.data.token)
                 localStorage.setItem('currentUserId', userId.toString())
+                localStorage.setItem('userRole', userInfo.role?.toString() || '0')
+                localStorage.setItem('isAdmin', (userInfo.role === 1).toString())
+                
+                // 触发自定义事件，通知其他组件状态已更新
+                window.dispatchEvent(new CustomEvent('authStateChanged', {
+                  detail: {
+                    userId: userId,
+                    userRole: userInfo.role || 0,
+                    isAdmin: userInfo.role === 1
+                  }
+                }))
+                
+                ElMessage.success('登录成功！')
                 router.push('/')
                 window.location.href = '/'
-              }).catch(() => {
-                ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
-              })
+              } else {
+                ElMessage.error('获取Token失败，请重试')
+              }
             } catch (error) {
+              console.error('登录失败:', error)
               ElMessage.error('登录失败，请检查网络连接情况或稍后重试')
             }
             // try {
@@ -246,7 +258,7 @@ onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 }
 
 .el-card-wrapper {
-  background-image: url('../assets/LoginPage/BackgroundImage.png');
+  background-image: url('/images/BackgroundImage.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

@@ -71,7 +71,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.Configure<KestrelServerOptions>(options => { options.Limits.MaxRequestBodySize = null; });
 
 // 添加服务到容器
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // 配置JSON序列化选项以处理循环引用
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // 可选：格式化JSON输出
+    });
 
 // 配置 Swagger 服务
 builder.Services.AddSwaggerGen(c =>
@@ -127,6 +133,7 @@ app.UseSwaggerUI(c => // 配置 Swagger UI
 app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
 app.UseRouting(); // 启用路由中间件
 app.UseHttpsRedirection(); // 启用 HTTPS 重定向中间件
+app.UseAuthentication(); // 启用认证中间件
 app.UseAuthorization(); // 启用授权中间件
 app.MapControllers(); // 将控制器映射到路由
 app.Run(); // 启动应用程序并开始处理请求

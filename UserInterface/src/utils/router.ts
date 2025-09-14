@@ -67,6 +67,29 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
+
+
+        path: '/admin-login',
+        name: 'AdminLoginPage',
+        // @ts-ignore
+        component: () => import('../views/AdminLoginPage.vue'),
+        meta: {
+            title: '管理员登录'
+        }
+    },
+    {
+        path: '/user-management',
+        name: 'UserManagementPage',
+        // @ts-ignore
+        component: () => import('../views/UserManagementPage.vue'),
+        meta: {
+            title: '用户管理',
+            requiresAuth: true,
+            requiresAdmin: true
+        }
+    },
+    {
+
         path: '/PostPage/:id',
         name: 'PostPage',
         // @ts-ignore

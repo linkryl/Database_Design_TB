@@ -66,6 +66,14 @@
           >
             没有账号? 点击这里注册
           </el-link>
+          <el-link 
+            type='primary' 
+            :underline='true'
+            style='margin-left: 12px;'
+            @click="router.push('/reset-password')"
+          >
+            忘记密码?
+          </el-link>
         </div>
       </el-card>
     </div>

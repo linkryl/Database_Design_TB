@@ -51,7 +51,7 @@ FOR EACH ROW
 BEGIN
     UPDATE "USER"
     SET message_count = message_count + 1
-    WHERE user_id = :NEW.user_id;
+    WHERE user_id = :NEW.commenter_id;
 END;
 
 -- 从用户留言表删除记录：减少留言数
@@ -61,7 +61,7 @@ FOR EACH ROW
 BEGIN
     UPDATE "USER"
     SET message_count = message_count - 1
-    WHERE user_id = :OLD.user_id;
+    WHERE user_id = :OLD.commenter_id;
 END;
 
 -- 向帖子评论表插入记录：增加评论数

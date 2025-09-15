@@ -30,6 +30,11 @@
       {{"装扮商城" }}
     </el-menu-item>
 
+    <!--群聊按钮-->
+    <el-menu-item v-if="isLoggedIn" index='4' class='navbar-item' @click="router.push('/group-list')">
+      {{"群聊" }}
+    </el-menu-item>
+
     <!--超级占位符-->
     <div class='flex-grow'/>
 
@@ -98,6 +103,14 @@
   
           </el-dropdown-item>
 
+          <!--群聊按钮-->
+          <el-dropdown-item :icon='ChatDotRound' @click="router.push('/group-list')">  
+            <div class='dropdown-item'>          
+              <span>{{ "群聊" }}</span>         
+              <span><el-icon :size='12' class='dropdown-item-icon'><ArrowRightBold/></el-icon></span>    
+            </div>
+          </el-dropdown-item>
+
 
           <!--用户管理按钮（仅管理员可见）-->
           <el-dropdown-item v-if="isAdmin" :icon='Setting' @click="router.push('/user-management')">  
@@ -148,11 +161,9 @@ import {
   Link,
   CirclePlus,
   ArrowRightBold,
-
   Setting,
-
   Delete,
-
+  ChatDotRound,
 } from '@element-plus/icons-vue'
 
 const activeIndex = ref('0')
@@ -184,6 +195,8 @@ watch(route, (newRoute) => {
     activeIndex.value = '2' // 贴吧页面高亮
   } else if (newRoute.path === '/market') {
     activeIndex.value = '3' // 商店页面高亮
+  } else if (newRoute.path === '/group-list' || newRoute.path.startsWith('/group-chat/') || newRoute.path.startsWith('/group/')) {
+    activeIndex.value = '4' // 群聊页面高亮
   } else {
     activeIndex.value = '0' // 其他页面不高亮
   }

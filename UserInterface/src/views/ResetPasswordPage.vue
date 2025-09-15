@@ -1,3 +1,10 @@
+<!--
+  Project Name:  UserInterface
+  File Name:     RegisterPage.vue
+  File Function: 重置密码页面
+  Author:        2351131 韦世贸
+-->
+
 <template>
   <div class='reset-page-container'>
     <div class='el-card-wrapper'>

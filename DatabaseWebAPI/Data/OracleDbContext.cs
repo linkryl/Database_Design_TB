@@ -34,6 +34,11 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
     public DbSet<UserMessage> UserMessageSet { get; set; }
     public DbSet<UserSetting> UserSettingSet { get; set; }
 
+    // 选举相关数据集
+    public DbSet<BarElection> BarElectionSet { get; set; }
+    public DbSet<BarElectionCandidate> BarElectionCandidateSet { get; set; }
+    public DbSet<BarElectionVote> BarElectionVoteSet { get; set; }
+
     // 群组相关表
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupMember> GroupMembers { get; set; }
@@ -43,6 +48,35 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // 配置复合主键
+        modelBuilder.Entity<BarFollow>().HasKey(n => new { n.BarId, n.UserId });
+        modelBuilder.Entity<PostCommentDislike>().HasKey(n => new { n.CommentId, n.UserId });
+        modelBuilder.Entity<PostCommentLike>().HasKey(n => new { n.CommentId, n.UserId });
+        modelBuilder.Entity<PostDislike>().HasKey(n => new { n.PostId, n.UserId });
+        modelBuilder.Entity<PostFavorite>().HasKey(n => new { n.PostId, n.UserId });
+        modelBuilder.Entity<PostLike>().HasKey(n => new { n.PostId, n.UserId });
+        modelBuilder.Entity<UserFollow>().HasKey(n => new { n.UserId, n.FollowerId });
+
+        // 唯一约束：
+        // 1) 一人一票（同一场选举中同一用户仅能投一次）
+        modelBuilder.Entity<BarElectionVote>()
+            .HasIndex(v => new { v.ElectionId, v.VoterUserId })
+            .IsUnique();
+        // 2) 一人一次报名（同一场选举中同一用户仅能成为一个候选人）
+        modelBuilder.Entity<BarElectionCandidate>()
+            .HasIndex(c => new { c.ElectionId, c.UserId })
+            .IsUnique();
+
+        // 配置 POST_COMMENT_REPORT 与 USER 的关系
+        modelBuilder.Entity<PostCommentReport>()
+            .HasOne(n => n.Reporter)
+            .WithMany(u => u.PostCommentReportEntityReporter)
+            .HasForeignKey(n => n.ReporterId);
+        modelBuilder.Entity<PostCommentReport>()
+            .HasOne(n => n.ReportedUser)
+            .WithMany(u => u.PostCommentReportEntityReportedUser)
+            .HasForeignKey(n => n.ReportedUserId);
 
         // 配置群组相关表名和主键
         modelBuilder.Entity<Group>().ToTable("GROUP");
@@ -73,26 +107,6 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.MessageType).HasColumnName("MESSAGE_TYPE");
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.SendTime).HasColumnName("SEND_TIME");
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.IsDeleted).HasColumnName("IS_DELETED");
-        // modelBuilder.Entity<GroupMessage>().Property(gm => gm.ReplyToMessageId).HasColumnName("REPLY_TO_MESSAGE_ID");
-
-        // 配置复合主键
-        modelBuilder.Entity<BarFollow>().HasKey(n => new { n.BarId, n.UserId });
-        modelBuilder.Entity<PostCommentDislike>().HasKey(n => new { n.CommentId, n.UserId });
-        modelBuilder.Entity<PostCommentLike>().HasKey(n => new { n.CommentId, n.UserId });
-        modelBuilder.Entity<PostDislike>().HasKey(n => new { n.PostId, n.UserId });
-        modelBuilder.Entity<PostFavorite>().HasKey(n => new { n.PostId, n.UserId });
-        modelBuilder.Entity<PostLike>().HasKey(n => new { n.PostId, n.UserId });
-        modelBuilder.Entity<UserFollow>().HasKey(n => new { n.UserId, n.FollowerId });
-
-        // 配置 POST_COMMENT_REPORT 与 USER 的关系
-        modelBuilder.Entity<PostCommentReport>()
-            .HasOne(n => n.Reporter)
-            .WithMany(u => u.PostCommentReportEntityReporter)
-            .HasForeignKey(n => n.ReporterId);
-        modelBuilder.Entity<PostCommentReport>()
-            .HasOne(n => n.ReportedUser)
-            .WithMany(u => u.PostCommentReportEntityReportedUser)
-            .HasForeignKey(n => n.ReportedUserId);
 
         // 配置 POST_REPORT 与 USER 的关系
         modelBuilder.Entity<PostReport>()

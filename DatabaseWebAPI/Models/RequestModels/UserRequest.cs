@@ -44,3 +44,12 @@ public class PlainPasswordRequest
     [SwaggerSchema("明文密码")] public string PlainPassword { get; set; } = string.Empty;
 }
 
+// 重置密码请求：通过用户名和出生日期验证
+[SwaggerSchema(Description = "重置密码请求类")]
+public class ResetPasswordRequest
+{
+    [SwaggerSchema("用户名")] public string UserName { get; set; } = string.Empty;
+    [SwaggerSchema("出生日期")] public DateTime Birthdate { get; set; }
+    [SwaggerSchema("新明文密码")] public string NewPlainPassword { get; set; } = string.Empty;
+}
+

@@ -248,7 +248,7 @@ async function submitRegistrationData() {
     registrationDate: now,
     lastLoginTime: now,
     role: 0,
-    status: 1, 
+    status: 0,    // 0才是正常未被禁用状态
     avatarUrl: "",
     profile: "",
     gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),

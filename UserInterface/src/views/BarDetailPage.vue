@@ -54,6 +54,15 @@ TreeHole开发组
               <el-icon><Setting /></el-icon>
               管理贴吧
             </el-button>
+
+            <!-- 吧主选举入口（所有用户可见） -->
+            <el-button 
+              type="primary"
+              size="large"
+              @click="router.push(`/bar/${barId}/election`)"
+            >
+              吧主选举
+            </el-button>
           </div>
         </div>
       </div>

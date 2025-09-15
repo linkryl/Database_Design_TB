@@ -443,6 +443,46 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
+    // 重置密码：通过用户名与出生日期验证
+    [HttpPost("reset-password")] 
+    [AllowAnonymous]
+    [SwaggerOperation(Summary = "重置密码", Description = "通过用户名与出生日期验证后重置密码")]
+    [SwaggerResponse(200, "重置成功")]
+    [SwaggerResponse(400, "请求无效")]
+    [SwaggerResponse(404, "用户不存在或信息不匹配")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest resetRequest)
+    {
+        if (string.IsNullOrWhiteSpace(resetRequest.UserName) || string.IsNullOrWhiteSpace(resetRequest.NewPlainPassword))
+        {
+            return BadRequest("用户名和新密码不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FirstOrDefaultAsync(u => u.UserName == resetRequest.UserName);
+            if (user == null)
+            {
+                return NotFound("用户不存在");
+            }
+
+            // 仅以生日为密保问题
+            if (user.Birthdate.Date != resetRequest.Birthdate.Date)
+            {
+                return NotFound("用户信息不匹配");
+            }
+
+            user.Password = PasswordUtils.PlainPasswordToHashedPassword(resetRequest.NewPlainPassword);
+            await context.SaveChangesAsync();
+
+            return Ok(new { message = "密码重置成功" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
     // 管理员封禁用户接口
     [HttpPost("admin/ban/{id:int}")]
     [Authorize]

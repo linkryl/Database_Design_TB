@@ -12,6 +12,15 @@ const routes: Array<RouteRecordRaw> = [
         redirect: '/home'
     },
     {
+        path: '/reset-password',
+        name: 'ResetPasswordPage',
+        // @ts-ignore
+        component: () => import('../views/ResetPasswordPage.vue'),
+        meta: {
+            title: '重置密码'
+        }
+    },
+    {
         path: '/home',
         name: 'HomePage',
         // @ts-ignore
@@ -96,6 +105,15 @@ const routes: Array<RouteRecordRaw> = [
             requiresAuth: true
         }
     },
+    {
+        path: '/bar/:id/election',
+        name: 'BarElectionPage',
+        // @ts-ignore
+        component: () => import('../views/BarElectionPage.vue'), // 吧主选举页面
+        meta: {
+            title: '吧主选举'
+        }
+    },
     // 管理员相关路由
     {
         path: '/profile/:id',
@@ -147,7 +165,7 @@ const routes: Array<RouteRecordRaw> = [
             title: '私聊'
         }
     },
-    // 群组列表页面
+     // 群组列表页面
     {
         path: '/group-list',
         name: 'GroupList',

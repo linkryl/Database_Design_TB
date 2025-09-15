@@ -7,8 +7,8 @@ import {ref} from 'vue'
 import type {Instance} from 'element-plus'
 
 
-export const apiBaseUrl = '/api'
-export const ossBaseUrl = '/src/assets/'
+export const apiBaseUrl = 'http://localhost:5101/api'
+export const ossBaseUrl = '/images/'
 export const isProgressVisible = ref(false)
 export const tourRef1 = ref<Instance>()
 export const tourRef2 = ref<Instance>()

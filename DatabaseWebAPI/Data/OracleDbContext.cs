@@ -15,6 +15,8 @@ namespace DatabaseWebAPI.Data;
 public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbContext(options)
 {
     // 配置数据库上下文实体集
+    public DbSet<Bar> BarSet { get; set; }
+    public DbSet<BarFollow> BarFollowSet { get; set; }
     public DbSet<DevelopmentTeam> DevelopmentTeamSet { get; set; }
     public DbSet<Post> PostSet { get; set; }
     public DbSet<PostCategory> PostCategorySet { get; set; }
@@ -32,12 +34,49 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
     public DbSet<UserMessage> UserMessageSet { get; set; }
     public DbSet<UserSetting> UserSettingSet { get; set; }
 
+    // 群组相关表
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
+    public DbSet<GroupMessage> GroupMessages { get; set; }
+
     // 重写 OnModelCreating 方法
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // 配置群组相关表名和主键
+        modelBuilder.Entity<Group>().ToTable("GROUP");
+        modelBuilder.Entity<Group>().HasKey(g => g.GroupId);
+        modelBuilder.Entity<Group>().Property(g => g.GroupId).HasColumnName("GROUP_ID").ValueGeneratedOnAdd();
+        modelBuilder.Entity<Group>().Property(g => g.GroupName).HasColumnName("GROUP_NAME");
+        modelBuilder.Entity<Group>().Property(g => g.GroupDesc).HasColumnName("GROUP_DESC");
+        modelBuilder.Entity<Group>().Property(g => g.CreateUserId).HasColumnName("CREATE_USER_ID");
+        modelBuilder.Entity<Group>().Property(g => g.CreateTime).HasColumnName("CREATE_TIME");
+        modelBuilder.Entity<Group>().Property(g => g.LastActiveTime).HasColumnName("LAST_ACTIVE_TIME");
+        modelBuilder.Entity<Group>().Property(g => g.MemberCount).HasColumnName("MEMBER_COUNT");
+
+        modelBuilder.Entity<GroupMember>().ToTable("GROUP_MEMBER");
+        modelBuilder.Entity<GroupMember>().HasKey(gm => gm.MemberId);
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.MemberId).HasColumnName("MEMBER_ID").ValueGeneratedOnAdd();
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.GroupId).HasColumnName("GROUP_ID");
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.UserId).HasColumnName("USER_ID");
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.JoinTime).HasColumnName("JOIN_TIME");
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.Role).HasColumnName("ROLE");
+        modelBuilder.Entity<GroupMember>().Property(gm => gm.IsMuted).HasColumnName("IS_MUTED");
+
+        modelBuilder.Entity<GroupMessage>().ToTable("GROUP_MESSAGE");
+        modelBuilder.Entity<GroupMessage>().HasKey(gm => gm.MessageId);
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.MessageId).HasColumnName("MESSAGE_ID").ValueGeneratedOnAdd();
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.GroupId).HasColumnName("GROUP_ID");
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.SenderId).HasColumnName("SENDER_ID");
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.Content).HasColumnName("CONTENT");
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.MessageType).HasColumnName("MESSAGE_TYPE");
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.SendTime).HasColumnName("SEND_TIME");
+        modelBuilder.Entity<GroupMessage>().Property(gm => gm.IsDeleted).HasColumnName("IS_DELETED");
+        // modelBuilder.Entity<GroupMessage>().Property(gm => gm.ReplyToMessageId).HasColumnName("REPLY_TO_MESSAGE_ID");
+
         // 配置复合主键
+        modelBuilder.Entity<BarFollow>().HasKey(n => new { n.BarId, n.UserId });
         modelBuilder.Entity<PostCommentDislike>().HasKey(n => new { n.CommentId, n.UserId });
         modelBuilder.Entity<PostCommentLike>().HasKey(n => new { n.CommentId, n.UserId });
         modelBuilder.Entity<PostDislike>().HasKey(n => new { n.PostId, n.UserId });
@@ -64,6 +103,19 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
             .HasOne(n => n.ReportedUser)
             .WithMany(u => u.PostReportEntityReportedUser)
             .HasForeignKey(n => n.ReportedUserId);
+
+        // 暂时注释掉新字段配置，等字段确认存在后再启用
+        // modelBuilder.Entity<Post>(entity =>
+        // {
+        //     entity.Property(e => e.BarId)
+        //         .HasColumnName("BAR_ID")
+        //         .HasColumnType("NUMBER");
+        //         
+        //     entity.Property(e => e.AlsoInTreehole)
+        //         .HasColumnName("ALSO_IN_TREEHOLE")
+        //         .HasColumnType("NUMBER")
+        //         .HasDefaultValue(0);
+        // });
         
     }
 }

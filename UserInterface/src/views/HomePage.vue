@@ -6,8 +6,8 @@
 <!--背景图片-->
 <template>
   <div class='background-container'>
-    <img :src='`${ossBaseUrl}HomePage/BackgroundImage.jpg`' alt='Background' class='background-image'>
-    <img :src='`${ossBaseUrl}LogosAndIcons/TreeHoleLogo.png`' alt='TreeHoleTitle' class='treehole-title'>
+    <img :src='`${ossBaseUrl}BackgroundImage.jpg`' alt='Background' class='background-image'>
+    <img :src='`${ossBaseUrl}TreeHoleLogo.png`' alt='TreeHoleTitle' class='treehole-title'>
 
     <button class="join-community-button" @click="router.push('/PostNew')">
       加入社区，发布你的第一个帖子！

@@ -39,15 +39,6 @@ const routes: Array<RouteRecordRaw> = [
         }
     },
     {
-        path: '/profile/:id',
-        name: 'ProfilePage',
-        // @ts-ignore
-        component: () => import('../views/ProfilePage.vue'),
-        meta: {
-            title: '个人主页'
-        }
-    },
-    {
         path: '/register',
         name: 'RegisterPage',
         // @ts-ignore
@@ -66,6 +57,141 @@ const routes: Array<RouteRecordRaw> = [
             requiresAuth: true
         }
     },
+    {
+        path: '/market',
+        name: 'MarketPage',
+        // @ts-ignore
+        component: () => import('../views/MarketPage.vue'),
+        meta:{
+            title:'道具商城',
+            
+        }
+    },
+    // 贴吧相关路由
+    {
+        path: '/bars',
+        name: 'BarListPage',
+        // @ts-ignore
+        component: () => import('../views/BarListPage.vue'),
+        meta: {
+            title: '贴吧广场'
+        }
+    },
+    {
+        path: '/bar/:id',
+        name: 'BarDetailPage',
+        // @ts-ignore
+        component: () => import('../views/BarDetailPage.vue'),
+        meta: {
+            title: '贴吧详情'
+        }
+    },
+    {
+        path: '/bar/:id/edit',
+        name: 'BarEditPage',
+        // @ts-ignore
+        component: () => import('../views/BarEditPage.vue'),
+        meta: {
+            title: '编辑贴吧',
+            requiresAuth: true
+        }
+    },
+    // 管理员相关路由
+    {
+        path: '/profile/:id',
+        name: 'ProfilePage',
+        // @ts-ignore
+        component: () => import('../views/ProfilePage.vue'),
+        meta: {
+            title: '个人主页'
+        }
+    },
+    {
+
+        path: '/admin-login',
+        name: 'AdminLoginPage',
+        // @ts-ignore
+        component: () => import('../views/AdminLoginPage.vue'),
+        meta: {
+            title: '管理员登录'
+        }
+    },
+    {
+        path: '/user-management',
+        name: 'UserManagementPage',
+        // @ts-ignore
+        component: () => import('../views/UserManagementPage.vue'),
+        meta: {
+            title: '用户管理',
+            requiresAuth: true,
+            requiresAdmin: true
+        }
+    },
+    // 帖子详情页
+    {
+        path: '/PostPage/:id',
+        name: 'PostPage',
+        // @ts-ignore
+        component: () => import('../views/PostPage.vue'),
+        meta: {
+            title: '帖子详情'
+        }
+    },
+    // 私聊页面路由
+    {
+        path: '/chat/:userId',
+        name: 'UserChat',
+        // @ts-ignore
+        component: () => import('../views/UserChatPage.vue'),
+        meta: {
+            title: '私聊'
+        }
+    },
+    // 群组列表页面
+    {
+        path: '/group-list',
+        name: 'GroupList',
+        // @ts-ignore
+        component: () => import('../views/GroupListPage.vue'),
+        meta: {
+            title: '群组列表'
+        }
+    },
+    // 群组详情页面
+    {
+        path: '/group/:id',
+        name: 'GroupDetail',
+        // @ts-ignore
+        component: () => import('../views/GroupDetailPage.vue'),
+        meta: {
+            title: '群组详情'
+        }
+    },
+    // 群聊页面路由
+    {
+        path: '/group-chat/:groupId',
+        name: 'GroupChat',
+        // @ts-ignore
+        component: () => import('../views/GroupChatPage.vue'),
+        meta: {
+            title: '群聊'
+        }
+    },
+    // 404页面路由
+    {
+        path: '/404',
+        name: 'NotFound',
+        // @ts-ignore
+        component: () => import('../views/NotFoundPage.vue'),
+        meta: {
+            title: '页面不存在'
+        }
+    },
+    // 通配符路由，捕获所有未匹配的路由
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: '/404'
+    }
 ]
 
 const router: Router = createRouter({
@@ -79,6 +205,29 @@ router.beforeEach((to, _, next) => {
     } else {
         document.title = 'TreeHole'
     }
+    
+    // 检查是否需要登录
+    if (to.meta.requiresAuth) {
+        const token = localStorage.getItem('jwtToken')
+        const userId = localStorage.getItem('currentUserId')
+        
+        if (!token || !userId || userId === '0') {
+            next('/login')
+            return
+        }
+    }
+    
+    // 检查是否需要管理员权限
+    if (to.meta.requiresAdmin) {
+        const userRole = localStorage.getItem('userRole')
+        const isAdmin = localStorage.getItem('isAdmin')
+        
+        if (userRole !== '1' || isAdmin !== 'true') {
+            next('/CommunityPage')
+            return
+        }
+    }
+    
     isProgressVisible.value = true
     setTimeout(() => {
         isProgressVisible.value = false

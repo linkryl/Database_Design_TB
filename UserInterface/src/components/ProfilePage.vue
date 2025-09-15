@@ -82,6 +82,39 @@
 
           </div>
         </div>
+
+        <!-- 收藏帖子展示卡片 -->
+        <div v-if='isSelf' class='info-display-card'>
+          <div class='card-header'>
+            <el-icon class='header-icon'><Star/></el-icon>
+            <span class='header-title'>我的收藏 ({{ favoritePostIds.length }})</span>
+          </div>
+          
+          <div class='info-content'>
+            <div v-if='loadingFavorites' class='loading-container'>
+              <el-loading-text>加载收藏中...</el-loading-text>
+            </div>
+            
+            <div v-else-if='favoritePostIds.length === 0' class='empty-favorites'>
+              <div class='empty-icon'>⭐</div>
+              <div class='empty-text'>还没有收藏任何帖子</div>
+              <div class='empty-hint'>快去发现有趣的内容吧！</div>
+            </div>
+            
+            <div v-else class='favorites-list'>
+              <div class='favorite-item' v-for='postId in favoritePostIds.slice(0, 10)' :key='postId'>
+                <span class='post-id-tag'>ID: {{ postId }}</span>
+                <el-button size='small' type='primary' text @click='goToPost(postId)'>
+                  查看详情
+                </el-button>
+              </div>
+              
+              <div v-if='favoritePostIds.length > 10' class='show-more-hint'>
+                还有 {{ favoritePostIds.length - 10 }} 个收藏未显示...
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -178,7 +211,15 @@ import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import {useRoute, useRouter} from 'vue-router'
 import {formatDateTimeToCST, ossBaseUrl} from '../globals'
-import {UserFilled, User, EditPen, Plus} from '@element-plus/icons-vue'
+import {UserFilled, User, EditPen, Plus, Star} from '@element-plus/icons-vue'
+import {
+  getUserById,
+  updateUserPersonalInfo,
+  updateUserAvatar,
+  getUserFavoritePostIds,
+  type THPersonalInfoUpdate,
+  type THAvatarUpdate
+} from '@/api/index'
 
 interface UploadRequestOptions {
   action: string
@@ -224,6 +265,10 @@ const editData = ref({
 const previewAvatarUrl = ref('')
 const uploadedFile = ref<File | null>(null)
 
+// 收藏相关数据
+const favoritePostIds = ref<number[]>([])
+const loadingFavorites = ref(false)
+
 const formatGender = (gender: number) => {
   return gender === 0 ? '男' : '女'
 }
@@ -248,14 +293,9 @@ const formatStatus = (status: number) => {
 // 获取用户信息
 const fetchUserProfile = async () => {
   try {
-    // GET接口，从后端获取信息
-    const res = await axiosInstance.get(`user/${viewedUserId.value}`)
-    if (res.status === 404) {
-      await router.push('/404')
-      return
-    }
+    // 使用新的API接口获取用户信息
+    const data = await getUserById(viewedUserId.value)
     
-    const data = res.data
     userInfo.value = {
       uid: data.userId || viewedUserId.value,
       userName: data.userName || '',
@@ -266,10 +306,40 @@ const fetchUserProfile = async () => {
       gender: data.gender !== undefined ? data.gender : 0,
       birthdate: data.birthdate || ''
     }
-  } catch (error) {
-    ElMessage.error('GET:获取用户信息失败')
-    console.error('GET:获取用户信息失败:', error)
+
+    // 如果是查看自己的资料，加载收藏帖子
+    if (isSelf.value) {
+      await fetchUserFavorites()
+    }
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      await router.push('/404')
+      return
+    }
+    ElMessage.error('获取用户信息失败')
+    console.error('获取用户信息失败:', error)
   }
+}
+
+// 获取用户收藏的帖子
+const fetchUserFavorites = async () => {
+  try {
+    loadingFavorites.value = true
+    const postIds = await getUserFavoritePostIds(viewedUserId.value)
+    favoritePostIds.value = postIds || []
+  } catch (error) {
+    console.error('获取收藏列表失败:', error)
+    favoritePostIds.value = []
+  } finally {
+    loadingFavorites.value = false
+  }
+}
+
+// 跳转到帖子详情
+const goToPost = (postId: number) => {
+  // 这里可以根据实际路由配置来跳转到帖子详情页
+  // 暂时先跳转到社区页面
+  router.push('/community')
 }
 
 // 打开编辑对话框
@@ -306,10 +376,11 @@ const updateProfile = async () => {
         // POST接口，头像文件上传到服务器
         const uploadRes = await axiosInstance.post('upload-avatar', formData)
         if (uploadRes.data && uploadRes.data.fileName) {
-          // PUT接口，更新数据库里用户的 avatarUrl 字段
-          await axiosInstance.put(`user/avatar-url/${viewedUserId.value}`, {
+          // 使用新的API接口更新用户头像
+          const avatarUpdate: THAvatarUpdate = {
             avatarUrl: uploadRes.data.fileName
-          })
+          }
+          await updateUserAvatar(viewedUserId.value, avatarUpdate)
           editData.value.avatarUrl = uploadRes.data.fileName
         }
       } catch (uploadError) {
@@ -319,14 +390,14 @@ const updateProfile = async () => {
       }
     }
     
-    // PUT接口，更新用户信息
-    const updatePayload = {
+    // 使用新的API接口更新用户个人信息
+    const updatePayload: THPersonalInfoUpdate = {
       profile: editData.value.profile,
-      gender: editData.value.gender,
+      gender: editData.value.gender === 0 ? 'Male' : 'Female',
       birthdate: editData.value.birthdate
     }
     
-    await axiosInstance.put(`user/personal-information/${viewedUserId.value}`, updatePayload)
+    await updateUserPersonalInfo(viewedUserId.value, updatePayload)
     
     // 更新显示数据
     userInfo.value.profile = editData.value.profile
@@ -342,6 +413,7 @@ const updateProfile = async () => {
     showEditDialog.value = false
     ElMessage.success('资料更新成功')
   } catch (error) {
+    console.error('保存资料失败:', error)
     ElMessage.error('保存失败，请稍后重试')
   }
 }
@@ -609,5 +681,72 @@ onBeforeUnmount(() => {
 
 .dialog-footer {
   padding-top: 10px;
+}
+
+/* 收藏帖子相关样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #666;
+}
+
+.empty-favorites {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: #999;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.favorite-item:hover {
+  background: #f1f3f4;
+  border-color: #dee2e6;
+}
+
+.post-id-tag {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.show-more-hint {
+  text-align: center;
+  padding: 16px;
+  color: #999;
+  font-size: 14px;
+  font-style: italic;
 }
 </style>

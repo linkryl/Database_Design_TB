@@ -44,26 +44,6 @@ BEGIN
     WHERE user_id = :OLD.user_id;
 END;
 
--- 向用户留言表插入记录：增加留言数
-CREATE OR REPLACE TRIGGER increment_message_counts
-AFTER INSERT ON USER_MESSAGE
-FOR EACH ROW
-BEGIN
-    UPDATE "USER"
-    SET message_count = message_count + 1
-    WHERE user_id = :NEW.user_id;
-END;
-
--- 从用户留言表删除记录：减少留言数
-CREATE OR REPLACE TRIGGER decrement_message_counts
-AFTER DELETE ON USER_MESSAGE
-FOR EACH ROW
-BEGIN
-    UPDATE "USER"
-    SET message_count = message_count - 1
-    WHERE user_id = :OLD.user_id;
-END;
-
 -- 向帖子评论表插入记录：增加评论数
 CREATE OR REPLACE TRIGGER increment_post_c_count
 AFTER INSERT ON POST_COMMENT
@@ -91,12 +71,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET like_count = like_count + 1
-    WHERE post_id = :NEW.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :NEW.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET like_count = like_count + 1
+    WHERE post_id = :NEW.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = poster_user_id;
@@ -112,12 +97,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET like_count = like_count - 1
-    WHERE post_id = :OLD.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :OLD.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET like_count = like_count - 1
+    WHERE post_id = :OLD.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = poster_user_id;
@@ -153,12 +143,17 @@ FOR EACH ROW
 DECLARE
     commenter_user_id INT;
 BEGIN
-    UPDATE POST_COMMENT
-    SET like_count = like_count + 1
-    WHERE comment_id = :NEW.comment_id;
+    -- 先获取commenter_user_id，避免在UPDATE后读取POST_COMMENT表
     SELECT user_id INTO commenter_user_id
     FROM POST_COMMENT
     WHERE comment_id = :NEW.comment_id;
+    
+    -- 然后更新POST_COMMENT表
+    UPDATE POST_COMMENT
+    SET like_count = like_count + 1
+    WHERE comment_id = :NEW.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = commenter_user_id;
@@ -174,12 +169,17 @@ FOR EACH ROW
 DECLARE
     commenter_user_id INT;
 BEGIN
-    UPDATE POST_COMMENT
-    SET like_count = like_count - 1
-    WHERE comment_id = :OLD.comment_id;
+    -- 先获取commenter_user_id，避免在UPDATE后读取POST_COMMENT表
     SELECT user_id INTO commenter_user_id
     FROM POST_COMMENT
     WHERE comment_id = :OLD.comment_id;
+    
+    -- 然后更新POST_COMMENT表
+    UPDATE POST_COMMENT
+    SET like_count = like_count - 1
+    WHERE comment_id = :OLD.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = commenter_user_id;
@@ -215,12 +215,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET favorite_count = favorite_count + 1
-    WHERE post_id = :NEW.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :NEW.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET favorite_count = favorite_count + 1
+    WHERE post_id = :NEW.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count + 1
     WHERE user_id = poster_user_id;
@@ -236,201 +241,20 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET favorite_count = favorite_count - 1
-    WHERE post_id = :OLD.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :OLD.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET favorite_count = favorite_count - 1
+    WHERE post_id = :OLD.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count - 1
     WHERE user_id = poster_user_id;
-    UPDATE "USER"
-    SET favorites_count = favorites_count - 1
-    WHERE user_id = :OLD.user_id;
-END;
-
--- 向新闻评论表插入记录：增加评论数
-CREATE OR REPLACE TRIGGER increment_news_c_count
-AFTER INSERT ON NEWS_COMMENT
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS
-    SET comment_count = comment_count + 1
-    WHERE news_id = :NEW.news_id;
-END;
-
--- 从新闻评论表删除记录：减少评论数
-CREATE OR REPLACE TRIGGER decrement_news_c_count
-AFTER DELETE ON NEWS_COMMENT
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS
-    SET comment_count = comment_count - 1
-    WHERE news_id = :OLD.news_id;
-END;
-
--- 向新闻点赞表插入记录：增加点赞数和被点赞数
-CREATE OR REPLACE TRIGGER increment_news_like_counts
-AFTER INSERT ON NEWS_LIKE
-FOR EACH ROW
-DECLARE
-    news_owner_id INT;
-BEGIN
-    UPDATE NEWS
-    SET like_count = like_count + 1
-    WHERE news_id = :NEW.news_id;
-    SELECT user_id INTO news_owner_id
-    FROM NEWS
-    WHERE news_id = :NEW.news_id;
-    UPDATE "USER"
-    SET liked_count = liked_count + 1
-    WHERE user_id = news_owner_id;
-    UPDATE "USER"
-    SET likes_count = likes_count + 1
-    WHERE user_id = :NEW.user_id;
-END;
-
--- 从新闻点赞表删除记录：减少点赞数和被点赞数
-CREATE OR REPLACE TRIGGER decrement_news_like_counts
-AFTER DELETE ON NEWS_LIKE
-FOR EACH ROW
-DECLARE
-    news_owner_id INT;
-BEGIN
-    UPDATE NEWS
-    SET like_count = like_count - 1
-    WHERE news_id = :OLD.news_id;
-    SELECT user_id INTO news_owner_id
-    FROM NEWS
-    WHERE news_id = :OLD.news_id;
-    UPDATE "USER"
-    SET liked_count = liked_count - 1
-    WHERE user_id = news_owner_id;
-    UPDATE "USER"
-    SET likes_count = likes_count - 1
-    WHERE user_id = :OLD.user_id;
-END;
-
--- 向新闻点踩表插入记录：增加点踩数
-CREATE OR REPLACE TRIGGER increment_news_dislike_count
-AFTER INSERT ON NEWS_DISLIKE
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS
-    SET dislike_count = dislike_count + 1
-    WHERE news_id = :NEW.news_id;
-END;
-
--- 从新闻点踩表删除记录：减少点踩数
-CREATE OR REPLACE TRIGGER decrement_news_dislike_count
-AFTER DELETE ON NEWS_DISLIKE
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS
-    SET dislike_count = dislike_count - 1
-    WHERE news_id = :OLD.news_id;
-END;
-
--- 向新闻评论点赞表插入记录：增加点赞数和被点赞数
-CREATE OR REPLACE TRIGGER increment_news_c_like_counts
-AFTER INSERT ON NEWS_COMMENT_LIKE
-FOR EACH ROW
-DECLARE
-    comment_user_id INT;
-BEGIN
-    UPDATE NEWS_COMMENT
-    SET like_count = like_count + 1
-    WHERE comment_id = :NEW.comment_id;
-    SELECT user_id INTO comment_user_id
-    FROM NEWS_COMMENT
-    WHERE comment_id = :NEW.comment_id;
-    UPDATE "USER"
-    SET liked_count = liked_count + 1
-    WHERE user_id = comment_user_id;
-    UPDATE "USER"
-    SET likes_count = likes_count + 1
-    WHERE user_id = :NEW.user_id;
-END;
-
--- 从新闻评论点赞表删除记录：减少点赞数和被点赞数
-CREATE OR REPLACE TRIGGER decrement_news_c_like_counts
-AFTER DELETE ON NEWS_COMMENT_LIKE
-FOR EACH ROW
-DECLARE
-    comment_user_id INT;
-BEGIN
-    UPDATE NEWS_COMMENT
-    SET like_count = like_count - 1
-    WHERE comment_id = :OLD.comment_id;
-    SELECT user_id INTO comment_user_id
-    FROM NEWS_COMMENT
-    WHERE comment_id = :OLD.comment_id;
-    UPDATE "USER"
-    SET liked_count = liked_count - 1
-    WHERE user_id = comment_user_id;
-    UPDATE "USER"
-    SET likes_count = likes_count - 1
-    WHERE user_id = :OLD.user_id;
-END;
-
--- 向新闻评论点踩表插入记录：增加点踩数
-CREATE OR REPLACE TRIGGER increment_news_c_dislike_count
-AFTER INSERT ON NEWS_COMMENT_DISLIKE
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS_COMMENT
-    SET dislike_count = dislike_count + 1
-    WHERE comment_id = :NEW.comment_id;
-END;
-
--- 从新闻评论点踩表删除记录：减少点踩数
-CREATE OR REPLACE TRIGGER decrement_news_c_dislike_count
-AFTER DELETE ON NEWS_COMMENT_DISLIKE
-FOR EACH ROW
-BEGIN
-    UPDATE NEWS_COMMENT
-    SET dislike_count = dislike_count - 1
-    WHERE comment_id = :OLD.comment_id;
-END;
-
--- 向新闻收藏表插入记录：增加收藏数和被收藏数
-CREATE OR REPLACE TRIGGER increment_news_favorite_counts
-AFTER INSERT ON NEWS_FAVORITE
-FOR EACH ROW
-DECLARE
-    news_owner_id INT;
-BEGIN
-    UPDATE NEWS
-    SET favorite_count = favorite_count + 1
-    WHERE news_id = :NEW.news_id;
-    SELECT user_id INTO news_owner_id
-    FROM NEWS
-    WHERE news_id = :NEW.news_id;
-    UPDATE "USER"
-    SET favorited_count = favorited_count + 1
-    WHERE user_id = news_owner_id;
-    UPDATE "USER"
-    SET favorites_count = favorites_count + 1
-    WHERE user_id = :NEW.user_id;
-END;
-
--- 从新闻收藏表删除记录：减少收藏数和被收藏数
-CREATE OR REPLACE TRIGGER decrement_news_favorite_counts
-AFTER DELETE ON NEWS_FAVORITE
-FOR EACH ROW
-DECLARE
-    news_owner_id INT;
-BEGIN
-    UPDATE NEWS
-    SET favorite_count = favorite_count - 1
-    WHERE news_id = :OLD.news_id;
-    SELECT user_id INTO news_owner_id
-    FROM NEWS
-    WHERE news_id = :OLD.news_id;
-    UPDATE "USER"
-    SET favorited_count = favorited_count - 1
-    WHERE user_id = news_owner_id;
     UPDATE "USER"
     SET favorites_count = favorites_count - 1
     WHERE user_id = :OLD.user_id;

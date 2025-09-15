@@ -79,9 +79,9 @@
 <script setup lang='ts'>
 import {ref, computed, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
-import axiosInstance from '../utils/axios'
 import {ElMessage} from 'element-plus'
 import PostDetailCard from '../components/PostDetailCard.vue'
+import { getLatestPostIds } from '@/api/index'
 
 
 const router = useRouter()
@@ -94,9 +94,12 @@ const postIds = ref([])
 const isLastPage = computed(() => {
   return currentPage.value >= Math.ceil(totalPosts.value / pageSize.value)
 })
-const storedValue = localStorage.getItem('currentUserId')
-const storedUserId = storedValue ? parseInt(storedValue) : 0
-const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
+// 响应式获取当前用户ID
+const currentUserId = computed(() => {
+  const storedValue = localStorage.getItem('currentUserId')
+  const storedUserId = storedValue ? parseInt(storedValue) : 0
+  return isNaN(storedUserId) ? 0 : storedUserId
+})
 
 const paginatedPostIds = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -104,7 +107,7 @@ const paginatedPostIds = computed(() => {
   return postIds.value.slice(start, end)
 })
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = (page: number) => {
   currentPage.value = page
 }
 
@@ -113,47 +116,29 @@ const handleCurrentChange = (page) => {
 onMounted(async () => {
   try {
     console.log('正在请求API:', '/api/post/latest-ids')
-    const response = await axiosInstance.get('post/latest-ids')
+    const data = await getLatestPostIds(50) // 使用统一的API接口
     
-    console.log('API响应状态:', response.status)
-    console.log('后端返回的帖子数据:', response.data)
-    console.log('数据类型:', typeof response.data)
-    console.log('数据长度:', response.data?.length)
-    console.log('前5个帖子ID:', response.data?.slice(0, 5))
+    console.log('后端返回的帖子数据:', data)
+    console.log('数据类型:', typeof data)
+    console.log('数据长度:', data?.length)
+    console.log('前5个帖子ID:', data?.slice(0, 5))
     
-    // 后端 /post/latest-ids 接口应该直接返回按时间排序的帖子ID数组
-    const allPostIds = response.data || []
-    console.log('获取到的帖子ID列表:', allPostIds.slice(0, 10))
+    // 使用统一的API接口获取帖子ID列表
+    postIds.value = data || []
+    console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
     
-    // 验证每个帖子ID是否有效（可选，但会增加请求次数）
-    console.log('开始验证帖子ID的有效性...')
-    const validPostIds = []
+    // 注：同学的帖子ID验证功能暂时注释，避免大量请求影响性能
+    // 如需启用，可以取消注释下面的验证代码
     
-    for (const postId of allPostIds) {
-      try {
-        // 快速验证帖子是否存在
-        const testResponse = await axiosInstance.get(`post/${postId}`)
-        if (testResponse.status === 200) {
-          validPostIds.push(postId)
-          console.log(`帖子ID ${postId} 验证成功`)
-        }
-      } catch (error) {
-        console.warn(`帖子ID ${postId} 验证失败:`, error.response?.status)
-        // 继续处理下一个ID，不中断整个流程
-      }
-    }
-    
-    postIds.value = validPostIds
-    console.log(`验证完成，有效帖子数量: ${validPostIds.length}/${allPostIds.length}`)
-    console.log('有效的帖子ID列表:', validPostIds.slice(0, 10))
-    
-  } catch (error) {
-    console.error('获取帖子列表失败:', error)
+  } catch (error: any) {
+    console.error('获取树洞帖子列表失败:', error)
     console.error('错误详情:', error.response?.data)
     console.error('错误状态码:', error.response?.status)
     console.error('完整错误响应:', error.response)
     
-    if (error.response?.status === 500) {
+    if (error.code === 'ECONNABORTED') {
+      ElMessage.error('请求超时，后端服务器可能遇到问题，请稍后重试')
+    } else if (error.response?.status === 500) {
       ElMessage.error('后端服务器内部错误(500)，请检查后端服务是否正常运行')
     } else if (error.response?.status === 404) {
       ElMessage.error('API接口不存在(404)，请确认后端是否已实现 /post/latest-ids 接口')
@@ -175,19 +160,24 @@ function publishPost() {
 // 刷新帖子列表的函数
 async function refreshPosts() {
   try {
-    const response = await axiosInstance.get('post/latest')
-    // 后端 /post/latest 接口应该直接返回按时间排序的帖子ID数组
-    postIds.value = response.data || []
+    const data = await getLatestPostIds(50) // 回退到稳定API
+    // 暂时显示所有帖子，等数据库字段问题解决后再启用分区
+    postIds.value = data || []
     currentPage.value = 1 // 重置到第一页
-  } catch (error) {
+  } catch (error: any) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
 }
+
+// 暴露刷新函数供外部调用
+defineExpose({
+  refreshPosts
+})
 </script>
 
 <style scoped>
 :global(:root) {
-  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #393B9C;
   --community-title-shadow-color: #787ACF;
   --community-img-title-color: #FFFFFF;
@@ -206,7 +196,7 @@ async function refreshPosts() {
 
 /* noinspection CssUnusedSymbol */
 :global(.dark) {
-  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImages/CommunityPageBackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
   --community-title-color: #E4DBFF;
   --community-title-shadow-color: #473B7E;
   --community-img-title-color: #E0E0E0;
@@ -224,12 +214,13 @@ async function refreshPosts() {
 }
 
 .page-container {
-  width: 1200px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   margin-top: -20px;
+  padding: 0 20px;
 }
 
 h1 {
@@ -266,6 +257,7 @@ h1 {
   margin: 0 auto;
   padding: 0 20px 20px;
   margin-top: -10px;
+  width: 100%;
 }
 
 /* 空状态提示样式 */

@@ -102,18 +102,25 @@ async function handleBuy(item: BgItem) {
     //TODO: 购买
     if (item.owned) return
     if (localCoinCount.value >= 5) {
-        try {                     // 向数据库 OWNEDBG 表中添加这一行 userId bgUrl bgName,表示该用户购买了该背景
+        let newCoinCount = localCoinCount.value - 5
+        try {// 向数据库 OWNEDBG 表中添加这一行 userId bgUrl bgName,表示该用户购买了该背景
             // await axiosInstance.post('ownedbg/buy-one-bg', {
             //     userId: currentUserId.value,
             //     bgUrl: item.url,
             //     bgName:item.name
             // })
-            localCoinCount.value -= 5
-            item.owned = true
-            ElMessage.success(`成功购买「${item.name}」背景！`)
+            try{
+                // await axiosInstance.put(`user/update-coin-by-user-id/${currentUserId.value}`,{
+                //     coinCount: newCoinCount
+                // })
+                localCoinCount.value = newCoinCount
+                item.owned = true
+                ElMessage.success(`成功购买「${item.name}」背景！`)
+            }catch(e){
+                ElMessage.error("PUT 请求错误, " + `购买「${item.name}」背景失败`)
+            }
         } catch (e) {
             ElMessage.error("POST 请求错误, " + `购买「${item.name}」背景失败`)
-            console.error(`购买「${item.name}」背景失败`)
         }
     } else {
         ElMessage.error("金币不足, 购买失败")

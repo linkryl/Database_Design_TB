@@ -41,7 +41,7 @@ const localCoinCount = computed({
 
 async function handleBuy(addCoin:number){
     let newCoinCount = localCoinCount.value + addCoin
-    try{                             //根据 userId 更新 USER 用户表中的金币数量 coin
+    try{                             //根据 userId 更新 USER 用户表中的金币数量 coinCount
         // await axiosInstance.put(`user/update-coin-by-user-id/${currentUserId.value}`,{
         //     coinCount : newCoinCount  //number类型
         // })

@@ -54,7 +54,15 @@ const localCoinCount = computed({
 const FrameList = ref<FrameItem[]>([
     { name: '红色',  color: '#ff4d4f', owned: false },
     { name: '深蓝',  color: '#003a8c', owned: false },
-    { name: '黑色',  color: '#000000', owned: false }
+    { name: '黑色',  color: '#000000', owned: false },
+    { name: '金色',  color: '#eff967', owned: false },
+    { name: '亮金色',  color: '#eff960', owned: false },
+    { name: '浅绿色',  color: '#bfe967', owned: false },
+    { name: '紫红色',  color: '#af1967', owned: false },
+    { name: '碧绿色',  color: '#1ff947', owned: false },
+    { name: '嫩绿色',  color: '#6ef947', owned: false },
+    { name: '土色',  color: '#ddd372', owned: false },
+    { name: '墨绿色',  color: '#4fc691', owned: false },
 ])
 
 interface FrameItem {
@@ -93,18 +101,25 @@ async function handleBuy(item:FrameItem){
     //TODO: 购买
     if (item.owned) return
     if(localCoinCount.value >= 2){
+        let newCoinCount = localCoinCount.value - 2
         try {       // 向数据库 OWNEDFRAME 表中添加这一行 userId frameColor frameName,表示该用户购买了该头像框
             // await axiosInstance.post('ownedframe/buy-one-frame', {
             //     userId: currentUserId.value,  //number类型
             //     frameColor: item.color,       //string类型(css样式的颜色值)
             //     frameName:item.name           //string类型(头像框名称)
             // })
-            localCoinCount.value -= 2
-            item.owned = true
-            ElMessage.success(`成功购买「${item.name}」头像框!`)
+            try{
+                // await axiosInstance.put(`user/update-coin-by-user-id/${currentUserId.value}`,{
+                //     coinCount: newCoinCount
+                // })
+                localCoinCount.value = newCoinCount
+                item.owned = true
+                ElMessage.success(`成功购买「${item.name}」头像框!`)
+            }catch(e){
+                ElMessage.error("PUT 请求错误, " + `购买「${item.name}」头像框失败`)
+            }
         } catch (e) {
             ElMessage.error("POST 请求错误, " + `购买「${item.name}」头像框失败`)
-            console.error(`购买「${item.name}」头像框失败`)
         }
     }else{
         ElMessage.error("金币不足, 无法购买")

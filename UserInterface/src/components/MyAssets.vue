@@ -204,10 +204,10 @@ async function getMyFrameList() {
 
 async function handleConfirmBg() {
     if (!selectedBg.value) return
-    try{                    //向 USER 表中更新 userId 对应的 background 和名称name
-        // await axiosInstance.put(`user/update-background-by-user-id/${currentUserId.value}`,{
+    try{                    //向 USER 表中更新 userId 对应的 bgUrl 和名称bgName
+        // await axiosInstance.put(`user/update-bg-by-user-id/${currentUserId.value}`,{
         //     bgUrl:selectedBg.value.url,   //string类型(背景图片的网址)
-        //     name:selectedBg.value.name    //string类型(背景图片的名称)
+        //     bgName:selectedBg.value.name    //string类型(背景图片的名称)
         // }) // TODO: 
         usingBg.value = selectedBg.value
         ElMessage.success("背景切换成功")
@@ -218,10 +218,10 @@ async function handleConfirmBg() {
 
 async function handleConfirmFrame() {
     if (!selectedFrame.value) return
-    try{                    //向 USER 表中更新 userId 对应的 frame 颜色和名称name   
+    try{                    //向 USER 表中更新 userId 对应的 frameColor 颜色和名称frameName   
         // await axiosInstance.put(`user/update-frame-by-user-id/${currentUserId.value}`,{
         //     frameColor:selectedFrame.value.color,  //string类型(css的颜色值)
-        //     name:selectedFrame.value.name          //string类型(头像框的名称)
+        //     frameName:selectedFrame.value.name          //string类型(头像框的名称)
         // }) // TODO: 
         usingFrame.value = selectedFrame.value
         localFrame.value = selectedFrame.value.color
@@ -233,7 +233,7 @@ async function handleConfirmFrame() {
 
 async function getUsingBg() {
     try{                                      //通过 userId 获取用户表中的 背景图片url 以及图片名称name
-        // const response = await axiosInstance.get(`user/get-background-by-user-id/${currentUserId.value}`)
+        // const response = await axiosInstance.get(`user/get-bg-by-user-id/${currentUserId.value}`)
         // usingBg.value= response.data // 这里的data期望是一个对象{url:"https://......", name:"海之梦"}
     }catch(e){
         ElMessage.error("GET失败, 获取正在使用的背景失败")

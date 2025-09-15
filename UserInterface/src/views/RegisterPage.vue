@@ -13,7 +13,8 @@
         <el-card class="form-card" shadow="hover">
           <!-- 社区标识 -->
           <div class="society-logo">
-            <img src='../assets/LogosAndIcons/TreeHoleLogo.png' alt="TreeHole Logo" />
+            <img :src='`${ossBaseUrl}TreeHoleLogo.png`'
+                 alt="TreeHole Logo" />
           </div>
 
           <!-- 页面标题与步骤指示器 -->
@@ -119,6 +120,7 @@ import axiosInstance from "../utils/axios";
 import { sha256 } from "js-sha256";
 import { Lock, Unlock, User } from "@element-plus/icons-vue";
 import axios from "axios";
+import {ossBaseUrl} from '../globals';
 
 // 路由管理
 const router = useRouter();
@@ -239,14 +241,14 @@ async function submitRegistrationData() {
   // 当前时间(0时区时间)
   const now = new Date().toISOString();
 
-  // 
+  // 发送用户数据
   const newUserData = {
     userName: stepOneFormData.username,
     password: sha256(stepOneFormData.password),
     registrationDate: now,
     lastLoginTime: now,
     role: 0,
-    status: 0,
+    status: 1, 
     avatarUrl: "",
     profile: "",
     gender: (stepTwoFormData.gender == 'Male' ? 0 : 1),
@@ -264,9 +266,9 @@ async function submitRegistrationData() {
   try {
     console.log('发送注册数据:', newUserData);
 
-    const response = await axiosInstance.post('user', newUserData);
-
-    return response.status == 201
+    // 发送注册请求
+    const response = await axiosInstance.post('/user', newUserData);
+    return response.status === 201;
   } catch (error) {
     console.error('注册请求错误:', error);
 
@@ -341,7 +343,7 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 <style scoped>
 .register-container {
   display: flex;
-  background: url('../assets/BackgroundImages/L&RBackgroundImage.png') no-repeat center center fixed;
+  background: url('/images/L&RBackgroundImage.png') no-repeat center center fixed;
   background-size: cover;
   justify-content: center;
   align-items: center;

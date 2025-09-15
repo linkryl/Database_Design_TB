@@ -91,12 +91,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET like_count = like_count + 1
-    WHERE post_id = :NEW.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :NEW.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET like_count = like_count + 1
+    WHERE post_id = :NEW.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = poster_user_id;
@@ -112,12 +117,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET like_count = like_count - 1
-    WHERE post_id = :OLD.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :OLD.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET like_count = like_count - 1
+    WHERE post_id = :OLD.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = poster_user_id;
@@ -153,12 +163,17 @@ FOR EACH ROW
 DECLARE
     commenter_user_id INT;
 BEGIN
-    UPDATE POST_COMMENT
-    SET like_count = like_count + 1
-    WHERE comment_id = :NEW.comment_id;
+    -- 先获取commenter_user_id，避免在UPDATE后读取POST_COMMENT表
     SELECT user_id INTO commenter_user_id
     FROM POST_COMMENT
     WHERE comment_id = :NEW.comment_id;
+    
+    -- 然后更新POST_COMMENT表
+    UPDATE POST_COMMENT
+    SET like_count = like_count + 1
+    WHERE comment_id = :NEW.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = commenter_user_id;
@@ -174,12 +189,17 @@ FOR EACH ROW
 DECLARE
     commenter_user_id INT;
 BEGIN
-    UPDATE POST_COMMENT
-    SET like_count = like_count - 1
-    WHERE comment_id = :OLD.comment_id;
+    -- 先获取commenter_user_id，避免在UPDATE后读取POST_COMMENT表
     SELECT user_id INTO commenter_user_id
     FROM POST_COMMENT
     WHERE comment_id = :OLD.comment_id;
+    
+    -- 然后更新POST_COMMENT表
+    UPDATE POST_COMMENT
+    SET like_count = like_count - 1
+    WHERE comment_id = :OLD.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = commenter_user_id;
@@ -215,12 +235,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET favorite_count = favorite_count + 1
-    WHERE post_id = :NEW.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :NEW.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET favorite_count = favorite_count + 1
+    WHERE post_id = :NEW.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count + 1
     WHERE user_id = poster_user_id;
@@ -236,12 +261,17 @@ FOR EACH ROW
 DECLARE
     poster_user_id INT;
 BEGIN
-    UPDATE POST
-    SET favorite_count = favorite_count - 1
-    WHERE post_id = :OLD.post_id;
+    -- 先获取poster_user_id，避免在UPDATE后读取POST表
     SELECT user_id INTO poster_user_id
     FROM POST
     WHERE post_id = :OLD.post_id;
+    
+    -- 然后更新POST表
+    UPDATE POST
+    SET favorite_count = favorite_count - 1
+    WHERE post_id = :OLD.post_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count - 1
     WHERE user_id = poster_user_id;
@@ -277,12 +307,17 @@ FOR EACH ROW
 DECLARE
     news_owner_id INT;
 BEGIN
-    UPDATE NEWS
-    SET like_count = like_count + 1
-    WHERE news_id = :NEW.news_id;
+    -- 先获取news_owner_id，避免在UPDATE后读取NEWS表
     SELECT user_id INTO news_owner_id
     FROM NEWS
     WHERE news_id = :NEW.news_id;
+    
+    -- 然后更新NEWS表
+    UPDATE NEWS
+    SET like_count = like_count + 1
+    WHERE news_id = :NEW.news_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = news_owner_id;
@@ -298,12 +333,17 @@ FOR EACH ROW
 DECLARE
     news_owner_id INT;
 BEGIN
-    UPDATE NEWS
-    SET like_count = like_count - 1
-    WHERE news_id = :OLD.news_id;
+    -- 先获取news_owner_id，避免在UPDATE后读取NEWS表
     SELECT user_id INTO news_owner_id
     FROM NEWS
     WHERE news_id = :OLD.news_id;
+    
+    -- 然后更新NEWS表
+    UPDATE NEWS
+    SET like_count = like_count - 1
+    WHERE news_id = :OLD.news_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = news_owner_id;
@@ -339,12 +379,17 @@ FOR EACH ROW
 DECLARE
     comment_user_id INT;
 BEGIN
-    UPDATE NEWS_COMMENT
-    SET like_count = like_count + 1
-    WHERE comment_id = :NEW.comment_id;
+    -- 先获取comment_user_id，避免在UPDATE后读取NEWS_COMMENT表
     SELECT user_id INTO comment_user_id
     FROM NEWS_COMMENT
     WHERE comment_id = :NEW.comment_id;
+    
+    -- 然后更新NEWS_COMMENT表
+    UPDATE NEWS_COMMENT
+    SET like_count = like_count + 1
+    WHERE comment_id = :NEW.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count + 1
     WHERE user_id = comment_user_id;
@@ -360,12 +405,17 @@ FOR EACH ROW
 DECLARE
     comment_user_id INT;
 BEGIN
-    UPDATE NEWS_COMMENT
-    SET like_count = like_count - 1
-    WHERE comment_id = :OLD.comment_id;
+    -- 先获取comment_user_id，避免在UPDATE后读取NEWS_COMMENT表
     SELECT user_id INTO comment_user_id
     FROM NEWS_COMMENT
     WHERE comment_id = :OLD.comment_id;
+    
+    -- 然后更新NEWS_COMMENT表
+    UPDATE NEWS_COMMENT
+    SET like_count = like_count - 1
+    WHERE comment_id = :OLD.comment_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET liked_count = liked_count - 1
     WHERE user_id = comment_user_id;
@@ -401,12 +451,17 @@ FOR EACH ROW
 DECLARE
     news_owner_id INT;
 BEGIN
-    UPDATE NEWS
-    SET favorite_count = favorite_count + 1
-    WHERE news_id = :NEW.news_id;
+    -- 先获取news_owner_id，避免在UPDATE后读取NEWS表
     SELECT user_id INTO news_owner_id
     FROM NEWS
     WHERE news_id = :NEW.news_id;
+    
+    -- 然后更新NEWS表
+    UPDATE NEWS
+    SET favorite_count = favorite_count + 1
+    WHERE news_id = :NEW.news_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count + 1
     WHERE user_id = news_owner_id;
@@ -422,12 +477,17 @@ FOR EACH ROW
 DECLARE
     news_owner_id INT;
 BEGIN
-    UPDATE NEWS
-    SET favorite_count = favorite_count - 1
-    WHERE news_id = :OLD.news_id;
+    -- 先获取news_owner_id，避免在UPDATE后读取NEWS表
     SELECT user_id INTO news_owner_id
     FROM NEWS
     WHERE news_id = :OLD.news_id;
+    
+    -- 然后更新NEWS表
+    UPDATE NEWS
+    SET favorite_count = favorite_count - 1
+    WHERE news_id = :OLD.news_id;
+    
+    -- 更新用户统计
     UPDATE "USER"
     SET favorited_count = favorited_count - 1
     WHERE user_id = news_owner_id;

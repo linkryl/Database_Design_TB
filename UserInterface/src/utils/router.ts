@@ -137,6 +137,16 @@ const routes: Array<RouteRecordRaw> = [
             title: '帖子详情'
         }
     },
+    // 私聊页面路由
+    {
+        path: '/chat/:userId',
+        name: 'UserChat',
+        // @ts-ignore
+        component: () => import('../views/UserChatPage.vue'),
+        meta: {
+            title: '私聊'
+        }
+    },
     // 404页面路由
     {
         path: '/404',

@@ -106,9 +106,16 @@ public class GroupController : ControllerBase
     public async Task<ActionResult<Group>> CreateGroup([FromBody] CreateGroupRequest request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.GroupName) || 
-            request.MemberIds == null || request.MemberIds.Count < 2)
+            request.CreateUserId <= 0)
         {
-            return BadRequest("群组名称和成员ID列表（至少2个成员）不能为空");
+            return BadRequest("群组名称和创建者ID不能为空");
+        }
+
+        // 确保创建者包含在成员列表中
+        var memberIds = request.MemberIds ?? new List<int>();
+        if (!memberIds.Contains(request.CreateUserId))
+        {
+            memberIds.Insert(0, request.CreateUserId); // 将创建者放在第一位
         }
 
         using var transaction = await _db.Database.BeginTransactionAsync();
@@ -130,10 +137,10 @@ public class GroupController : ControllerBase
                 GroupId = nextGroupId,
                 GroupName = request.GroupName,
                 GroupDesc = request.GroupDesc,
-                CreateUserId = request.MemberIds[0], // 第一个成员为群主
+                CreateUserId = request.CreateUserId, // 使用创建者ID
                 CreateTime = DateTime.Now,
                 LastActiveTime = DateTime.Now,
-                MemberCount = request.MemberIds.Count
+                MemberCount = memberIds.Count
             };
 
             _db.Groups.Add(group);
@@ -143,7 +150,7 @@ public class GroupController : ControllerBase
             var memberTimestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
             var nextMemberId = (int)(memberTimestamp % int.MaxValue);
             
-            foreach (var userId in request.MemberIds)
+            foreach (var userId in memberIds)
             {
                 // 确保MemberId唯一
                 while (await _db.GroupMembers.AnyAsync(gm => gm.MemberId == nextMemberId))
@@ -157,7 +164,7 @@ public class GroupController : ControllerBase
                     GroupId = group.GroupId,
                     UserId = userId,
                     JoinTime = DateTime.Now,
-                    Role = userId == request.MemberIds[0] ? 2 : 0 // 群主=2，普通成员=0
+                    Role = userId == request.CreateUserId ? 2 : 0 // 创建者=群主=2，普通成员=0
                 };
                 _db.GroupMembers.Add(member);
                 nextMemberId++; // 为下一个成员递增ID
@@ -232,7 +239,12 @@ public class CreateGroupRequest
     public string? GroupDesc { get; set; }
 
     /// <summary>
-    /// 成员用户ID列表
+    /// 创建者用户ID
+    /// </summary>
+    public int CreateUserId { get; set; }
+
+    /// <summary>
+    /// 成员用户ID列表（可选，创建者会自动包含）
     /// </summary>
     public List<int>? MemberIds { get; set; }
 }

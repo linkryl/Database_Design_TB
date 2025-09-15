@@ -178,8 +178,11 @@ const createGroup = async () => {
     const request = {
       groupName: createForm.groupName,
       groupDesc: createForm.groupDesc || null,
-      createUserId: currentUserId.value // 使用当前登录用户作为创建者
+      createUserId: currentUserId.value, // 使用当前登录用户作为创建者
+      memberIds: parsedMemberIds.value // 包含解析后的成员ID列表
     }
+    
+    console.log('创建群组请求数据:', request)
     
     await axios.post('/group', request)
     

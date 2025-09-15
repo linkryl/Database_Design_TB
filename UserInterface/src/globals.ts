@@ -7,7 +7,7 @@ import {ref} from 'vue'
 import type {Instance} from 'element-plus'
 
 
-export const apiBaseUrl = '/api'
+export const apiBaseUrl = 'http://localhost:5101/api'
 export const ossBaseUrl = '/images/'
 export const isProgressVisible = ref(false)
 export const tourRef1 = ref<Instance>()
@@ -16,6 +16,13 @@ export const tourRef3 = ref<Instance>()
 export const tourRef4 = ref<Instance>()
 export const showGuidedTour = ref(false)
 export const searchThresholdScore = 0.2
+
+// 初始化用户ID
+export function initializeUserId() {
+    if (!localStorage.getItem('userId')) {
+        localStorage.setItem('userId', '56') // 默认使用群组成员用户ID
+    }
+}
 
 export const carouselImages = [
     `${ossBaseUrl}CarouselImages/CarouselImage1.jpg`,

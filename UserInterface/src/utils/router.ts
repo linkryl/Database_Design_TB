@@ -147,6 +147,36 @@ const routes: Array<RouteRecordRaw> = [
             title: '私聊'
         }
     },
+    // 群组列表页面
+    {
+        path: '/group-list',
+        name: 'GroupList',
+        // @ts-ignore
+        component: () => import('../views/GroupListPage.vue'),
+        meta: {
+            title: '群组列表'
+        }
+    },
+    // 群组详情页面
+    {
+        path: '/group/:id',
+        name: 'GroupDetail',
+        // @ts-ignore
+        component: () => import('../views/GroupDetailPage.vue'),
+        meta: {
+            title: '群组详情'
+        }
+    },
+    // 群聊页面路由
+    {
+        path: '/group-chat/:groupId',
+        name: 'GroupChat',
+        // @ts-ignore
+        component: () => import('../views/GroupChatPage.vue'),
+        meta: {
+            title: '群聊'
+        }
+    },
     // 404页面路由
     {
         path: '/404',

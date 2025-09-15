@@ -10,7 +10,7 @@ TreeHole 开发组
                 <div class="user-box">
                 <!-- 头像 + 动态边框 -->
                 <div class="avatar-wrapper" :style="{ borderColor: avatarFrame }">
-                    <img class="avatar" :src="avatarUrl" />
+                    <img class="avatar" :src="avatarUrl" alt="_头像占位"/>
                 </div>
                     <div class="username">{{ username }}</div>
                     <div class="coincount">我的金币🪙：{{ coinCount }}</div>
@@ -31,18 +31,30 @@ TreeHole 开发组
 
             <main class="content">
                 <!--根据 activeKey 渲染对应组件-->
-                <MyAssets v-if="activeKey === 'assets'" />
-                <GetCoin v-else-if="activeKey === 'coin'" />
-                <GetBackground v-else-if="activeKey === 'background'" />
-                <GetFrame v-else-if="activeKey === 'frame'" />
+                <MyAssets 
+                    v-if="activeKey === 'assets'" 
+                    v-model:avatar-frame="avatarFrame"
+                />
+                <GetCoin 
+                    v-else-if="activeKey === 'coin'" 
+                    v-model:coin-count="coinCount"
+                />
+                <GetBackground 
+                    v-else-if="activeKey === 'background'"
+                    v-model:coin-count="coinCount" 
+                />
+                <GetFrame 
+                    v-else-if="activeKey === 'frame'" 
+                    v-model:coin-count="coinCount"
+                />
             </main>
         </div>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { ElFormItem, ElMessage, FormInstance, FormRules } from 'element-plus'
+import { onMounted, onUnmounted, reactive, ref, watchEffect} from 'vue'
+import { ElMessage } from 'element-plus'
 import axiosInstance from '../utils/axios'
 import MyAssets from "../components/MyAssets.vue"
 import GetCoin from "../components/GetCoin.vue"
@@ -57,7 +69,7 @@ const currentUserId = ref(isNaN(localStorageUserId) ? 0 : localStorageUserId)
 
 const avatarUrl = ref("https://gss0.baidu.com/7Ls0a8Sm2Q5IlBGlnYG/sys/portraith/item/tb.1.bdb1c536.7qSuTE4CMJHwpEF4Qw60Mw")
 const username = ref("_h_our")
-const coinCount = ref(0)
+const coinCount = ref(3)
 const avatarFrame = ref("#ff4d4f")
 
 const menuList = reactive([
@@ -69,22 +81,33 @@ const menuList = reactive([
 const activeKey = ref("assets")
 const windowWidth = ref(window.innerWidth)
 
+watchEffect(() => {
+  if (currentUserId.value === 0) {
+    // router.push('/login') //TODO：取消注释, 跳转登录页面, 让用户登录
+  }
+})
+
 onMounted(async ()=>{
-    if (currentUserId.value == 0) {
+    if (currentUserId.value === 0) {
         ElMessage.error("未找到登录信息, 请先登录")
         // router.push('/login') //TODO：到时候取消注释, 跳转登录页面, 让用户登录
         return
     }
 
     try {
-        // 获取用户信息包括：用户名、头像链接、金币、头像框颜色
-        const response = await axiosInstance.get(`user/user-info-for-market/${currentUserId}`)
-        username.value = response.data.username
-        avatarUrl.value = response.data.avatar
-        avatarFrame.value = response.data.frame 
-        coinCount.value = response.data.coin
+        // 获取用户信息展示在商店, 包括：用户名、头像链接、金币个数、头像框颜色
+        // TODO: 商量后端接口           读取user用户表, 返回data对象包含这4个值
+        // const response = await axiosInstance.get(`user/user-info-for-market/${currentUserId.value}`)
+        // username.value = response.data.username
+        // avatarUrl.value = response.data.avatar  //string类型
+        // avatarFrame.value = response.data.frame //string类型(css的颜色值)
+        // coinCount.value = response.data.coin    //number类型
     } catch (e) {
         ElMessage.error("获取用户信息失败, 请稍后重试")
+        username.value = "用户名占位"
+        avatarUrl.value = ""
+        avatarFrame.value ="#ffffff"
+        coinCount.value = 0
     }
 })
 

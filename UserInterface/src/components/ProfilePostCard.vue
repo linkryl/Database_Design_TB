@@ -1,5 +1,5 @@
 <!--
-  组件名称: PostCard.vue
+  组件名称: ProfilePostCard.vue
   组件功能: 帖子卡片组件
 -->
 
@@ -8,20 +8,16 @@
     <div class='post-header'>
       <el-avatar 
         class='author-avatar' 
-        :src='`${ossBaseUrl}${userData.avatarUrl}`' 
+        :src='avatarUrl' 
         :size='40'>
         <el-icon :size='20'>
           <UserFilled/>
         </el-icon>
       </el-avatar>
       <div class='author-info'>
-        <span class='author-name'>{{ userData.userName }}</span>
+        <span class='author-name'>{{ postData.userName }}</span>
         <span class='post-time'>{{ formatTime }}</span>
       </div>
-      <el-tag v-if='postData.isSticky' type='warning' size='small'>
-        <el-icon><Top/></el-icon>
-        置顶
-      </el-tag>
     </div>
     
     <div class='post-body'>
@@ -34,10 +30,6 @@
     
     <div class='post-footer'>
       <div class='footer-stats'>
-        <div class='stat-item'>
-          <el-icon><View/></el-icon>
-          <span>{{ postData.viewCount || 0 }}</span>
-        </div>
         <div class='stat-item'>
           <el-icon><ChatDotRound/></el-icon>
           <span>{{ postData.commentCount || 0 }}</span>
@@ -61,21 +53,27 @@
 <script setup lang='ts'>
 import { computed, onMounted, ref, defineProps } from 'vue'
 import { 
-  UserFilled, Top, View, ChatDotRound, 
+  UserFilled, ChatDotRound, 
   Pointer, Star 
 } from '@element-plus/icons-vue'
 import { ossBaseUrl, formatDateTimeToCST } from '../globals'
 import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
 
-const props = defineProps<{ postId: number }>()
+// Props定义
+const props = defineProps<{ 
+  postId: number 
+}>()
+
 const router = useRouter()
 
+// 帖子数据结构
 const postData = ref({
   postId: 0,
   userId: 0,
-  barId: 0,
   categoryId: 0,
+  barId: null as number | null,
+  alsoInTreehole: 0,
   title: '',
   content: '',
   creationDate: '',
@@ -86,18 +84,22 @@ const postData = ref({
   favoriteCount: 0,
   commentCount: 0,
   imageUrl: '',
-  viewCount: 0
-})
-
-const userData = ref({
-  userId: 0,
+  // 额外的用户信息字段
   userName: '',
-  avatarUrl: ''
+  userAvatarUrl: '',
+  userProfile: ''
 })
 
 const categoryName = ref('')
 
 // 计算属性
+const avatarUrl = computed(() => {
+  if (postData.value.userAvatarUrl) {
+    return `${ossBaseUrl}${postData.value.userAvatarUrl}`
+  }
+  return ''
+})
+
 const formatTime = computed(() => {
   if (!postData.value.creationDate) return ''
   try {
@@ -109,31 +111,105 @@ const formatTime = computed(() => {
 })
 
 // 获取帖子数据
-onMounted(async () => {
+const fetchPostData = async () => {
   try {
+    // 获取帖子信息
     const postResponse = await axiosInstance.get(`post/${props.postId}`)
-    postData.value = postResponse.data
+    const post = postResponse.data
     
-    // 获取作者信息
-    if (postData.value.userId) {
-      const userResponse = await axiosInstance.get(`user/${postData.value.userId}`)
-      userData.value = userResponse.data
+    // 初始化帖子基本数据
+    postData.value = {
+      postId: post.postId || props.postId,
+      userId: post.userId || 0,
+      categoryId: post.categoryId || 0,
+      barId: post.barId !== undefined ? post.barId : null,
+      alsoInTreehole: post.alsoInTreehole || 0,
+      title: post.title || '',
+      content: post.content || '',
+      creationDate: post.creationDate || '',
+      updateDate: post.updateDate || '',
+      isSticky: post.isSticky || 0,
+      likeCount: post.likeCount || 0,
+      dislikeCount: post.dislikeCount || 0,
+      favoriteCount: post.favoriteCount || 0,
+      commentCount: post.commentCount || 0,
+      imageUrl: post.imageUrl || '',
+      // 初始化额外字段
+      userName: '',
+      userAvatarUrl: '',
+      userProfile: '',
     }
     
+    // 获取作者信息
+    if (post.userId) {
+      try {
+        const userResponse = await axiosInstance.get(`user/${post.userId}`)
+        const userData = userResponse.data
+        
+        // 更新用户相关信息
+        postData.value = {
+          ...postData.value,
+          userName: userData.userName || '未知用户',
+          userAvatarUrl: userData.avatarUrl || '',
+          userProfile: userData.profile || ''
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+        // 即使用户信息获取失败，也保留默认值
+        postData.value = {
+          ...postData.value,
+          userName: '未知用户',
+          userAvatarUrl: '',
+          userProfile: ''
+        }
+      }
+    }
     // 获取分类信息
-    if (postData.value.categoryId) {
-      const categoryResponse = await axiosInstance.get(`post-category/${postData.value.categoryId}`)
-      categoryName.value = categoryResponse.data.category || ''
+    if (post.categoryId) {
+      try {
+        const categoryResponse = await axiosInstance.get(`post-category/${post.categoryId}`)
+        categoryName.value = categoryResponse.data.category || categoryResponse.data.categoryName || ''
+      } catch (error) {
+        console.error('获取分类信息失败:', error)
+
+        categoryName.value = '未分类'
+      }
     }
   } catch (error) {
     console.error('获取帖子信息失败:', error)
+    // 设置默认值
+    postData.value = {
+      postId: props.postId,
+      userId: 0,
+      categoryId: 0,
+      barId: null,
+      alsoInTreehole: 0,
+      title: '加载失败',
+      content: '无法加载帖子内容',
+      creationDate: '',
+      updateDate: '',
+      isSticky: 0,
+      likeCount: 0,
+      dislikeCount: 0,
+      favoriteCount: 0,
+      commentCount: 0,
+      imageUrl: '',
+      userName: '未知用户',
+      userAvatarUrl: '',
+      userProfile: ''
+    }
   }
-})
+}
 
 // 处理点击事件
 const handleClick = () => {
-  router.push(`/post/${props.postId}`)
+  router.push(`/PostPage/${props.postId}`)
 }
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchPostData()
+})
 </script>
 
 <style scoped>

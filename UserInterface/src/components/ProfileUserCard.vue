@@ -1,5 +1,5 @@
 <!--
-  组件名称: UserCard.vue
+  组件名称: ProfileUserCard.vue
   组件功能: 用户卡片组件
 -->
 
@@ -134,7 +134,7 @@ onMounted(async () => {
 
 // 处理点击事件
 const handleClick = () => {
-  router.push(`/user/${props.userId}`)
+  router.push(`/profile/${props.userId}`)
 }
 </script>
 

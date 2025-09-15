@@ -1,60 +1,60 @@
 <!--
-  组件名称: BarCard.vue
+  组件名称: ProfileBarCard.vue
   组件功能: 贴吧卡片组件
-  暂定信息组件
 -->
 
 <template>
   <div class='bar-card' @click='handleClick'>
-    <div class='bar-header'>
-      <div class='bar-icon'>
-        <el-icon :size='40'>
+    <!-- 贴吧头像 -->
+    <div class='bar-avatar-wrapper'>
+      <el-avatar 
+        class='bar-avatar' 
+        :src='barAvatarUrl' 
+        :size='60'>
+        <el-icon :size='30'>
           <House/>
         </el-icon>
-      </div>
-      <div class='bar-badge' v-if='isOwner'>
-        <el-icon><Trophy/></el-icon>
-        吧主
-      </div>
+      </el-avatar>
     </div>
     
-    <div class='bar-body'>
-      <h3 class='bar-name'>{{ barData.barName }}</h3>
+    <!-- 贴吧信息 -->
+    <div class='bar-info'>
+      <div class='bar-header'>
+        <h3 class='bar-name'>{{ barData.barName }}</h3>
+        <div class='bar-badges'>
+          <el-tag v-if='isOwner' type='warning' size='small'>
+            <el-icon><Trophy/></el-icon>
+            吧主
+          </el-tag>
+          <el-tag v-if='barData.status === 1' type='info' size='small'>
+            已归档
+          </el-tag>
+          <el-tag v-if='barData.status === 2' type='danger' size='small'>
+            已解散
+          </el-tag>
+        </div>
+      </div>
+      
       <p class='bar-description'>{{ barData.description || '这个贴吧还没有简介...' }}</p>
-    </div>
-    
-    <div class='bar-stats'>
-      <div class='stat-row'>
-        <div class='stat-item'>
-          <span class='stat-value'>{{ formatNumber(barData.memberCount || 0) }}</span>
-          <span class='stat-label'>成员</span>
-        </div>
-        <div class='stat-item'>
-          <span class='stat-value'>{{ formatNumber(barData.postCount || 0) }}</span>
-          <span class='stat-label'>帖子</span>
-        </div>
-        <div class='stat-item'>
-          <span class='stat-value'>{{ formatNumber(barData.todayPosts || 0) }}</span>
-          <span class='stat-label'>今日</span>
-        </div>
+      
+      <div class='bar-meta'>
+        <span class='meta-item'>
+          <el-icon><User/></el-icon>
+          吧主：{{ ownerName }}
+        </span>
+        <span class='meta-item'>
+          <el-icon><UserFilled/></el-icon>
+          {{ formatNumber(barData.followedCount) }} 关注
+        </span>
+        <span class='meta-item'>
+          <el-icon><Document/></el-icon>
+          {{ formatNumber(barData.postCount) }} 帖子
+        </span>
+        <span class='meta-item'>
+          <el-icon><Calendar/></el-icon>
+          {{ formatTime }}
+        </span>
       </div>
-    </div>
-    
-    <div class='bar-footer'>
-      <div class='bar-tags'>
-        <el-tag v-if='barData.isHot' type='danger' size='small'>
-          <el-icon><Flame/></el-icon>
-          热门
-        </el-tag>
-        <el-tag v-if='barData.isRecommended' type='success' size='small'>
-          <el-icon><Star/></el-icon>
-          推荐
-        </el-tag>
-        <el-tag v-if='barData.category' size='small'>
-          {{ barData.category }}
-        </el-tag>
-      </div>
-      <span class='create-time'>{{ formatTime }}</span>
     </div>
   </div>
 </template>
@@ -62,39 +62,56 @@
 <script setup lang='ts'>
 import { computed, onMounted, ref, defineProps } from 'vue'
 import { 
-  House, Trophy, Star 
+  House, Trophy, User, UserFilled,
+  Document, Calendar
 } from '@element-plus/icons-vue'
-import { formatDateTimeToCST } from '../globals'
+import { formatDateTimeToCST, ossBaseUrl } from '../globals'
 import { useRouter } from 'vue-router'
 import axiosInstance from '../utils/axios'
 
-const props = defineProps<{ barId: number }>()
+// Props定义
+const props = defineProps<{ 
+  barId: number 
+}>()
+
 const router = useRouter()
 
+// 贴吧数据结构（与 THBar 接口保持一致）
 const barData = ref({
   barId: 0,
+  ownerId: 0,
   barName: '',
   description: '',
-  category: '',
-  memberCount: 0,
+  avatarUrl: '',
+  coverUrl: '',
+  creationDate: '',
+  updateDate: '',
+  status: 0, // 0=正常，1=归档，2=已解散
+  followedCount: 0,
   postCount: 0,
-  todayPosts: 0,
-  createTime: '',
-  isHot: false,
-  isRecommended: false,
-  ownerId: 0
+  rules: '',
+  tags: ''
 })
 
+// 吧主信息
+const ownerName = ref('加载中...')
 const isOwner = ref(false)
 
 // 计算属性
+const barAvatarUrl = computed(() => {
+  if (barData.value.avatarUrl) {
+    return `${ossBaseUrl}${barData.value.avatarUrl}`
+  }
+  return ''
+})
+
 const formatTime = computed(() => {
-  if (!barData.value.createTime) return ''
+  if (!barData.value.creationDate) return ''
   try {
-    const result = formatDateTimeToCST(barData.value.createTime)
+    const result = formatDateTimeToCST(barData.value.creationDate)
     return result.date
   } catch {
-    return ''
+    return '未知时间'
   }
 })
 
@@ -109,183 +126,211 @@ const formatNumber = (num: number): string => {
 }
 
 // 获取贴吧数据
-onMounted(async () => {
+const fetchBarData = async () => {
   try {
+    // 获取贴吧信息
     const response = await axiosInstance.get(`bar/${props.barId}`)
-    barData.value = response.data
+    const data = response.data
     
-    // 检查是否是吧主
-    const currentUserId = localStorage.getItem('currentUserId')
-    if (currentUserId && barData.value.ownerId) {
-      isOwner.value = parseInt(currentUserId) === barData.value.ownerId
+    // 更新贴吧数据，确保与 THBar 接口一致
+    barData.value = {
+      barId: data.barId || props.barId,
+      ownerId: data.ownerId || 0,
+      barName: data.barName || '',
+      description: data.description || '',
+      avatarUrl: data.avatarUrl || '',
+      coverUrl: data.coverUrl || '',
+      creationDate: data.creationDate || '',
+      updateDate: data.updateDate || '',
+      status: data.status !== undefined ? data.status : 0,
+      followedCount: data.followedCount || 0,
+      postCount: data.postCount || 0,
+      rules: data.rules || '',
+      tags: data.tags || ''
+    }
+    
+    // 获取吧主信息
+    if (barData.value.ownerId) {
+      try {
+        const ownerResponse = await axiosInstance.get(`user/${barData.value.ownerId}`)
+        ownerName.value = ownerResponse.data.userName || '未知用户'
+        
+        // 检查是否是吧主
+        const currentUserId = localStorage.getItem('currentUserId')
+        if (currentUserId) {
+          isOwner.value = parseInt(currentUserId) === barData.value.ownerId
+        }
+      } catch (error) {
+        console.error('获取吧主信息失败:', error)
+        ownerName.value = '未知用户'
+      }
     }
   } catch (error) {
     console.error('获取贴吧信息失败:', error)
+    // 设置默认值
+    barData.value = {
+      barId: props.barId,
+      ownerId: 0,
+      barName: '加载失败',
+      description: '无法加载贴吧信息',
+      avatarUrl: '',
+      coverUrl: '',
+      creationDate: '',
+      updateDate: '',
+      status: 0,
+      followedCount: 0,
+      postCount: 0,
+      rules: '',
+      tags: ''
+    }
+    ownerName.value = '未知'
   }
-})
+}
 
 // 处理点击事件
 const handleClick = () => {
   router.push(`/bar/${props.barId}`)
 }
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchBarData()
+})
 </script>
 
 <style scoped>
 .bar-card {
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   border: 1px solid #e2e8f0;
   transition: all 0.3s;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.bar-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  opacity: 0.05;
-  transition: opacity 0.3s;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
 .bar-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  transform: translateX(4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
   border-color: #cbd5e1;
 }
 
-.bar-card:hover::before {
-  opacity: 0.1;
+/* 贴吧头像 */
+.bar-avatar-wrapper {
+  flex-shrink: 0;
+}
+
+.bar-avatar {
+  border: 2px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* 贴吧信息 */
+.bar-info {
+  flex: 1;
+  min-width: 0; /* 防止内容溢出 */
 }
 
 .bar-header {
   display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
-}
-
-.bar-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 20px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}
-
-.bar-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-}
-
-.bar-body {
-  flex: 1;
-  text-align: center;
-  margin-bottom: 20px;
-  z-index: 1;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .bar-name {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 600;
   color: #1e293b;
-  margin: 0 0 12px 0;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 300px;
+}
+
+.bar-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bar-badges .el-tag {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .bar-description {
   font-size: 14px;
   color: #475569;
   line-height: 1.5;
-  margin: 0;
+  margin: 0 0 12px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 42px;
 }
 
-.bar-stats {
-  margin-bottom: 20px;
-  z-index: 1;
-}
-
-.stat-row {
+.bar-meta {
   display: flex;
-  justify-content: space-around;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 10px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 20px;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.bar-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
-  z-index: 1;
-}
-
-.bar-tags {
-  display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
 }
 
-.bar-tags .el-tag {
+.meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.create-time {
-  font-size: 12px;
-  color: #94a3b8;
+.meta-item .el-icon {
+  font-size: 14px;
+}
+
+/* 操作按钮 */
+.bar-actions {
   flex-shrink: 0;
+}
+
+.bar-actions .el-button {
+  min-width: 90px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .bar-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bar-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bar-name {
+    max-width: 100%;
+  }
+  
+  .bar-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .bar-actions {
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  .bar-actions .el-button {
+    width: 100%;
+  }
 }
 </style>

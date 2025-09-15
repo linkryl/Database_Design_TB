@@ -226,6 +226,28 @@ public class BarController(OracleDbContext context) : ControllerBase
         }
     }
 
+    // 获取用户创建的所有贴吧ID
+    [HttpGet("user/{userId:int}/owned-bar-ids")]
+    [SwaggerOperation(Summary = "获取用户创建的所有贴吧ID",Description = "返回指定用户创建的所有贴吧ID（排除已解散的贴吧）")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult<IEnumerable<int>>> GetUserOwnedBarIds(int userId)
+    {
+        try
+        {
+            var ownedBarIds = await context.BarSet
+                .Where(b => b.OwnerId == userId && b.Status != 2) // 排除已解散的贴吧
+                .Select(b => b.BarId)
+                .ToListAsync();
+
+            return Ok(ownedBarIds);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
     // 搜索贴吧
     [HttpGet("search")]
     [SwaggerOperation(Summary = "搜索贴吧", Description = "根据关键词搜索贴吧名称和描述")]

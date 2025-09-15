@@ -133,16 +133,19 @@
               <div class='info-section'>
                 <h3 class='section-title'>账户统计</h3>
                 <div class='stats-grid'>
+
                   <div class='stat-card'>
                     <el-icon class='stat-icon' color='#3b82f6'><Document/></el-icon>
                     <div class='stat-value'>{{ userInfo.followBar }}</div>
                     <div class='stat-label'>关注贴吧</div>
                   </div>
+                  <!--
                   <div class='stat-card'>
                     <el-icon class='stat-icon' color='#10b981'><Star/></el-icon>
                     <div class='stat-value'>{{ userInfo.favoriteCount }}</div>
                     <div class='stat-label'>收藏帖子</div>
                   </div>
+                  -->
                   <div class='stat-card'>
                     <el-icon class='stat-icon' color='#f59e0b'><Coin/></el-icon>
                     <div class='stat-value'>{{ userInfo.coinCount }}</div>
@@ -399,15 +402,15 @@ const menuItems = computed(() => [
     key: 'following', 
     label: isSelf.value ? '我的关注' : 'TA的关注', 
     icon: 'UserFilled',
-    count: userInfo.value.followUser,
-    visible: true 
+    //  count: userInfo.value.followUser,
+    visible: isSelf.value  
   },
   { 
     key: 'followers', 
     label: isSelf.value ? '我的粉丝' : 'TA的粉丝', 
     icon: 'User',
-    count: userInfo.value.followedCount,
-    visible: true 
+    //  count: userInfo.value.followedCount,
+    visible: isSelf.value  
   },
   { 
     key: 'myBars', 
@@ -419,8 +422,8 @@ const menuItems = computed(() => [
     key: 'followedBars', 
     label: isSelf.value ? '我关注的贴吧' : 'TA关注的贴吧', 
     icon: 'CollectionTag',
-    count: userInfo.value.followBar,
-    visible: true 
+    // count: userInfo.value.followBar,
+    visible: isSelf.value  
   },
   { 
     key: 'myPosts', 
@@ -432,7 +435,7 @@ const menuItems = computed(() => [
     key: 'favorites', 
     label: '我收藏的帖子', 
     icon: 'Star',
-    count: userInfo.value.favoriteCount,
+    //  count: userInfo.value.favoriteCount,
     visible: isSelf.value 
   }
 ])
@@ -500,50 +503,55 @@ const loadTabData = async (tab: string) => {
 // 加载关注列表id
 const loadFollowingList = async () => {
   try {
-    const res = await axiosInstance.get(`user-follow/following/${viewedUserId.value}`)
+    const res = await axiosInstance.get(`user-follow/following-ids/${viewedUserId.value}`)
     followingList.value = res.data || []
   } catch (error) {
     console.error('获取关注列表失败:', error)
+    ElMessage.error('获取关注列表失败')
   }
 }
 
 // 加载粉丝列表id
 const loadFollowersList = async () => {
   try {
-    const res = await axiosInstance.get(`user-follow/followers/${viewedUserId.value}`)
+    const res = await axiosInstance.get(`user-follow/followers-ids/${viewedUserId.value}`)
     followersList.value = res.data || []
   } catch (error) {
     console.error('获取粉丝列表失败:', error)
+    ElMessage.error('获取粉丝列表失败')
   }
 }
 
 // 加载我的贴吧id
 const loadMyBarsList = async () => {
   try {
-    const res = await axiosInstance.get(`bar/user/${viewedUserId.value}`)
+    const res = await axiosInstance.get(`bar/user/${viewedUserId.value}/owned-bar-ids`)
     myBarsList.value = res.data || []
   } catch (error) {
     console.error('获取贴吧列表失败:', error)
+    ElMessage.error('获取贴吧列表失败')
   }
 }
 
 // 加载关注的贴吧id
 const loadFollowedBarsList = async () => {
   try {
-    const res = await axiosInstance.get(`bar-follow/user/${viewedUserId.value}`)
+    const res = await axiosInstance.get(`bar-follow/user/${viewedUserId.value}/bar-ids`)
     followedBarsList.value = res.data || []
   } catch (error) {
     console.error('获取关注贴吧失败:', error)
+    ElMessage.error('获取关注贴吧失败')
   }
 }
 
 // 加载我的帖子id
 const loadMyPostsList = async () => {
   try {
-    const res = await axiosInstance.get(`post/user/${viewedUserId.value}`)
+    const res = await axiosInstance.get(`post/user-ids/${viewedUserId.value}`)
     myPostsList.value = res.data || []
   } catch (error) {
     console.error('获取帖子列表失败:', error)
+    ElMessage.error('获取帖子列表失败')
   }
 }
 
@@ -554,8 +562,10 @@ const loadFavoritesList = async () => {
     favoritesList.value = res.data || []
   } catch (error) {
     console.error('获取收藏列表失败:', error)
+    ElMessage.error('获取收藏列表失败')
   }
 }
+
 
 // 当前等级
 const currentLevel = computed(() => {
@@ -797,6 +807,7 @@ const disableFutureDate = (date: Date) => {
 watch(() => route.params.id, (newId) => {
   viewedUserId.value = parseInt(newId as string)
   userInfo.value.uid = viewedUserId.value
+  activeTab.value = 'profile'
   fetchUserProfile()
   fetchFollowStatus()
 })

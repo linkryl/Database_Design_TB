@@ -9,10 +9,6 @@ import {createApp} from 'vue'
 import router from './utils/router'
 import 'element-plus/dist/index.css'
 import './styles/ScrollbarCSS.css'
-import { initializeUserId } from './globals'
-
-// 初始化用户ID
-initializeUserId()
 
 const app = createApp(App)
 

@@ -109,7 +109,10 @@ const groupId = ref(Number(route.params.groupId))
 const groupInfo = ref<any>(null)
 const messages = ref<any[]>([])
 const messageText = ref('')
-const currentUserId = ref(Number(localStorage.getItem('userId') || '56')) // 临时使用56，该用户是群组成员
+// 从localStorage获取当前登录用户ID，与系统保持一致
+const storedValue = localStorage.getItem('currentUserId')
+const storedUserId = storedValue ? parseInt(storedValue) : 0
+const currentUserId = ref(isNaN(storedUserId) ? 0 : storedUserId)
 const loading = ref(false)
 const sending = ref(false)
 const hasMore = ref(true)
@@ -171,6 +174,13 @@ const loadMoreMessages = async () => {
 // 发送消息
 const sendMessage = async () => {
   if (!messageText.value.trim() || sending.value) return
+  
+  // 检查用户是否已登录
+  if (!currentUserId.value || currentUserId.value === 0) {
+    ElMessage.error('请先登录后再发送消息')
+    router.push('/login')
+    return
+  }
   
   sending.value = true
   try {
@@ -255,10 +265,21 @@ watch(() => route.params.groupId, (newId) => {
   }
 })
 
+// 监听认证状态变化事件
+const handleAuthStateChange = (_e: Event) => {
+  // 更新当前用户ID
+  const storedValue = localStorage.getItem('currentUserId')
+  const storedUserId = storedValue ? parseInt(storedValue) : 0
+  currentUserId.value = isNaN(storedUserId) ? 0 : storedUserId
+}
+
 // 组件挂载
 onMounted(() => {
   loadGroupInfo()
   loadMessages()
+  
+  // 添加认证状态变化监听
+  window.addEventListener('authStateChanged', handleAuthStateChange)
 })
 
 // 定时刷新消息（简单轮询，生产环境建议使用WebSocket）
@@ -277,6 +298,8 @@ onUnmounted(() => {
   if (refreshInterval) {
     clearInterval(refreshInterval)
   }
+  // 移除认证状态变化监听
+  window.removeEventListener('authStateChanged', handleAuthStateChange)
 })
 </script>
 

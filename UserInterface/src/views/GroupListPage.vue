@@ -162,27 +162,23 @@ const loadGroups = async () => {
 const createGroup = async () => {
   if (!createFormRef.value) return
   
+  // 检查用户是否已登录
+  if (!currentUserId.value || currentUserId.value === 0) {
+    ElMessage.error('请先登录后再创建群组')
+    router.push('/login')
+    return
+  }
+  
   // 验证表单
   const valid = await createFormRef.value.validate().catch(() => false)
   if (!valid) return
   
-  // 验证成员ID
-  if (parsedMemberIds.value.length < 2) {
-    ElMessage.error('至少需要2个有效的成员用户ID')
-    return
-  }
-  
   creating.value = true
   try {
-    // 确保当前用户是第一个成员（作为群主）
-    const allMemberIds = [currentUserId.value, ...parsedMemberIds.value]
-    // 去重，避免重复添加当前用户
-    const uniqueMemberIds = [...new Set(allMemberIds)]
-    
     const request = {
       groupName: createForm.groupName,
       groupDesc: createForm.groupDesc || null,
-      memberIds: uniqueMemberIds
+      createUserId: currentUserId.value // 使用当前登录用户作为创建者
     }
     
     await axios.post('/group', request)

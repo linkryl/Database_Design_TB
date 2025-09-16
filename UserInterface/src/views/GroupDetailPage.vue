@@ -351,7 +351,7 @@ const handleMemberCommand = async (command: string, member: Member) => {
         break
       
       case 'mute':
-        await axios.put(`/api/group-setting/${groupInfo.value.groupId}/mute`, {
+        await axios.put(`/group-setting/${groupInfo.value.groupId}/mute`, {
           operatorUserId: currentUserId.value,
           targetUserId: member.userId,
           isMuted: true
@@ -360,7 +360,7 @@ const handleMemberCommand = async (command: string, member: Member) => {
         break
       
       case 'unmute':
-        await axios.put(`/api/group-setting/${groupInfo.value.groupId}/mute`, {
+        await axios.put(`/group-setting/${groupInfo.value.groupId}/mute`, {
           operatorUserId: currentUserId.value,
           targetUserId: member.userId,
           isMuted: false
@@ -379,7 +379,7 @@ const handleMemberCommand = async (command: string, member: Member) => {
           }
         )
         
-        await axios.delete(`/api/group-member/${groupInfo.value.groupId}/kick?targetUserId=${member.userId}&operatorUserId=${currentUserId.value}`)
+        await axios.delete(`/group-member/${groupInfo.value.groupId}/kick?targetUserId=${member.userId}&operatorUserId=${currentUserId.value}`)
         ElMessage.success('踢出成功')
         break
     }

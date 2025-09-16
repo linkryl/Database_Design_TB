@@ -185,6 +185,12 @@ export interface THPasswordUpdate {
   plainPassword: string
 }
 
+export interface THResetPasswordRequest {
+  userName: string
+  birthdate: string
+  newPlainPassword: string
+}
+
 /**
  * 贴吧数据接口
  */
@@ -499,11 +505,15 @@ export const updateUserAvatar = async (userId: number, data: THAvatarUpdate) => 
   return response.data
 }
 
-/**
- * 更新用户密码
- */
+// 更新密码
 export const updateUserPassword = async (userId: number, data: THPasswordUpdate) => {
   const response = await thApiClient.put(`/user/password/${userId}`, data)
+  return response.data
+}
+
+// 重置密码：通过用户名与出生日期
+export const resetPassword = async (data: THResetPasswordRequest) => {
+  const response = await thApiClient.post('/user/reset-password', data)
   return response.data
 }
 
@@ -663,3 +673,50 @@ export const getUserFollowedBarIds = async (userId: number) => {
 }
 
 export default thApiClient
+
+// ==================== 选举相关接口 ====================
+// 前端调用封装：发起选举、获取当前选举、报名、候选列表、投票、结束、查看结果
+
+// 发起选举请求体
+export interface THCreateElectionRequest {
+  startTime: string
+  endTime: string
+}
+
+// 报名参选请求体
+export interface THJoinElectionRequest {
+  manifesto?: string
+}
+
+// 投票请求体
+export interface THVoteElectionRequest {
+  candidateUserId: number
+}
+
+// 发起选举（需要吧主/管理员权限）
+export const createElection = (barId: number, data: THCreateElectionRequest) =>
+  thApiClient.post(`/bar/${barId}/elections`, data).then(r => r.data)
+
+// 获取该吧当前进行中的选举
+export const getCurrentElection = (barId: number) =>
+  thApiClient.get(`/bar/${barId}/elections/current`).then(r => r.data)
+
+// 报名参选
+export const joinElection = (electionId: number, data: THJoinElectionRequest) =>
+  thApiClient.post(`/bar-elections/${electionId}/candidates`, data).then(r => r.data)
+
+// 获取候选人列表
+export const getCandidates = (electionId: number) =>
+  thApiClient.get(`/bar-elections/${electionId}/candidates`).then(r => r.data)
+
+// 对候选人投票
+export const voteCandidate = (electionId: number, candidateUserId: number) =>
+  thApiClient.post(`/bar-elections/${electionId}/vote`, { candidateUserId } as THVoteElectionRequest).then(r => r.data)
+
+// 结束选举并更新吧主
+export const closeElection = (electionId: number) =>
+  thApiClient.post(`/bar-elections/${electionId}/close`).then(r => r.data)
+
+// 查看选举结果（公开）
+export const getElectionResults = (electionId: number) =>
+  thApiClient.get(`/bar-elections/${electionId}/results`).then(r => r.data)

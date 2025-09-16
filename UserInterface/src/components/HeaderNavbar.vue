@@ -323,7 +323,18 @@ const handleAuthStateChange = (_e: Event) => {
         currentUserName.value = response.data.userName
       })
       .catch(error => {
-        console.error('获取用户名失败:', error)
+        if (error?.response?.status === 404) {
+          // 用户不存在，降级为未登录
+          localStorage.removeItem('jwtToken')
+          localStorage.setItem('currentUserId', '0')
+          localStorage.removeItem('userRole')
+          localStorage.removeItem('isAdmin')
+          currentUserId.value = 0
+          currentUserName.value = ''
+          authState.value++
+        } else {
+          console.error('获取用户名失败:', error)
+        }
       })
   } else {
     currentUserName.value = ''
@@ -336,7 +347,18 @@ onMounted(async () => {
       const response = await axiosInstance.get(`user/${currentUserId.value}`)
       currentUserName.value = response.data.userName          // 设置用户名
     } catch (error: any) {
-      ElMessage.error("GET 请求失败，请检查网络连接情况或稍后重试。")
+      if (error?.response?.status === 404) {
+        // 本地存的 userId 在后端不存在，视为未登录状态并清理
+        localStorage.removeItem('jwtToken')
+        localStorage.setItem('currentUserId', '0')
+        localStorage.removeItem('userRole')
+        localStorage.removeItem('isAdmin')
+        currentUserId.value = 0
+        currentUserName.value = ''
+        authState.value++
+      } else {
+        ElMessage.error('请求失败，请检查网络连接或稍后重试。')
+      }
     }
   }
   

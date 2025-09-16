@@ -6,7 +6,7 @@ TreeHole API接口封装
 import axios from 'axios'
 
 // TreeHole API 基础配置
-const thApiBaseUrl = '/api'
+const thApiBaseUrl = (import.meta as any).env?.VITE_API_BASE || '/api'
 
 const thApiClient = axios.create({
   baseURL: thApiBaseUrl,

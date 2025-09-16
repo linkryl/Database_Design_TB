@@ -146,10 +146,12 @@ export interface THCommentDislike {
  * 帖子举报数据接口
  */
 export interface THPostReport {
-  postId: number
-  userId: number
+  reporterId: number
+  reportedUserId: number
+  reportedPostId: number
   reportReason: string
   reportTime: string
+  status: number
 }
 
 /**
@@ -241,24 +243,80 @@ export const getPostById = async (postId: number) => {
 /**
  * 获取最新帖子ID列表
  */
-export const getLatestPostIds = async (count: number = 10) => {
-  const response = await thApiClient.get(`/post/latest-ids?count=${count}`)
+export const getLatestPostIds = async (count: number = 10, userId?: number) => {
+  let url = `/post/latest-ids?count=${count}`
+  if (userId) {
+    url += `&userId=${userId}`
+  }
+  const response = await thApiClient.get(url)
   return response.data
 }
 
 /**
  * 获取树洞社区的帖子ID列表
  */
-export const getTreeholePostIds = async (count: number = 20) => {
-  const response = await thApiClient.get(`/post/treehole-ids?count=${count}`)
+export const getTreeholePostIds = async (count: number = 20, userId?: number) => {
+  let url = `/post/treehole-ids?count=${count}`
+  if (userId) {
+    url += `&userId=${userId}`
+  }
+  const response = await thApiClient.get(url)
   return response.data
 }
 
 /**
  * 获取指定贴吧的帖子ID列表
  */
-export const getBarPostIds = async (barId: number, count: number = 20) => {
-  const response = await thApiClient.get(`/post/bar/${barId}/post-ids?count=${count}`)
+export const getBarPostIds = async (barId: number, count: number = 20, userId?: number) => {
+  let url = `/post/bar-ids/${barId}?count=${count}`
+  if (userId) {
+    url += `&userId=${userId}`
+  }
+  const response = await thApiClient.get(url)
+  return response.data
+}
+
+// 高级发帖请求数据接口
+export interface AdvancedPostRequest {
+  userId: number
+  categoryId: number
+  publishType: string // "treehole" 或 "bar"
+  barId?: number // 仅当publishType为"bar"时需要
+  alsoInTreehole?: boolean // 是否同时在树洞显示
+  title: string
+  content: string
+  imageUrl?: string | null
+}
+
+/**
+ * 高级发帖功能 - 支持位置选择和跨发布
+ */
+export const createAdvancedPost = async (data: AdvancedPostRequest) => {
+  const response = await thApiClient.post('/post/advanced', data)
+  return response.data
+}
+
+/**
+ * 获取帖子位置信息
+ */
+export const getPostLocation = async (postId: number) => {
+  const response = await thApiClient.get(`/post/${postId}/location`)
+  return response.data
+}
+
+/**
+ * 删除自己的帖子
+ */
+export const deleteMyPost = async (postId: number, userId: number) => {
+  const response = await thApiClient.delete(`/post/${postId}/user/${userId}`)
+  return response.data
+}
+
+/**
+ * 软删除自己的帖子（备用方案）
+ */
+export const softDeleteMyPost = async (postId: number, userId: number) => {
+  const response = await thApiClient.put(`/post/${postId}/user/${userId}/soft-delete`)
   return response.data
 }
 

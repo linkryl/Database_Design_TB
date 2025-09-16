@@ -161,6 +161,29 @@ public class PostCommentController(OracleDbContext context) : ControllerBase
             return Forbid("您的账号已被封禁，无法评论");
         }
 
+        // 检查帖子是否存在
+        var post = await context.PostSet.FindAsync(postComment.PostId);
+        if (post == null)
+        {
+            return BadRequest("帖子不存在");
+        }
+
+        // 如果是回复评论，检查父评论是否存在
+        if (postComment.ParentCommentId.HasValue)
+        {
+            var parentComment = await context.PostCommentSet.FindAsync(postComment.ParentCommentId.Value);
+            if (parentComment == null)
+            {
+                return BadRequest("被回复的评论不存在");
+            }
+            
+            // 确保父评论属于同一篇帖子
+            if (parentComment.PostId != postComment.PostId)
+            {
+                return BadRequest("被回复的评论不属于该帖子");
+            }
+        }
+
         context.PostCommentSet.Add(postComment);
         await context.SaveChangesAsync();
         return CreatedAtAction(nameof(PostPostComment), new { id = postComment.CommentId }, postComment);

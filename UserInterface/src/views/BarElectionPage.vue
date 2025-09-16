@@ -73,7 +73,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 选举相关 API（含用户详情用于映射用户名）
-import { createElection, getCurrentElection, getCandidates, joinElection, voteCandidate, closeElection, getElectionResults, getUserById } from '../api/index'
+import { createElection, getCurrentElection, getCandidates, joinElection, voteCandidate, closeElection, getElectionResults, getUserById, getBarById } from '../api/index'
 
 const route = useRoute()
 const barId = Number(route.params.id)
@@ -83,8 +83,31 @@ const candidates = ref<any[]>([])
 const results = ref<Array<{ candidateUserId: number; votes: number }>>([])
 const userNameMap = ref<Record<number, string>>({})
 const manifesto = ref('')
-// 仅管理员可发起/结束
-const isOwnerOrAdmin = localStorage.getItem('isAdmin') === 'true'
+
+// 权限检查：管理员或吧主可发起/结束选举
+const isOwnerOrAdmin = ref(false)
+
+// 检查用户权限
+const checkUserPermissions = async () => {
+  const userRole = localStorage.getItem('userRole')
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'
+  const currentUserId = localStorage.getItem('currentUserId')
+  
+  if (isAdmin) {
+    isOwnerOrAdmin.value = true
+    return
+  }
+  
+  // 检查是否是当前贴吧的吧主
+  try {
+    const barResponse = await getBarById(barId)
+    if (barResponse && currentUserId && parseInt(currentUserId) === barResponse.ownerId) {
+      isOwnerOrAdmin.value = true
+    }
+  } catch (error) {
+    console.error('检查吧主权限失败:', error)
+  }
+}
 
 const fetchElection = async () => {
   try {
@@ -157,7 +180,10 @@ const onCloseElection = async () => {
   } catch { }
 }
 
-onMounted(fetchElection)
+onMounted(async () => {
+  await checkUserPermissions()
+  await fetchElection()
+})
 
 // 拉取用户名，带缓存
 const ensureUsernames = async (userIds: number[]) => {

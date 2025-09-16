@@ -4,7 +4,7 @@
 -->
 
 <template>
-  <div class="post-detail-card" v-loading="loading" @click="navigateToPostDetail">
+  <div class="post-detail-card" v-loading="loading">
     <!-- 帖子头部信息 -->
     <div class="post-header">
       <div class="user-info">
@@ -18,7 +18,7 @@
       </div>
       <div class="post-source-info">
         <!-- 贴吧来源标识 -->
-        <div v-if="postInfo?.barId" class="post-source-tag">
+        <div v-if="barSourceName" class="post-source-tag">
           <span class="source-icon">🏠</span>
           <span class="source-text">来自贴吧</span>
           <span class="source-name">{{ barSourceName || '贴吧' }}</span>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- 帖子内容 -->
-    <div class="post-content">
+    <div class="post-content" @click="navigateToPostDetail">
       <h3 class="post-title">{{ postInfo?.Title || postInfo?.title || postInfo?.TITLE || '无标题' }}</h3>
       <div class="post-text" :class="{ 
         expanded: isContentExpanded,
@@ -77,7 +77,7 @@
         <button 
           class="interaction-btn"
           :class="{ active: isLiked }"
-          @click="toggleLike"
+          @click.stop="toggleLike"
           :disabled="!currentUserId"
         >
           <span class="btn-icon">👍</span>
@@ -88,7 +88,7 @@
         <button 
           class="interaction-btn dislike-btn"
           :class="{ active: isDisliked }"
-          @click="toggleDislike"
+          @click.stop="toggleDislike"
           :disabled="!currentUserId"
         >
           <span class="btn-icon">👎</span>
@@ -99,18 +99,28 @@
         <button 
           class="interaction-btn favorite-btn"
           :class="{ active: isFavorited }"
-          @click="toggleFavorite"
+          @click.stop="toggleFavorite"
           :disabled="!currentUserId"
         >
           <span class="btn-icon">{{ isFavorited ? '⭐' : '☆' }}</span>
           <span class="btn-text">{{ postInfo?.favoriteCount || 0 }}</span>
         </button>
 
-        <!-- 举报按钮 -->
+        <!-- 删除按钮（仅自己的帖子可见） -->
         <button 
-          v-if="currentUserId && currentUserId !== postInfo?.userId"
+          v-if="currentUserId && currentUserId === postAuthorId"
+          class="interaction-btn delete-btn"
+          @click.stop="confirmDeletePost"
+        >
+          <span class="btn-icon">🗑️</span>
+          <span class="btn-text">删除</span>
+        </button>
+
+        <!-- 举报按钮（仅别人的帖子可见） -->
+        <button 
+          v-if="currentUserId && currentUserId !== postAuthorId && postAuthorId"
           class="interaction-btn report-btn"
-          @click="showReportDialog"
+          @click.stop="showReportDialog"
         >
           <span class="btn-icon">🚨</span>
           <span class="btn-text">举报</span>
@@ -164,7 +174,7 @@
     </el-dialog>
     
     <!-- 点击提示 -->
-    <div class="click-hint">
+    <div class="click-hint" @click="navigateToPostDetail">
       <div class="click-hint-content">
         <span class="click-hint-icon">👆</span>
         <span class="click-hint-text">点击查看完整内容</span>
@@ -175,7 +185,7 @@
 
 <script setup lang='ts'>
 import { ref, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import CommentSection from './CommentSection.vue'
 import { getCurrentUserId } from '@/utils/auth'
 import {
@@ -183,6 +193,8 @@ import {
   getUserById,
   getPostCategoryById,
   getBarById,
+  deleteMyPost,
+  softDeleteMyPost,
   likePost,
   unlikePost,
   dislikePost,
@@ -205,11 +217,11 @@ const props = defineProps<{
   postId: number
 }>()
 
-
-// Emits
-// const emit = defineEmits<{
-//   'post-deleted': [postId: number]
-// }>()
+// Emits - 用于通知父组件帖子被删除或举报
+const emit = defineEmits<{
+  'post-deleted': [postId: number]
+  'post-reported': [postId: number]
+}>()
 
 // 路由
 const router = useRouter()
@@ -317,6 +329,11 @@ const shouldShowExpandButton = computed(() => {
   return content.length > 200
 })
 
+// 获取帖子作者ID（兼容不同字段名）
+const postAuthorId = computed(() => {
+  return postInfo.value?.userId || postInfo.value?.UserId || postInfo.value?.USER_ID
+})
+
 // 切换内容展开状态
 const toggleContentExpansion = () => {
   isContentExpanded.value = !isContentExpanded.value
@@ -381,15 +398,25 @@ const fetchPostDetail = async () => {
       categoryInfo.value = null
     }
     
-    // 获取贴吧来源信息（如果帖子属于某个贴吧）
-    if (postInfo.value?.barId) {
-      try {
-        const barResponse = await getBarById(postInfo.value.barId)
-        barSourceName.value = barResponse.barName
-        console.log('帖子来源贴吧:', barSourceName.value)
-      } catch (error) {
-        console.error('获取贴吧来源信息失败:', error)
-        barSourceName.value = '未知贴吧'
+    // 检查帖子是否来自贴吧（临时方案，直接分析内容）
+    if (postInfo.value && postInfo.value.content && postInfo.value.content.startsWith('[BAR:')) {
+      const endIndex = postInfo.value.content.indexOf(']')
+      if (endIndex !== -1) {
+        const barIdStr = postInfo.value.content.substring(5, endIndex)
+        const barId = parseInt(barIdStr)
+        
+        // 清理显示内容中的贴吧标记
+        postInfo.value.content = postInfo.value.content.substring(endIndex + 1)
+        
+        // 获取贴吧名称
+        try {
+          const barResponse = await getBarById(barId)
+          barSourceName.value = barResponse.barName
+          console.log('帖子来源贴吧:', barSourceName.value)
+        } catch (error) {
+          console.error('获取贴吧信息失败:', error)
+          barSourceName.value = '未知贴吧'
+        }
       }
     }
     
@@ -568,6 +595,48 @@ const showReportDialog = () => {
   customReportReason.value = ''
 }
 
+// 确认删除帖子
+const confirmDeletePost = async () => {
+  if (!currentUserId.value) return
+  
+  try {
+    await ElMessageBox.confirm(
+      '确定要删除这篇帖子吗？删除后无法恢复。',
+      '确认删除',
+      { type: 'warning' }
+    )
+    
+    try {
+      // 尝试硬删除（物理删除）
+      await deleteMyPost(props.postId, currentUserId.value)
+      ElMessage.success('帖子删除成功')
+    } catch (hardDeleteError: any) {
+      console.warn('硬删除失败，尝试软删除:', hardDeleteError.message)
+      
+      try {
+        // 硬删除失败时，使用软删除
+        await softDeleteMyPost(props.postId, currentUserId.value)
+        ElMessage.success('帖子删除成功')
+      } catch (softDeleteError: any) {
+        // 软删除也失败了
+        console.error('软删除也失败:', softDeleteError)
+        throw new Error('删除失败：' + softDeleteError.message)
+      }
+    }
+    
+    console.log('🗑️ 准备通知父组件帖子已删除:', props.postId)
+    // 通知父组件帖子已删除
+    emit('post-deleted', props.postId)
+    console.log('✅ 已发送删除事件到父组件')
+    
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('删除帖子失败:', error)
+      ElMessage.error('删除失败，请重试')
+    }
+  }
+}
+
 // 提交举报
 const submitReport = async () => {
   if (!currentUserId.value || !postInfo.value) return
@@ -575,17 +644,32 @@ const submitReport = async () => {
   try {
     const reason = reportReason.value === 'other' ? customReportReason.value : reportReason.value
     
-    const reportData: THPostReport = {
-      postId: props.postId,
-      userId: currentUserId.value,
-      reportReason: reason,
-      reportTime: new Date().toISOString()
+    if (!postAuthorId.value) {
+      ElMessage.error('无法获取帖子作者信息，举报失败')
+      return
     }
+
+    const reportData: THPostReport = {
+      reporterId: currentUserId.value,
+      reportedUserId: postAuthorId.value,
+      reportedPostId: props.postId,
+      reportReason: reason,
+      reportTime: new Date().toISOString(),
+      status: 0 // 0表示待处理状态
+    }
+    
+    console.log('🚨 举报数据:', reportData)
     
     await reportPost(reportData)
     
     reportDialogVisible.value = false
-    ElMessage.success('举报已提交，感谢您维护社区环境！')
+    ElMessage.success('举报已提交，该帖子将不再显示')
+    
+    console.log('🚨 准备通知父组件帖子已举报:', props.postId)
+    // 通知父组件帖子已举报
+    emit('post-reported', props.postId)
+    console.log('✅ 已发送举报事件到父组件')
+    
   } catch (error) {
     console.error('举报失败:', error)
     ElMessage.error('举报失败，请重试')
@@ -621,7 +705,6 @@ onMounted(() => {
   width: 100%;
   max-width: 100%;
   min-width: 800px;
-  cursor: pointer;
 }
 
 .post-detail-card:hover {
@@ -750,6 +833,15 @@ onMounted(() => {
 /* 帖子内容 */
 .post-content {
   margin-bottom: 16px;
+  cursor: pointer;
+  padding: 8px;
+  margin: 8px -8px 16px -8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.post-content:hover {
+  background-color: #f8f9fa;
 }
 
 .post-title {
@@ -959,6 +1051,12 @@ onMounted(() => {
   color: #856404;
 }
 
+.interaction-btn.delete-btn:hover {
+  background: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
 .interaction-btn.report-btn:hover {
   background: #f8d7da;
   border-color: #dc3545;
@@ -983,7 +1081,8 @@ onMounted(() => {
   border-left: 4px solid #6c757d;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .post-detail-card:hover .click-hint {
@@ -991,6 +1090,19 @@ onMounted(() => {
   background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   border-color: #4a90e2;
   border-left-color: #4a90e2;
+}
+
+.click-hint:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.2);
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-color: #4a90e2;
+  border-left-color: #4a90e2;
+}
+
+.click-hint:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .click-hint-content {

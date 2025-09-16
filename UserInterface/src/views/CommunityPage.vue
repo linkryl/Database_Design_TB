@@ -51,7 +51,13 @@
       
       <!-- 有帖子时显示帖子列表 -->
       <template v-else>
-        <PostDetailCard v-for='postId in paginatedPostIds' :key='postId' :post-id='postId' />
+        <PostDetailCard 
+          v-for='postId in paginatedPostIds' 
+          :key='postId' 
+          :post-id='postId'
+          @post-deleted="handlePostDeleted"
+          @post-reported="handlePostReported"
+        />
         
         <!-- 最后一页的结束提示 -->
         <div v-if='isLastPage && postIds.length > 0' class='end-posts-container'>
@@ -116,7 +122,7 @@ const handleCurrentChange = (page: number) => {
 onMounted(async () => {
   try {
     console.log('正在请求API:', '/api/post/latest-ids')
-    const data = await getLatestPostIds(50) // 使用统一的API接口
+    const data = await getLatestPostIds(50, currentUserId.value || undefined) // 使用过滤版本，传递用户ID
     
     console.log('后端返回的帖子数据:', data)
     console.log('数据类型:', typeof data)
@@ -126,9 +132,6 @@ onMounted(async () => {
     // 使用统一的API接口获取帖子ID列表
     postIds.value = data || []
     console.log('获取到的帖子ID列表:', postIds.value.slice(0, 10))
-    
-    // 注：同学的帖子ID验证功能暂时注释，避免大量请求影响性能
-    // 如需启用，可以取消注释下面的验证代码
     
   } catch (error: any) {
     console.error('获取树洞帖子列表失败:', error)
@@ -160,13 +163,41 @@ function publishPost() {
 // 刷新帖子列表的函数
 async function refreshPosts() {
   try {
-    const data = await getLatestPostIds(50) // 回退到稳定API
-    // 暂时显示所有帖子，等数据库字段问题解决后再启用分区
+    const data = await getLatestPostIds(50, currentUserId.value || undefined) // 使用过滤版本
+    // 现在显示树洞帖子，过滤用户举报的帖子
     postIds.value = data || []
     currentPage.value = 1 // 重置到第一页
   } catch (error: any) {
     ElMessage.error('GET 请求失败，请检查网络连接情况或稍后重试。')
   }
+}
+
+// 处理帖子删除事件
+const handlePostDeleted = (postId: number) => {
+  console.log('📨 社区页面：接收到帖子删除事件，帖子ID:', postId)
+  console.log('🔍 删除前帖子列表:', postIds.value.slice(0, 5))
+  
+  // 从帖子列表中移除删除的帖子
+  const oldLength = postIds.value.length
+  postIds.value = postIds.value.filter(id => id !== postId)
+  const newLength = postIds.value.length
+  
+  console.log(`✅ 社区页面：帖子 ${postId} 已删除并从列表中移除，列表长度从 ${oldLength} 变为 ${newLength}`)
+  console.log('🔍 删除后帖子列表:', postIds.value.slice(0, 5))
+}
+
+// 处理帖子举报事件
+const handlePostReported = (postId: number) => {
+  console.log('📨 社区页面：接收到帖子举报事件，帖子ID:', postId)
+  console.log('🔍 举报前帖子列表:', postIds.value.slice(0, 5))
+  
+  // 从帖子列表中移除举报的帖子
+  const oldLength = postIds.value.length
+  postIds.value = postIds.value.filter(id => id !== postId)
+  const newLength = postIds.value.length
+  
+  console.log(`✅ 社区页面：帖子 ${postId} 已举报并从列表中移除，列表长度从 ${oldLength} 变为 ${newLength}`)
+  console.log('🔍 举报后帖子列表:', postIds.value.slice(0, 5))
 }
 
 // 暴露刷新函数供外部调用

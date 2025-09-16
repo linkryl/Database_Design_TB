@@ -373,32 +373,26 @@ const handleSubmit = async () => {
       console.log('🕳️ 树洞模式：发布到树洞社区')
     }
     
-    const thCreateData = {
+    const advancedPostData = {
       userId: parseInt(thCurrentUserId),
-      categoryId: thPostForm.categoryId, // 使用用户选择的分类ID
-      barId: actualBarId, // 贴吧ID（树洞模式为null，贴吧模式为具体ID）
+      categoryId: thPostForm.categoryId!, // 使用用户选择的分类ID
+      publishType: thPostForm.publishType, // "treehole" 或 "bar"
+      barId: thPostForm.publishType === 'bar' ? thPostForm.barId! : undefined,
+      alsoInTreehole: thPostForm.alsoInTreehole,
       title: thPostForm.title.trim(),
       content: thPostForm.content.trim(),
-      creationDate: new Date().toISOString(),
-      updateDate: new Date().toISOString(),
-      isSticky: 0, // 不置顶
-      likeCount: 0,
-      dislikeCount: 0,
-      favoriteCount: 0,
-      commentCount: 0,
-      imageUrl: null as any,
-      alsoInTreehole: actualAlsoInTreehole // 使用计算后的跨发布标志
+      imageUrl: null
     }
     
     console.log('📝 发帖详情:', {
       发布位置: publishLocation,
       跨发布: thPostForm.alsoInTreehole,
-      数据: thCreateData
+      数据: advancedPostData
     })
     
-    console.log('TreeHole: 正在创建帖子:', thCreateData)
+    console.log('TreeHole: 正在创建帖子（高级模式）:', advancedPostData)
     
-    const thResult = await createPost(thCreateData)
+    const thResult = await createPost(advancedPostData)
     
     console.log('TreeHole: 创建成功:', thResult)
     

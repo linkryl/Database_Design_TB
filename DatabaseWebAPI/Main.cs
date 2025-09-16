@@ -130,8 +130,8 @@ app.UseSwaggerUI(c => // 配置 Swagger UI
                     </style>
                     """;
 });
-app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
 app.UseRouting(); // 启用路由中间件
+app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
 // 仅在非开发环境启用 HTTPS 重定向，避免本地开发端口无证书导致请求失败
 if (!app.Environment.IsDevelopment())
 {

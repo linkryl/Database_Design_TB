@@ -333,7 +333,7 @@ const handleMemberCommand = async (command: string, member: Member) => {
   try {
     switch (command) {
       case 'promote':
-        await axios.put(`/api/group-setting/${groupInfo.value.groupId}/member-role`, {
+        await axios.put(`/group-setting/${groupInfo.value.groupId}/member-role`, {
           operatorUserId: currentUserId.value,
           targetUserId: member.userId,
           newRole: 1
@@ -342,7 +342,7 @@ const handleMemberCommand = async (command: string, member: Member) => {
         break
       
       case 'demote':
-        await axios.put(`/api/group-setting/${groupInfo.value.groupId}/member-role`, {
+        await axios.put(`/group-setting/${groupInfo.value.groupId}/member-role`, {
           operatorUserId: currentUserId.value,
           targetUserId: member.userId,
           newRole: 0

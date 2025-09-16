@@ -146,6 +146,18 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
+// 为所有响应补充 CORS 头，防止代理/中间件顺序导致缺失
+app.Use((context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS,PATCH";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, X-Auth-Token";
+        return Task.CompletedTask;
+    });
+    return next();
+});
 // 关闭 HTTPS 重定向（服务器未配置 5101 端口证书，否则会造成超时）
 app.UseAuthentication(); // 启用认证中间件
 app.UseAuthorization(); // 启用授权中间件

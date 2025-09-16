@@ -132,7 +132,11 @@ app.UseSwaggerUI(c => // 配置 Swagger UI
 });
 app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
 app.UseRouting(); // 启用路由中间件
-app.UseHttpsRedirection(); // 启用 HTTPS 重定向中间件
+// 仅在非开发环境启用 HTTPS 重定向，避免本地开发端口无证书导致请求失败
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection(); // 启用 HTTPS 重定向中间件（生产）
+}
 app.UseAuthentication(); // 启用认证中间件
 app.UseAuthorization(); // 启用授权中间件
 app.MapControllers(); // 将控制器映射到路由

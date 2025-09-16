@@ -6,8 +6,9 @@ TreeHole制作组
 import axios from 'axios'
 import {apiBaseUrl} from '../globals'
 
+const normalizedBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`
 const axiosInstance = axios.create({
-    baseURL: apiBaseUrl
+    baseURL: normalizedBaseUrl
 })
 
 axiosInstance.interceptors.request.use(

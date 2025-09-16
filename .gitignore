@@ -4,6 +4,5 @@ UserInterface/dist/
 DatabaseWebAPI/bin/
 DatabaseWebAPI/obj/
 *.msi
-.env
 /UserInterface/.vscode
 /.idea

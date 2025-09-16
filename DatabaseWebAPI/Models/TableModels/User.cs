@@ -116,6 +116,31 @@ public sealed class User
     [SwaggerSchema("留言数")]
     public int MessageCount { get; set; }
 
+    [Required]
+    [Column("COIN_COUNT")]
+    [SwaggerSchema("金币数量")]
+    public int CoinCount { get; set; } = 0; // 默认为0金币
+
+    [Column("BG_URL")]
+    [StringLength(2048)]
+    [SwaggerSchema("背景图片链接")]
+    public string? BgUrl { get; set; }
+
+    [Column("BG_NAME")]
+    [StringLength(128)]
+    [SwaggerSchema("背景图片名称")]
+    public string? BgName { get; set; }
+
+    [Column("FRAME_NAME")]
+    [StringLength(128)]
+    [SwaggerSchema("头像框名称")]
+    public string? FrameName { get; set; }
+
+    [Column("FRAME_COLOR")]
+    [StringLength(32)]
+    [SwaggerSchema("头像框颜色")]
+    public string? FrameColor { get; set; }
+
     // 导航属性
     public ICollection<Post> PostEntity { get; set; } =
         new HashSet<Post>();

@@ -41,14 +41,12 @@ const localCoinCount = computed({
 
 async function handleBuy(addCoin:number){
     let newCoinCount = localCoinCount.value + addCoin
-    try{                             //根据 userId 更新 USER 用户表中的金币数量 coin
-        // await axiosInstance.put(`user/update-coin-by-user-id/${currentUserId.value}`,{
-        //     coinCount : newCoinCount  //number类型
-        // })
+    try{                             //根据 userId 更新 USER 用户表中的金币数量 coinCount
+        await axiosInstance.get(`/user/update-coin-by-user-id/${currentUserId.value}?coinCount=${newCoinCount}`)
         localCoinCount.value = newCoinCount
         ElMessage.success(`购买成功, 金币 +${addCoin}`)
     }catch(e){
-        ElMessage.error("PUT失败, 购买金币失败")
+        ElMessage.error("GET失败, 购买金币失败")
     }
 }
 

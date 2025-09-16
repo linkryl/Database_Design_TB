@@ -96,12 +96,11 @@ onMounted(async ()=>{
 
     try {
         // 获取用户信息展示在商店, 包括：用户名、头像链接、金币个数、头像框颜色
-        // TODO: 商量后端接口           读取user用户表, 返回data对象包含这4个值
-        // const response = await axiosInstance.get(`user/user-info-for-market/${currentUserId.value}`)
-        // username.value = response.data.username
-        // avatarUrl.value = response.data.avatar  //string类型
-        // avatarFrame.value = response.data.frame //string类型(css的颜色值)
-        // coinCount.value = response.data.coin    //number类型
+        const response = await axiosInstance.get(`/user/user-info-for-market/${currentUserId.value}`)
+        username.value = response.data.username
+        avatarUrl.value = response.data.avatarUrl || ""  //string类型
+        avatarFrame.value = response.data.frameColor || "#ffffff" //string类型(css的颜色值)
+        coinCount.value = response.data.coinCount || 0    //number类型
     } catch (e) {
         ElMessage.error("获取用户信息失败, 请稍后重试")
         username.value = "用户名占位"

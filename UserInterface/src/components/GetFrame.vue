@@ -70,18 +70,18 @@ watchEffect(() => {
 })
 
 onMounted(async ()=>{
-    /* TODO: 循环请求：/ownedframe/check-if-the-frame-owned?userId=xxx&frameColor=xxx
+    /* 循环请求：/ownedframe/check-if-the-frame-owned?userId=xxx&frameColor=xxx
        返回 1 表示已拥有，0 表示未拥有 */
     for (let i = 0; i < FrameList.value.length; ++i) {
         const item = FrameList.value[i]
-        try {            // 检查数据库 OWNEDFRAME 这张表中是否存在这一行 userId frame
-            // const response = await axiosInstance.get('ownedframe/check-if-the-frame-owned', {
-            //     params: {// GET 请求的 query 查询串               
-            //         userId: currentUserId.value,
-            //         frameColor: item.color
-            //     }
-            // })
-            // item.owned = response.data === 1
+        try {            // 检查数据库 OWNEDFRAME 这张表中是否存在这一行 userId frameColor
+            const response = await axiosInstance.get('/ownedframe/check-if-the-frame-owned', {
+                params: {// GET 请求的 query 查询串               
+                    userId: currentUserId.value,
+                    frameColor: item.color
+                }
+            })
+            item.owned = response.data === 1
         }catch(e){
             ElMessage.error(`GET错误, 检查头像框「${item.name}」失败`)
             console.error(`GET错误, 检查头像框「${item.name}」失败`, e)
@@ -90,15 +90,15 @@ onMounted(async ()=>{
 })
 
 async function handleBuy(item:FrameItem){
-    //TODO: 购买
+    //购买头像框
     if (item.owned) return
     if(localCoinCount.value >= 2){
         try {       // 向数据库 OWNEDFRAME 表中添加这一行 userId frameColor frameName,表示该用户购买了该头像框
-            // await axiosInstance.post('ownedframe/buy-one-frame', {
-            //     userId: currentUserId.value,  //number类型
-            //     frameColor: item.color,       //string类型(css样式的颜色值)
-            //     frameName:item.name           //string类型(头像框名称)
-            // })
+            await axiosInstance.post('/ownedframe/buy-one-frame', {
+                userId: currentUserId.value,  //number类型
+                frameColor: item.color,       //string类型(css样式的颜色值)
+                frameName: item.name           //string类型(头像框名称)
+            })
             localCoinCount.value -= 2
             item.owned = true
             ElMessage.success(`成功购买「${item.name}」头像框!`)

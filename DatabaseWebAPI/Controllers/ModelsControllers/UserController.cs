@@ -634,4 +634,242 @@ public class UserController(OracleDbContext context) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 根据userId更新用户表的金币数量
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="request">更新金币请求</param>
+    /// <returns>更新结果</returns>
+    [HttpGet("update-coin-by-user-id/{userId}")]
+    [SwaggerOperation(Summary = "根据userId更新用户表的金币数量")]
+    [SwaggerResponse(200, "更新成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> UpdateCoinByUserId(int userId, [FromQuery] int coinCount)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("用户ID不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            user.CoinCount = coinCount;
+            await context.SaveChangesAsync();
+
+            return Ok("金币数量更新成功");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 根据userId获取用户信息（商城用）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>用户信息</returns>
+    [HttpGet("user-info-for-market/{userId}")]
+    [SwaggerOperation(Summary = "根据userId获取用户信息（商城用）")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> GetUserInfoForMarket(int userId)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("用户ID不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            var userInfo = new
+            {
+                username = user.UserName,
+                avatarUrl = user.AvatarUrl ?? "",
+                frameColor = user.FrameColor ?? "",
+                coinCount = user.CoinCount
+            };
+
+            return Ok(userInfo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 更新用户背景
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="request">更新背景请求</param>
+    /// <returns>更新结果</returns>
+    [HttpPut("update-bg-by-user-id/{userId}")]
+    [SwaggerOperation(Summary = "更新用户背景")]
+    [SwaggerResponse(200, "更新成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> UpdateBgByUserId(int userId, [FromBody] UpdateBgRequest request)
+    {
+        if (userId <= 0 || request == null)
+        {
+            return BadRequest("用户ID和请求参数不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            user.BgUrl = request.BgUrl;
+            user.BgName = request.BgName;
+            await context.SaveChangesAsync();
+
+            return Ok("背景更新成功");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 更新用户头像框
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="request">更新头像框请求</param>
+    /// <returns>更新结果</returns>
+    [HttpPut("update-frame-by-user-id/{userId}")]
+    [SwaggerOperation(Summary = "更新用户头像框")]
+    [SwaggerResponse(200, "更新成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> UpdateFrameByUserId(int userId, [FromBody] UpdateFrameRequest request)
+    {
+        if (userId <= 0 || request == null)
+        {
+            return BadRequest("用户ID和请求参数不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            user.FrameName = request.FrameName;
+            user.FrameColor = request.FrameColor;
+            await context.SaveChangesAsync();
+
+            return Ok("头像框更新成功");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 获取用户背景信息
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>用户背景信息</returns>
+    [HttpGet("get-bg-by-user-id/{userId}")]
+    [SwaggerOperation(Summary = "获取用户背景信息")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> GetBgByUserId(int userId)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("用户ID不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            var bgInfo = new
+            {
+                bgName = user.BgName ?? "",
+                bgUrl = user.BgUrl ?? ""
+            };
+
+            return Ok(bgInfo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 获取用户头像框信息
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns>用户头像框信息</returns>
+    [HttpGet("get-frame-by-user-id/{userId}")]
+    [SwaggerOperation(Summary = "获取用户头像框信息")]
+    [SwaggerResponse(200, "获取成功")]
+    [SwaggerResponse(400, "请求参数错误")]
+    [SwaggerResponse(404, "用户未找到")]
+    [SwaggerResponse(500, "服务器内部错误")]
+    public async Task<ActionResult> GetFrameByUserId(int userId)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest("用户ID不能为空");
+        }
+
+        try
+        {
+            var user = await context.UserSet.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用户未找到");
+            }
+
+            var frameInfo = new
+            {
+                frameName = user.FrameName ?? "",
+                frameColor = user.FrameColor ?? ""
+            };
+
+            return Ok(frameInfo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
 }

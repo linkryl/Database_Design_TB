@@ -78,19 +78,19 @@ watchEffect(() => {
 })
 
 onMounted(async () => {
-    /* TODO: 循环请求：/ownedbg/check-if-the-bg-owned?userId=xxxxxx&bgUrl=xxxxxx
+    /* 循环请求：/ownedbg/check-if-the-bg-owned?userId=xxxxxx&bgUrl=xxxxxx
        返回 1 表示已拥有，0 表示未拥有 */
     for (let i = 0; i < BgList.value.length; ++i) {
         const item = BgList.value[i]
         try {            // 检查数据库 OWNEDBG 这张表中是否存在这一行 userId bgUrl
-            // const response = await axiosInstance.get('ownedbg/check-if-the-bg-owned', {
-            //     params: {// GET 请求的 query 查询串               
-            //         userId: currentUserId.value,  //number类型
-            //         bgUrl: item.url               //string类型
-            //     }
-            // })
-            // //返回 1 表示已拥有，0 表示未拥有
-            // item.owned = response.data === 1
+            const response = await axiosInstance.get('/ownedbg/check-if-the-bg-owned', {
+                params: {// GET 请求的 query 查询串               
+                    userId: currentUserId.value,  //number类型
+                    bgUrl: item.url               //string类型
+                }
+            })
+            //返回 1 表示已拥有，0 表示未拥有
+            item.owned = response.data === 1
         } catch (e) {
             ElMessage.error(`GET错误, 检查背景「${item.name}」失败`)
             console.error(`GET错误, 检查背景「${item.name}」失败`, e)
@@ -99,15 +99,15 @@ onMounted(async () => {
 })
 
 async function handleBuy(item: BgItem) {
-    //TODO: 购买
+    //购买背景
     if (item.owned) return
     if (localCoinCount.value >= 5) {
         try {                     // 向数据库 OWNEDBG 表中添加这一行 userId bgUrl bgName,表示该用户购买了该背景
-            // await axiosInstance.post('ownedbg/buy-one-bg', {
-            //     userId: currentUserId.value,
-            //     bgUrl: item.url,
-            //     bgName:item.name
-            // })
+            await axiosInstance.post('/ownedbg/buy-one-bg', {
+                userId: currentUserId.value,
+                bgUrl: item.url,
+                bgName: item.name
+            })
             localCoinCount.value -= 5
             item.owned = true
             ElMessage.success(`成功购买「${item.name}」背景！`)

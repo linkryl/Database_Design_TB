@@ -120,6 +120,7 @@ import {ossBaseUrl, formatDateTimeToCST} from '../globals'
 import {useRouter} from 'vue-router'
 import PostCommentCard from '../components/PostCommentCard.vue'
 import ReportPage from './ReportPage.vue'
+import { deleteMyPost, softDeleteMyPost } from '@/api/index'
 
 interface PostData {
   userId: number
@@ -396,15 +397,43 @@ async function sendComment() {
 }
 
 async function handleDelete(id: number) {
+  if (!currentUserId.value) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  
   try {
-    await axiosInstance.delete(`post/${id}`)
-    await router.push('/pet-community')
+    await ElMessageBox.confirm(
+      '确定要删除这篇帖子吗？删除后无法恢复。',
+      '确认删除',
+      { type: 'warning' }
+    )
+    
+    try {
+      // 尝试硬删除（物理删除）
+      await deleteMyPost(id, currentUserId.value)
+      ElMessage.success('帖子删除成功')
+    } catch (hardDeleteError: any) {
+      console.warn('硬删除失败，尝试软删除:', hardDeleteError.message)
+      
+      try {
+        // 硬删除失败时，使用软删除
+        await softDeleteMyPost(id, currentUserId.value)
+        ElMessage.success('帖子删除成功')
+      } catch (softDeleteError: any) {
+        // 软删除也失败了
+        console.error('软删除也失败:', softDeleteError)
+        throw new Error('删除失败：' + softDeleteError.message)
+      }
+    }
+    
+    // 删除成功后返回主页
+    await router.push('/')
   } catch (error: any) {
-    ElNotification({
-      title: "刪除失败",
-      message: "刪除失败，请检查网络连接情况或稍后重试。",
-      type: 'error'
-    })
+    if (error !== 'cancel') {
+      console.error('删除帖子失败:', error)
+      ElMessage.error('删除失败，请重试')
+    }
   }
 }
 </script>

@@ -100,16 +100,77 @@ public class PostReportController(OracleDbContext context) : ControllerBase
     [SwaggerResponse(400, "请求无效")]
     [SwaggerResponse(500, "服务器内部错误")]
     // ReSharper disable once InconsistentNaming
-    public async Task<IActionResult> PostPostReport([FromBody] PostReport postReport)
+    public async Task<IActionResult> PostPostReport([FromBody] dynamic requestData)
     {
-        if (!ModelState.IsValid)
+        try
         {
-            return BadRequest(ModelState);
-        }
+            var jsonElement = (System.Text.Json.JsonElement)requestData;
+            
+            // 提取数据
+            var reporterId = jsonElement.GetProperty("reporterId").GetInt32();
+            var reportedUserId = jsonElement.GetProperty("reportedUserId").GetInt32();
+            var reportedPostId = jsonElement.GetProperty("reportedPostId").GetInt32();
+            var reportReason = jsonElement.GetProperty("reportReason").GetString();
+            var reportTimeStr = jsonElement.GetProperty("reportTime").GetString();
+            var status = jsonElement.TryGetProperty("status", out var statusElement) ? statusElement.GetInt32() : 0;
 
-        context.PostReportSet.Add(postReport);
-        await context.SaveChangesAsync();
-        return CreatedAtAction(nameof(PostPostReport), new { id = postReport.PostReportId }, postReport);
+            // 验证被举报的帖子是否存在
+            var post = await context.PostSet.FindAsync(reportedPostId);
+            if (post == null)
+            {
+                return BadRequest("被举报的帖子不存在");
+            }
+
+            // 验证举报者是否存在
+            var reporter = await context.UserSet.FindAsync(reporterId);
+            if (reporter == null)
+            {
+                return BadRequest("举报者不存在");
+            }
+
+            // 验证被举报者是否存在
+            var reportedUser = await context.UserSet.FindAsync(reportedUserId);
+            if (reportedUser == null)
+            {
+                return BadRequest("被举报者不存在");
+            }
+
+            // 检查是否已经举报过
+            var existingReport = await context.PostReportSet
+                .FirstOrDefaultAsync(r => r.ReporterId == reporterId && r.ReportedPostId == reportedPostId);
+            if (existingReport != null)
+            {
+                return BadRequest("您已经举报过这篇帖子了");
+            }
+
+            // 解析时间
+            DateTime reportTime;
+            if (!DateTime.TryParse(reportTimeStr, out reportTime))
+            {
+                reportTime = DateTime.UtcNow;
+            }
+
+            // 创建举报记录
+            var postReport = new PostReport
+            {
+                ReporterId = reporterId,
+                ReportedUserId = reportedUserId,
+                ReportedPostId = reportedPostId,
+                ReportReason = reportReason,
+                ReportTime = reportTime,
+                Status = status
+            };
+
+            context.PostReportSet.Add(postReport);
+            await context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(PostPostReport), new { id = postReport.PostReportId }, 
+                new { message = "举报提交成功", reportId = postReport.PostReportId });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"举报失败: {ex.Message}. 内部异常: {ex.InnerException?.Message}");
+        }
     }
 
     // 根据主键（ID）更新帖子举报表的数据

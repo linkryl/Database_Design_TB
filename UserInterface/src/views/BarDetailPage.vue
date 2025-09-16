@@ -151,23 +151,16 @@ TreeHole开发组
                 </div>
                 
                 <div v-else class="posts-list">
-                  <!-- 临时提示：说明当前显示状态 -->
-                  <div class="temp-notice">
-                    <el-alert
-                      title="临时显示模式"
-                      description="由于数据库BAR_ID字段还未完全生效，暂时显示最新帖子。等字段问题解决后，将只显示发布到本贴吧的专属帖子。"
-                      type="info"
-                      :closable="false"
-                      show-icon
-                    />
-                  </div>
-                  
                   <div 
                     v-for="postId in barPosts" 
                     :key="postId" 
                     class="post-item"
                   >
-                    <PostDetailCard :post-id="postId" />
+                    <PostDetailCard 
+                      :post-id="postId" 
+                      @post-deleted="handlePostDeleted"
+                      @post-reported="handlePostReported"
+                    />
                   </div>
                 </div>
               </div>
@@ -273,7 +266,7 @@ import {
   checkBarFollowStatus,
   getBarFollowers,
   updateBarStatus,
-  getLatestPostIds,
+  getBarPostIds,
   type THBar,
   type THBarFollow
 } from '@/api/index'
@@ -411,25 +404,25 @@ const loadMembers = async () => {
   }
 }
 
-// 加载贴吧帖子（临时显示最新帖子，直到数据库字段问题解决）
+// 加载贴吧专属帖子，过滤举报的帖子
 const loadBarPosts = async () => {
   try {
     loadingPosts.value = true
     
-    // 临时方案：显示最新的一些帖子，让贴吧不显示为空
-    // 等数据库BAR_ID字段确认添加并生效后，改为真正的贴吧帖子查询
-    const latestPostIds = await getLatestPostIds(10)
-    barPosts.value = latestPostIds || []
+    // 使用贴吧专属API，只显示属于当前贴吧的帖子，过滤掉举报的帖子
+    const barPostIds = await getBarPostIds(barId, 20, currentUserId.value || undefined)
+    barPosts.value = barPostIds || []
     
-    console.log(`贴吧${barId}临时显示最新帖子:`, barPosts.value)
+    console.log(`贴吧${barId}专属帖子:`, barPosts.value)
     
     if (barPosts.value.length === 0) {
-      console.log('🏠 暂无帖子数据')
+      console.log('🏠 贴吧暂无帖子')
     } else {
-      console.log(`🏠 临时显示${barPosts.value.length}个最新帖子`)
+      console.log(`🏠 显示${barPosts.value.length}个贴吧专属帖子`)
     }
   } catch (error) {
     console.error('加载贴吧帖子失败:', error)
+    // 如果获取失败，尝试显示空数组而不是报错
     barPosts.value = []
   } finally {
     loadingPosts.value = false
@@ -557,6 +550,38 @@ const confirmDissolveBar = async () => {
       ElMessage.error('解散失败，请重试')
     }
   }
+}
+
+// 处理帖子删除事件
+const handlePostDeleted = (postId: number) => {
+  console.log('📨 贴吧页面：接收到帖子删除事件，帖子ID:', postId)
+  console.log('🔍 删除前贴吧帖子列表:', barPosts.value.slice(0, 5))
+  
+  // 从贴吧帖子列表中移除删除的帖子
+  const oldLength = barPosts.value.length
+  barPosts.value = barPosts.value.filter(id => id !== postId)
+  const newLength = barPosts.value.length
+  
+  console.log(`✅ 贴吧页面：帖子 ${postId} 已删除，列表长度从 ${oldLength} 变为 ${newLength}`)
+  
+  // 更新贴吧帖子数量
+  if (barInfo.value) {
+    barInfo.value.postCount = Math.max(0, barInfo.value.postCount - 1)
+    console.log('📊 更新贴吧帖子数量:', barInfo.value.postCount)
+  }
+}
+
+// 处理帖子举报事件
+const handlePostReported = (postId: number) => {
+  console.log('📨 贴吧页面：接收到帖子举报事件，帖子ID:', postId)
+  console.log('🔍 举报前贴吧帖子列表:', barPosts.value.slice(0, 5))
+  
+  // 从贴吧帖子列表中移除举报的帖子
+  const oldLength = barPosts.value.length
+  barPosts.value = barPosts.value.filter(id => id !== postId)
+  const newLength = barPosts.value.length
+  
+  console.log(`✅ 贴吧页面：帖子 ${postId} 已举报，列表长度从 ${oldLength} 变为 ${newLength}`)
 }
 
 // 组件挂载时加载数据
@@ -839,10 +864,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.temp-notice {
-  margin-bottom: 20px;
 }
 
 .post-item {

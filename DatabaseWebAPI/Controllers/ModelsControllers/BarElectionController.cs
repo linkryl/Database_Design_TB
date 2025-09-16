@@ -30,8 +30,24 @@ public class BarElectionController(OracleDbContext context) : ControllerBase
         var bar = await context.BarSet.FindAsync(barId);
         if (bar == null) return NotFound("贴吧不存在");
 
-        // TODO：替换为真实用户身份校验（管理员或当前吧主）
-        // 这里为演示先放宽权限，实际应校验 bar.OwnerId 或用户 Role==1
+        // 获取当前用户ID
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId == null)
+        {
+            return Unauthorized("未登录");
+        }
+
+        // 检查权限：必须是吧主或管理员
+        var user = await context.UserSet.FindAsync(currentUserId.Value);
+        if (user == null) return Unauthorized("用户不存在");
+        
+        bool isAdmin = user.Role == 1;
+        bool isBarOwner = bar.OwnerId == currentUserId.Value;
+        
+        if (!isAdmin && !isBarOwner)
+        {
+            return Forbid("只有吧主或管理员可以发起选举");
+        }
 
         var existsRunning = await context.BarElectionSet.AnyAsync(e => e.BarId == barId && e.Status == 1);
         if (existsRunning) return BadRequest("已有进行中的选举");
@@ -42,7 +58,7 @@ public class BarElectionController(OracleDbContext context) : ControllerBase
             Status = 1,
             StartTime = req.StartTime,
             EndTime = req.EndTime,
-            CreatorUserId = 0
+            CreatorUserId = currentUserId.Value
         };
         context.BarElectionSet.Add(election);
         await context.SaveChangesAsync();
@@ -71,22 +87,55 @@ public class BarElectionController(OracleDbContext context) : ControllerBase
 
         // 简化：省略校验是否关注该吧、是否被封禁，需要时可查询 BarFollow 和 User.Status
 
-        // TODO：从 JWT Token 中解析用户ID（此处临时用 0 作为示例）
-        var userId = 0;
+        // 获取当前用户ID
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized("未登录");
+        }
 
+        // 验证用户是否存在
+        var user = await context.UserSet.FindAsync(userId.Value);
+        if (user == null)
+        {
+            return BadRequest("用户不存在，请重新登录");
+        }
+
+        // 检查用户是否被封禁
+        if (user.Status == 0)
+        {
+            return Forbid("您的账号已被封禁，无法参选");
+        }
+
+        // 检查是否已经报名
         var exists = await context.BarElectionCandidateSet
-            .AnyAsync(c => c.ElectionId == electionId && c.UserId == userId);
-        if (exists) return BadRequest("已报名");
+            .AnyAsync(c => c.ElectionId == electionId && c.UserId == userId.Value);
+        if (exists) return BadRequest("您已经报名过了");
+
+        // 检查选举是否还在进行中
+        if (DateTime.UtcNow > election.EndTime)
+        {
+            return BadRequest("选举已结束，无法报名");
+        }
 
         var candidate = new BarElectionCandidate
         {
             ElectionId = electionId,
-            UserId = userId,
-            Manifesto = req.Manifesto
+            UserId = userId.Value,
+            Manifesto = req.Manifesto,
+            CreateTime = DateTime.UtcNow
         };
-        context.BarElectionCandidateSet.Add(candidate);
-        await context.SaveChangesAsync();
-        return Ok(candidate);
+        
+        try
+        {
+            context.BarElectionCandidateSet.Add(candidate);
+            await context.SaveChangesAsync();
+            return Ok(new { message = "报名成功", candidateId = candidate.CandidateId });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"报名失败: {ex.Message}. 内部异常: {ex.InnerException?.Message}");
+        }
     }
 
     // 候选人列表
@@ -111,25 +160,58 @@ public class BarElectionController(OracleDbContext context) : ControllerBase
             .AnyAsync(c => c.ElectionId == electionId && c.UserId == req.CandidateUserId);
         if (!validCandidate) return BadRequest("候选人不存在");
 
-        // TODO：从 JWT Token 获取投票者ID（目前用 0 作为示例）
-        var voterUserId = 0;
+        // 获取当前用户ID
+        var voterUserId = GetCurrentUserId();
+        if (voterUserId == null)
+        {
+            return Unauthorized("未登录");
+        }
+
+        // 验证投票者是否存在
+        var voter = await context.UserSet.FindAsync(voterUserId.Value);
+        if (voter == null)
+        {
+            return BadRequest("投票者不存在，请重新登录");
+        }
+
+        // 检查是否被封禁
+        if (voter.Status == 0)
+        {
+            return Forbid("您的账号已被封禁，无法投票");
+        }
+
+        // 检查选举是否还在进行中
+        if (DateTime.UtcNow > election.EndTime)
+        {
+            return BadRequest("选举已结束，无法投票");
+        }
+
+        // 检查是否已经投票过
+        var existingVote = await context.BarElectionVoteSet
+            .FirstOrDefaultAsync(v => v.ElectionId == electionId && v.VoterUserId == voterUserId.Value);
+        if (existingVote != null)
+        {
+            return BadRequest("您已经投过票了，每人只能投一票");
+        }
 
         var vote = new BarElectionVote
         {
             ElectionId = electionId,
-            VoterUserId = voterUserId,
-            CandidateUserId = req.CandidateUserId
+            VoterUserId = voterUserId.Value,
+            CandidateUserId = req.CandidateUserId,
+            VoteTime = DateTime.UtcNow
         };
-        context.BarElectionVoteSet.Add(vote);
+        
         try
         {
+            context.BarElectionVoteSet.Add(vote);
             await context.SaveChangesAsync();
+            return Ok(new { message = "投票成功" });
         }
-        catch (DbUpdateException)
+        catch (Exception ex)
         {
-            return BadRequest("请勿重复投票");
+            return StatusCode(500, $"投票失败: {ex.Message}. 内部异常: {ex.InnerException?.Message}");
         }
-        return Ok(new { message = "投票成功" });
     }
 
     // 结束选举并更新吧主（取最高票，平票策略可扩展）
@@ -182,6 +264,53 @@ public class BarElectionController(OracleDbContext context) : ControllerBase
             .ThenBy(x => x.CandidateUserId)
             .ToListAsync();
         return Ok(grouped);
+    }
+
+    // 调试API：检查当前用户信息
+    [HttpGet("debug/current-user")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUserDebugInfo()
+    {
+        try
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                return Ok(new { message = "无法获取用户ID", claims = User.Claims.Select(c => new { c.Type, c.Value }) });
+            }
+
+            var user = await context.UserSet.FindAsync(currentUserId.Value);
+            return Ok(new {
+                userId = currentUserId.Value,
+                userExists = user != null,
+                userStatus = user?.Status,
+                userName = user?.UserName,
+                claims = User.Claims.Select(c => new { c.Type, c.Value })
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"调试失败: {ex.Message}");
+        }
+    }
+
+    // 获取当前登录用户ID的私有方法
+    private int? GetCurrentUserId()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value ?? User.FindFirst("sub")?.Value ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            
+            if (int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
 

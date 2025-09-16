@@ -7,7 +7,13 @@ import {ref} from 'vue'
 import type {Instance} from 'element-plus'
 
 
+<<<<<<< Updated upstream
 export const apiBaseUrl = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:5101/api'
+=======
+// API基础URL配置 - 支持开发和生产环境
+export const apiBaseUrl = (import.meta as any).env?.VITE_API_BASE || 
+  (import.meta.env.MODE === 'production' ? 'http://47.117.87.145:5101/api' : 'http://localhost:5101/api')
+>>>>>>> Stashed changes
 export const ossBaseUrl = '/images/'
 export const isProgressVisible = ref(false)
 export const tourRef1 = ref<Instance>()

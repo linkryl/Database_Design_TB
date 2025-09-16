@@ -208,7 +208,7 @@ defineExpose({
 
 <style scoped>
 :global(:root) {
-  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('/images/BackgroundImage.jpg');
   --community-title-color: #393B9C;
   --community-title-shadow-color: #787ACF;
   --community-img-title-color: #FFFFFF;
@@ -227,7 +227,7 @@ defineExpose({
 
 /* noinspection CssUnusedSymbol */
 :global(.dark) {
-  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('[TODO: ossBaseUrl]BackgroundImage.jpg');
+  --community-background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('/images/BackgroundImage.jpg');
   --community-title-color: #E4DBFF;
   --community-title-shadow-color: #473B7E;
   --community-img-title-color: #E0E0E0;

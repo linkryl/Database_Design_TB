@@ -49,3 +49,4 @@ public sealed class UserBadgeRelation
     public UserBadge? Badge { get; set; }
 }
 
+

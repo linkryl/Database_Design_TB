@@ -188,9 +188,6 @@ const thFormRules: FormRules = {
     { required: true, message: '请输入标题', trigger: 'blur' },
     { max: 100, message: '标题长度不能超过100个字符', trigger: 'blur' }
   ],
-  categoryId: [
-    { required: true, message: '请选择帖子分类', trigger: 'change' }
-  ],
   content: [
     { required: true, message: '请输入内容', trigger: 'blur' }
   ]

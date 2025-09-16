@@ -79,3 +79,4 @@ public sealed class UserTask
     public ICollection<UserTaskProgress> UserTaskProgresses { get; set; } = new HashSet<UserTaskProgress>();
 }
 
+

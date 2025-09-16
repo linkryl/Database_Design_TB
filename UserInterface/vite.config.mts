@@ -29,14 +29,14 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://localhost:5101',
+                // 如果有环境变量VITE_PROXY_TARGET，使用它，否则使用本地开发服务器
+                target: process.env.VITE_PROXY_TARGET || 'http://localhost:5101',
                 changeOrigin: true,
                 secure: false
             }
         },
         fs: {
             allow: ['..']
-
         }
     }
 })

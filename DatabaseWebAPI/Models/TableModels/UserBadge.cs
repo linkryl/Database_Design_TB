@@ -64,3 +64,4 @@ public sealed class UserBadge
     public ICollection<UserBadgeRelation> UserBadgeRelations { get; set; } = new HashSet<UserBadgeRelation>();
 }
 
+

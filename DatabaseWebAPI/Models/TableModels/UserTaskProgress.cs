@@ -66,3 +66,4 @@ public sealed class UserTaskProgress
     public UserTask? Task { get; set; }
 }
 
+

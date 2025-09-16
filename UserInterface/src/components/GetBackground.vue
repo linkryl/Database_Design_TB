@@ -53,22 +53,22 @@ interface BgItem {
 }
 
 const BgList = ref<BgItem[]>([
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1001.jpg", name: "海之梦", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1002.jpg", name: "千山雪", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1003.jpg", name: "长天一色", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1004.jpg", name: "银汉迢迢", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1005.jpg", name: "春意浓", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1006.jpg", name: "出水芙蓉", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1007.jpg", name: "白色飞羽", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1008.jpg", name: "寥落星河", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1009.jpg", name: "廊桥遗梦", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1010.jpg", name: "接天莲叶", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1011.jpg", name: "雪山日出", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1012.jpg", name: "原野晨曦", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1013.jpg", name: "三叶草", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1014.jpg", name: "层林尽染", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1015.jpg", name: "水墨荷花", owned: false },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1016.jpg", name: "金沙子", owned: false }
+    { url: "/images/market/bg_v1_1001.jpg", name: "海之梦", owned: false },
+    { url: "/images/market/bg_v1_1002.jpg", name: "千山雪", owned: false },
+    { url: "/images/market/bg_v1_1003.jpg", name: "长天一色", owned: false },
+    { url: "/images/market/bg_v1_1004.jpg", name: "银汉迢迢", owned: false },
+    { url: "/images/market/bg_v1_1005.jpg", name: "春意浓", owned: false },
+    { url: "/images/market/bg_v1_1006.jpg", name: "出水芙蓉", owned: false },
+    { url: "/images/market/bg_v1_1007.jpg", name: "白色飞羽", owned: false },
+    { url: "/images/market/bg_v1_1008.jpg", name: "寥落星河", owned: false },
+    { url: "/images/market/bg_v1_1009.jpg", name: "廊桥遗梦", owned: false },
+    { url: "/images/market/bg_v1_1010.jpg", name: "接天莲叶", owned: false },
+    { url: "/images/market/bg_v1_1011.jpg", name: "雪山日出", owned: false },
+    { url: "/images/market/bg_v1_1012.jpg", name: "原野晨曦", owned: false },
+    { url: "/images/market/bg_v1_1013.jpg", name: "三叶草", owned: false },
+    { url: "/images/market/bg_v1_1014.jpg", name: "层林尽染", owned: false },
+    { url: "/images/market/bg_v1_1015.jpg", name: "水墨荷花", owned: false },
+    { url: "/images/market/bg_v1_1016.jpg", name: "金沙子", owned: false }
 ])
 
 watchEffect(() => {

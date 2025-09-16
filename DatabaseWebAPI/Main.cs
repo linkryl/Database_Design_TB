@@ -131,6 +131,20 @@ app.UseSwaggerUI(c => // 配置 Swagger UI
                     """;
 });
 app.UseRouting(); // 启用路由中间件
+// 兜底处理预检请求（某些场景下路由未命中导致不带CORS头）
+app.Use(async (context, next) =>
+{
+    if (string.Equals(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS,PATCH";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, X-Auth-Token";
+        context.Response.StatusCode = StatusCodes.Status200OK;
+        await context.Response.CompleteAsync();
+        return;
+    }
+    await next();
+});
 app.UseCors("AllowAll"); // 启用跨域资源共享（CORS）
 // 关闭 HTTPS 重定向（服务器未配置 5101 端口证书，否则会造成超时）
 app.UseAuthentication(); // 启用认证中间件

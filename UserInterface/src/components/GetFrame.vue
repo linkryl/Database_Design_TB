@@ -54,7 +54,15 @@ const localCoinCount = computed({
 const FrameList = ref<FrameItem[]>([
     { name: '红色',  color: '#ff4d4f', owned: false },
     { name: '深蓝',  color: '#003a8c', owned: false },
-    { name: '黑色',  color: '#000000', owned: false }
+    { name: '黑色',  color: '#000000', owned: false },
+    { name: '金色',  color: '#eff967', owned: false },
+    { name: '亮金色',  color: '#eff960', owned: false },
+    { name: '浅绿色',  color: '#bfe967', owned: false },
+    { name: '紫红色',  color: '#af1967', owned: false },
+    { name: '碧绿色',  color: '#1ff947', owned: false },
+    { name: '嫩绿色',  color: '#6ef947', owned: false },
+    { name: '土色',  color: '#ddd372', owned: false },
+    { name: '墨绿色',  color: '#4fc691', owned: false },
 ])
 
 interface FrameItem {

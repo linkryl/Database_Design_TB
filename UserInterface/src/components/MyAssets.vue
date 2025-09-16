@@ -111,17 +111,17 @@ const localFrame = computed({
 })
 
 const myBgList = ref<MyBgItem[]>([
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1001.jpg", name: "海之梦" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1002.jpg", name: "千山雪" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1005.jpg", name: "春意浓" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1006.jpg", name: "出水芙蓉" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1010.jpg", name: "接天莲叶" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1011.jpg", name: "雪山日出" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1015.jpg", name: "水墨荷花" },
-    { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1016.jpg", name: "金沙子" }
+    { url: "/images/market/bg_v1_1001.jpg", name: "海之梦" },
+    { url: "/images/market/bg_v1_1002.jpg", name: "千山雪" },
+    { url: "/images/market/bg_v1_1005.jpg", name: "春意浓" },
+    { url: "/images/market/bg_v1_1006.jpg", name: "出水芙蓉" },
+    { url: "/images/market/bg_v1_1010.jpg", name: "接天莲叶" },
+    { url: "/images/market/bg_v1_1011.jpg", name: "雪山日出" },
+    { url: "/images/market/bg_v1_1015.jpg", name: "水墨荷花" },
+    { url: "/images/market/bg_v1_1016.jpg", name: "金沙子" }
 ])
 const usingBg = ref<MyBgItem>({
-    url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1001.jpg",
+    url: "/images/market/bg_v1_1001.jpg",
     name: "海之梦"
 })
 const selectedBg = ref<MyBgItem | null>(null)
@@ -159,21 +159,6 @@ async function getMyBgList() {
     /*  [{url:"",name:"雪山日出"},{url:"",name:"水墨荷花"},{url:"",name:"海之梦"}......]
     *   url 背景图片的网址, name 图片名字
     */
-
-    // return new Promise<MyBgItem[]>((resolve) => {
-    //     setTimeout(() => {
-    //         resolve([//暂时测试数据
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1001.jpg", name: "海之梦" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1002.jpg", name: "千山雪" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1005.jpg", name: "春意浓" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1006.jpg", name: "出水芙蓉" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1010.jpg", name: "接天莲叶" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1011.jpg", name: "雪山日出" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1015.jpg", name: "水墨荷花" },
-    //             { url: "https://tb2.bdstatic.com/tb/static-ihome/img/bg_v1_1016.jpg", name: "金沙子" }
-    //         ])
-    //     }, 300)
-    // })
 }
 
 /* 调接口 */
@@ -188,16 +173,6 @@ async function getMyFrameList() {
     /*  [{name:"红色",color:"#ff4d4f"},{name:"深蓝",color:"#003a8c"},{name:"黑色",color:"#000000"}......]
     *   name 颜色名字, color 必须是css的颜色值
     */
-
-    // return new Promise<MyFrameItem[]>((resolve) => {
-    //     setTimeout(() => {
-    //         resolve([//暂时测试数据
-    //             { name: '红色',  color: '#ff4d4f'},
-    //             { name: '深蓝',  color: '#003a8c'},
-    //             { name: '黑色',  color: '#000000'}
-    //         ])
-    //     }, 300)
-    // })
 }
 
 async function handleConfirmBg() {

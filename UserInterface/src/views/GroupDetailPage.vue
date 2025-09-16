@@ -242,7 +242,7 @@ onMounted(() => {
 const loadGroupInfo = async () => {
   try {
     const groupId = route.params.id
-    const response = await axios.get(`/api/group/${groupId}`)
+    const response = await axios.get(`/group/${groupId}`)
     groupInfo.value = response.data
   } catch (error) {
     ElMessage.error('加载群组信息失败')
@@ -253,7 +253,7 @@ const loadGroupInfo = async () => {
 const loadMembers = async () => {
   try {
     const groupId = route.params.id
-    const response = await axios.get(`/api/group-member/${groupId}`)
+    const response = await axios.get(`/group-member/${groupId}`)
     members.value = response.data
     
     // 找到当前用户的权限
@@ -290,7 +290,7 @@ const submitEdit = async () => {
   try {
     await editFormRef.value.validate()
     
-    await axios.put(`/api/group-setting/${groupInfo.value.groupId}`, {
+    await axios.put(`/group-setting/${groupInfo.value.groupId}`, {
       operatorUserId: currentUserId.value,
       groupName: editForm.groupName,
       description: editForm.description
@@ -318,7 +318,7 @@ const handleCommand = async (command: string) => {
         }
       )
       
-      await axios.delete(`/api/group-setting/${groupInfo.value.groupId}?operatorUserId=${currentUserId.value}`)
+      await axios.delete(`/group-setting/${groupInfo.value.groupId}?operatorUserId=${currentUserId.value}`)
       ElMessage.success('群组已解散')
       router.push('/group')
     } catch (error) {

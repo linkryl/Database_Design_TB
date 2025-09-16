@@ -44,6 +44,10 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
     public DbSet<GroupMember> GroupMembers { get; set; }
     public DbSet<GroupMessage> GroupMessages { get; set; }
 
+    // 商城相关表
+    public DbSet<OwnedBg> OwnedBgs { get; set; }
+    public DbSet<OwnedFrame> OwnedFrames { get; set; }
+
     // 重写 OnModelCreating 方法
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,6 +111,16 @@ public class OracleDbContext(DbContextOptions<OracleDbContext> options) : DbCont
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.MessageType).HasColumnName("MESSAGE_TYPE");
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.SendTime).HasColumnName("SEND_TIME");
         modelBuilder.Entity<GroupMessage>().Property(gm => gm.IsDeleted).HasColumnName("IS_DELETED");
+
+        // 配置用户私聊消息表
+        modelBuilder.Entity<UserMessage>().ToTable("USER_MESSAGE");
+        modelBuilder.Entity<UserMessage>().HasKey(um => um.MessageId);
+        modelBuilder.Entity<UserMessage>().Property(um => um.MessageId).HasColumnName("MESSAGE_ID").ValueGeneratedOnAdd();
+        modelBuilder.Entity<UserMessage>().Property(um => um.SenderId).HasColumnName("SENDER_ID");
+        modelBuilder.Entity<UserMessage>().Property(um => um.ReceiverId).HasColumnName("RECEIVER_ID");
+        modelBuilder.Entity<UserMessage>().Property(um => um.Content).HasColumnName("CONTENT");
+        modelBuilder.Entity<UserMessage>().Property(um => um.SendTime).HasColumnName("SEND_TIME");
+        modelBuilder.Entity<UserMessage>().Property(um => um.Status).HasColumnName("STATUS");
 
         // 配置 POST_REPORT 与 USER 的关系
         modelBuilder.Entity<PostReport>()

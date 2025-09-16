@@ -149,10 +149,9 @@ interface MyFrameItem {
 
 /* 调接口 */
 async function getMyBgList() {
-    // TODO: 换成真实 axios 请求
     try{                                 //根据 userId 获取 OWNEDBG 表中该 userId 对应的所有背景图片        
-        // const response = await axiosInstance.get(`/ownedbg/get-my-bg-list/${currentUserId.value}`)
-        // myBgList.value = response.data // 这里的data期望是一个数组 [{url:,name:},{},{}......]
+        const response = await axiosInstance.get(`/ownedbg/get-my-bg-list/${currentUserId.value}`)
+        myBgList.value = response.data // 这里的data期望是一个数组 [{url:,name:},{},{}......]
     }catch(e){
         ElMessage.error("获取 已拥有的 背景图片失败")
         myBgList.value = []
@@ -179,10 +178,9 @@ async function getMyBgList() {
 
 /* 调接口 */
 async function getMyFrameList() {
-    // TODO: 换成真实 axios 请求
     try{              //根据 userId 查询 OWNEDFRAME 表中该 userId 对应的所有头像框颜色          
-        // const response = await axiosInstance.get(`/ownedframe/get-my-frame-list/${currentUserId.value}`)
-        // myFrameList.value = response.data // 这里的data期望是一个数组 [{name:,color:},{},{}......]
+        const response = await axiosInstance.get(`/ownedframe/get-my-frame-list/${currentUserId.value}`)
+        myFrameList.value = response.data // 这里的data期望是一个数组 [{name:,color:},{},{}......]
     }catch(e){
         ElMessage.error("获取 已拥有的 头像框失败")
         myFrameList.value = []
@@ -204,11 +202,11 @@ async function getMyFrameList() {
 
 async function handleConfirmBg() {
     if (!selectedBg.value) return
-    try{                    //向 USER 表中更新 userId 对应的 background 和名称name
-        // await axiosInstance.put(`user/update-background-by-user-id/${currentUserId.value}`,{
-        //     bgUrl:selectedBg.value.url,   //string类型(背景图片的网址)
-        //     name:selectedBg.value.name    //string类型(背景图片的名称)
-        // }) // TODO: 
+    try{                    //向 USER 表中更新 userId 对应的 bgUrl 和 bgName
+        await axiosInstance.put(`/user/update-bg-by-user-id/${currentUserId.value}`,{
+            bgUrl: selectedBg.value.url,   //string类型(背景图片的网址)
+            bgName: selectedBg.value.name    //string类型(背景图片的名称)
+        })
         usingBg.value = selectedBg.value
         ElMessage.success("背景切换成功")
     }catch(e){
@@ -218,11 +216,11 @@ async function handleConfirmBg() {
 
 async function handleConfirmFrame() {
     if (!selectedFrame.value) return
-    try{                    //向 USER 表中更新 userId 对应的 frame 颜色和名称name   
-        // await axiosInstance.put(`user/update-frame-by-user-id/${currentUserId.value}`,{
-        //     frameColor:selectedFrame.value.color,  //string类型(css的颜色值)
-        //     name:selectedFrame.value.name          //string类型(头像框的名称)
-        // }) // TODO: 
+    try{                    //向 USER 表中更新 userId 对应的 frameName 和 frameColor   
+        await axiosInstance.put(`/user/update-frame-by-user-id/${currentUserId.value}`,{
+            frameColor: selectedFrame.value.color,  //string类型(css的颜色值)
+            frameName: selectedFrame.value.name          //string类型(头像框的名称)
+        })
         usingFrame.value = selectedFrame.value
         localFrame.value = selectedFrame.value.color
         ElMessage.success("头像框切换成功")
@@ -232,9 +230,13 @@ async function handleConfirmFrame() {
 }
 
 async function getUsingBg() {
-    try{                                      //通过 userId 获取用户表中的 背景图片url 以及图片名称name
-        // const response = await axiosInstance.get(`user/get-background-by-user-id/${currentUserId.value}`)
-        // usingBg.value= response.data // 这里的data期望是一个对象{url:"https://......", name:"海之梦"}
+    try{                                      //通过 userId 获取用户表中的 bgUrl 以及 bgName
+        const response = await axiosInstance.get(`/user/get-bg-by-user-id/${currentUserId.value}`)
+        // 后端返回 {bgName, bgUrl}，前端需要 {name, url}
+        usingBg.value = {
+            url: response.data.bgUrl || "",
+            name: response.data.bgName || ""
+        }
     }catch(e){
         ElMessage.error("GET失败, 获取正在使用的背景失败")
         usingBg.value = {url:"",name:""}
@@ -242,9 +244,13 @@ async function getUsingBg() {
 }
 
 async function getUsingFrame() {
-    try{                                     //通过 userId 获取用户表中的 头像框名称name 以及颜色color
-        // const response = await axiosInstance.get(`user/get-frame-by-user-id/${currentUserId.value}`)
-        // usingFrame.value= response.data      // 这里的data期望是一个对象{name:"红色",color:"#ff4d4f"}
+    try{                                     //通过 userId 获取用户表中的 frameName 以及 frameColor
+        const response = await axiosInstance.get(`/user/get-frame-by-user-id/${currentUserId.value}`)
+        // 后端返回 {frameName, frameColor}，前端需要 {name, color}
+        usingFrame.value = {
+            name: response.data.frameName || "",
+            color: response.data.frameColor || "#ffffff"
+        }
     }catch(e){
         ElMessage.error("GET失败, 获取正在使用的头像框失败")
         usingFrame.value = {name:"",color:"#ffffff"}

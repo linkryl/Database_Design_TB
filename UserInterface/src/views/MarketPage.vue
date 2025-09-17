@@ -67,7 +67,7 @@ const localStorageValue = localStorage.getItem('currentUserId')
 const localStorageUserId = localStorageValue ? parseInt(localStorageValue) : 0
 const currentUserId = ref(isNaN(localStorageUserId) ? 0 : localStorageUserId)
 
-const avatarUrl = ref("https://gss0.baidu.com/7Ls0a8Sm2Q5IlBGlnYG/sys/portraith/item/tb.1.bdb1c536.7qSuTE4CMJHwpEF4Qw60Mw")
+const avatarUrl = ref("/images/market/avatar_1001.jpg")
 const username = ref("_h_our")
 const coinCount = ref(3)
 const avatarFrame = ref("#ff4d4f")

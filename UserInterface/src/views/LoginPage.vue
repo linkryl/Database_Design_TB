@@ -81,13 +81,14 @@
 </template>
 
 <script setup lang='ts'>
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { ElFormItem, ElMessage, FormInstance, FormRules } from 'element-plus'
 import axiosInstance from '../utils/axios'
 import { User, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 const isUsernameUnique = ref(-1)
 const loginFormRef = ref<FormInstance>()
 const localStorageValue = localStorage.getItem('currentUserId')
